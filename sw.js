@@ -1,6 +1,6 @@
 // HypeMode service worker: çevrimdışı açılış + kapalıyken bildirim
-const V = 'hm-v1';
-const SHELL = ['./', './index.html', './config.js', './fb.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const V = 'hm-v2';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())) });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())) });
 self.addEventListener('fetch', e => {
@@ -8,7 +8,7 @@ self.addEventListener('fetch', e => {
   const u = new URL(r.url);
   if (u.origin === location.origin) {
     // önce ağ (güncellemeler hemen gelsin), yoksa önbellek
-    e.respondWith(fetch(r).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res })
+    e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res })
       .catch(() => caches.match(r).then(m => m || caches.match('./index.html'))));
   } else if (/^(www\.gstatic\.com|fonts\.gstatic\.com|fonts\.googleapis\.com)$/.test(u.hostname)) {
     // Firebase SDK ve yazı tipleri: önbellekten, arka planda tazele
