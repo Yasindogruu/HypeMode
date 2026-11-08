@@ -12,14 +12,16 @@ service cloud.firestore {
     // Arkadaş profili (ad, son antrenman özeti): sadece sahibi ve sahibinin arkadaş listesindekiler okur
     match /social/{uid} {
       allow read: if isMe(uid) || (signedIn() && resource.data.fr is list && request.auth.uid in resource.data.fr);
-      allow write: if isMe(uid) && request.resource.data.uid == uid;
+      allow create, update: if isMe(uid) && request.resource.data.uid == uid;
+      allow delete: if isMe(uid);
     }
 
     // Kullanıcı adı listesi (arkadaş bulmak için): sadece kullanıcı adı ve ad
     match /names/{uid} {
       allow read: if signedIn();
-      allow write: if isMe(uid) && request.resource.data.username is string
+      allow create, update: if isMe(uid) && request.resource.data.username is string
                    && request.resource.data.username.matches('^[a-z0-9_.]{3,20}$');
+      allow delete: if isMe(uid);
     }
 
     // Dürtme, istek, beğeni, yorum: gönderen kendi adına yazar; sadece gönderen ve alan görür/siler

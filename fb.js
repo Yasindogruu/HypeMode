@@ -11,12 +11,12 @@ let B = null, ME = null, ovl = null, pushState = '';
 async function loadBackend() {
   if (window.__HM_MOCK) return window.__HM_MOCK;
   const [{ initializeApp }, A, F] = await Promise.all([
-    import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore.js')]);
+    import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore-lite.js')]);
   const app = initializeApp(C.firebase);
   const auth = A.getAuth(app);
   const db = F.getFirestore(app);
   if (C.emulator) { A.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true }); F.connectFirestoreEmulator(db, '127.0.0.1', 8085) }
-  // Okumalar her zaman sunucudan: çevrimdışıyken boş önbellek "veri yok" sanılıp bulut ezilmesin
+  // Firestore Lite: 5 kat küçük, önbelleksiz; okumalar her zaman sunucudan gelir (çevrimdışıyken hata verir, bulut ezilmez)
   A.getRedirectResult(auth).catch(e => { window.__hmRedirErr = e });
   const rows = q => q.docs.map(d => ({ id: d.id, data: d.data() }));
   return {
@@ -25,16 +25,23 @@ async function loadBackend() {
     signUp: (e, p) => A.createUserWithEmailAndPassword(auth, e, p),
     reset: e => A.sendPasswordResetEmail(auth, e),
     signOut: () => A.signOut(auth),
+    providers: () => ((auth.currentUser && auth.currentUser.providerData) || []).map(p => p.providerId),
+    reauth: async pw => {
+      const u = auth.currentUser; if (!u) throw new Error('no-user');
+      if ((u.providerData || []).some(p => p.providerId === 'password')) return A.reauthenticateWithCredential(u, A.EmailAuthProvider.credential(u.email, pw));
+      return A.reauthenticateWithPopup(u, new A.GoogleAuthProvider());
+    },
+    deleteUser: () => A.deleteUser(auth.currentUser),
     google: async () => {
       const pr = new A.GoogleAuthProvider(); pr.setCustomParameters({ prompt: 'select_account' });
       try { return await A.signInWithPopup(auth, pr) }
       catch (e) { if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test(String(e && e.code))) return A.signInWithRedirect(auth, pr); throw e }
     },
-    get: async path => { const s = await F.getDocFromServer(F.doc(db, path)); return s.exists() ? s.data() : null },
+    get: async path => { const s = await F.getDoc(F.doc(db, path)); return s.exists() ? s.data() : null },
     set: (path, data) => F.setDoc(F.doc(db, path), data),
     del: path => F.deleteDoc(F.doc(db, path)),
-    list: async col => rows(await F.getDocsFromServer(F.collection(db, col))),
-    where: async (col, f, v) => rows(await F.getDocsFromServer(F.query(F.collection(db, col), F.where(f, '==', v))))
+    list: async col => rows(await F.getDocs(F.collection(db, col))),
+    where: async (col, f, v) => rows(await F.getDocs(F.query(F.collection(db, col), F.where(f, '==', v))))
   };
 }
 
@@ -185,7 +192,8 @@ window.HMAcct = {
     else if (Notification.permission === 'denied') pz = '<div class="lbl" style="margin-top:8px">Bildirim izni reddedilmiş. iPhone: Ayarlar → Bildirimler → HypeMode → İzin Ver.</div>';
     else pz = '<div class="row2"><button class="btn" onclick="HMAcct.push()">🔔 Kapalıyken bildirimleri aç</button></div>';
     return `<div class="card hmacc"><div class="row between"><b>👤 Hesap</b><span class="lbl">${esc(ME && ME.email || '')}</span></div>${pz}${pushState ? `<div class="lbl" style="margin-top:6px">${esc(pushState)}</div>` : ''}
-      <div class="row2"><button class="btn ghost" onclick="HMAcct.out()">Çıkış yap</button></div></div>`;
+      <div class="row2"><button class="btn ghost" onclick="A.backupFile()">⬇️ Verilerimi indir</button><button class="btn ghost" onclick="HMAcct.out()">Çıkış yap</button></div>
+      <button class="link" style="margin-top:12px;color:var(--bad);font-size:13px" onclick="HMAcct.del()">Hesabımı ve tüm verilerimi sil</button></div>`;
   },
   async out() {
     if (!confirm('Çıkış yapılsın mı? Verilerin hesabında kalır; bu cihazdaki kopya silinir.')) return;
@@ -193,6 +201,29 @@ window.HMAcct = {
     try { await B.signOut() } catch (e) { }
     try { localStorage.removeItem(APP_KEY); localStorage.removeItem('hm-uid'); localStorage.removeItem('hm-push') } catch (e) { }
     location.reload();
+  },
+  async del() {
+    if (!ME || !B) return;
+    if (!confirm('Hesabın ve tüm verilerin (antrenmanlar, beslenme, fotoğraflar, arkadaşlıklar) KALICI olarak silinecek. Bu geri alınamaz.\n\nÖnce "Verilerimi indir" ile yedek almak isteyebilirsin. Devam edilsin mi?')) return;
+    const pwUser = B.providers().includes('password');
+    let pw = '';
+    if (pwUser) { pw = prompt('Onaylamak için şifreni yaz:') || ''; if (!pw) return; }
+    pushState = 'Siliniyor…'; rerender();
+    try { await B.reauth(pw) } catch (e) {
+      const c = String(e && e.code || ''); pushState = '';
+      alert(c.includes('wrong-password') || c.includes('invalid-credential') ? 'Şifre hatalı, hesap silinmedi.' : 'Doğrulama yapılamadı, hesap silinmedi. (' + (c || e.message) + ')'); rerender(); return;
+    }
+    const uid = ME.uid, tasks = [];
+    try {
+      const mine = await B.list('data/users/' + uid); mine.forEach(d => tasks.push(B.del('data/users/' + uid + '/' + d.id)));
+      for (const f of ['from', 'to']) { try { (await B.where('pokes', f, uid)).forEach(d => tasks.push(B.del('pokes/' + d.id))) } catch (e) { } }
+      ['social/', 'names/', 'push/'].forEach(c => tasks.push(B.del(c + uid).catch(() => { })));
+      await Promise.all(tasks);
+      try { await unsubscribePush() } catch (e) { }
+      await B.deleteUser();
+    } catch (e) { pushState = ''; alert('Silme tamamlanamadı: ' + (e && (e.code || e.message) || e) + '\nTekrar dene.'); rerender(); return; }
+    try { localStorage.removeItem(APP_KEY); localStorage.removeItem('hm-uid'); localStorage.removeItem('hm-push') } catch (e) { }
+    alert('Hesabın ve tüm verilerin silindi.'); location.reload();
   },
   async push() { await enablePush(true); rerender() },
   async pushTest() {

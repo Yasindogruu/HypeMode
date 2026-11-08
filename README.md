@@ -24,6 +24,8 @@
 - Şablonlar, süperset ve set türleri (ısınma, drop set, failure)
 - Kilo ve tekrar önerisi veren ilerleme sistemi
 - **Hızlı antrenman:** Hareketi ara, hedef koy (ör. 100 şınav), başlat ya da direkt kaydet
+- **Ev / salon modu:** Evdeysen şablondaki hareketler eldeki ekipmana göre otomatik değişir
+- **Otomatik ısınma setleri:** Çalışma kilona göre ısınma setlerini hesaplar
 - 400'den fazla hareket ve evde antrenman oluşturucu (ekipman ve bölge seçimi)
 - Form ipuçları, kas haritası, kardiyo yükü
 
@@ -53,7 +55,9 @@
 - Ana ekrana eklenince uygulama gibi tam ekran açılır, çevrimdışı da açılır
 - Tek hesapla telefon, iPad ve bilgisayarda aynı veriler
 - Geniş ekranda yan menülü masaüstü düzeni
-- 7 tema rengi
+- Koyu, açık ve sistem teması; 7 ana renk
+- Türkçe ve İngilizce
+- Hesabı ve tüm verileri silme, verileri indirme
 
 <p align="center"><img src="docs/img/desktop.png" width="90%" alt="Masaüstü görünümü"></p>
 
