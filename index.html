@@ -12,10 +12,10 @@
 <meta name="apple-mobile-web-app-title" content="HypeMode">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<script src="config.js?v=7bab3c8e"></script>
+<script src="config.js?v=1fd8bd7e"></script>
 <script>window.HM_PWA=true;(function(){var r;var p=new Promise(function(x){r=x});window.__hmResolve=r;
 window.claude={use:function(n){if(n!=='db'&&n!=='user')return Promise.resolve(null);return p.then(function(a){return a?a[n]||null:null})}}})();</script>
-<script type="module" src="fb.js?v=7bab3c8e"></script>
+<script type="module" src="fb.js?v=1fd8bd7e"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1635,7 +1635,7 @@ const PK=[['train','💪','Hadi antrenmana!','Antrenman'],['water','💧','Su i�
 const pkOf=p=>PK.find(k=>k[0]===p.kind)||null;
 const APP_URL=window.HM_PWA?location.origin+location.pathname:'https://claude.ai/artifact/ENhVQvy7FRr4PBFooRN2NR';
 const isMut=d=>!!(d&&Array.isArray(d.fr)&&SOC.me&&d.fr.includes(SOC.me));
-function avHtml(name,photo,cls){return photo?`<span class="fr-av ${cls||''}" style="background-image:url(${photo});background-size:cover;background-position:center"></span>`:`<span class="fr-av ${cls||''}">${esc((name||'?')[0].toLocaleUpperCase('tr-TR'))}</span>`}
+function avHtml(name,photo,cls){if(photo&&!SAFE_IMG.test(photo))photo=null;return photo?`<span class="fr-av ${cls||''}" style="background-image:url(${photo});background-size:cover;background-position:center"></span>`:`<span class="fr-av ${cls||''}">${esc((name||'?')[0].toLocaleUpperCase('tr-TR'))}</span>`}
 function inboxNew(){let seen=[];try{seen=JSON.parse(localStorage.getItem('hm-pk')||'[]')}catch(e){}return SOC.pokes.filter(p=>!seen.includes(p.id)&&!(p.type==='req'&&(S.friends||[]).some(f=>f.uid===p.from)))}
 function inboxSeen(){try{const seen=JSON.parse(localStorage.getItem('hm-pk')||'[]');localStorage.setItem('hm-pk',JSON.stringify([...new Set([...seen,...SOC.pokes.map(p=>p.id)])].slice(-80)))}catch(e){}}
 function socDoc(){const s=S.sessions[S.sessions.length-1],wk=lastNDays(dkey(),7),ws=S.sessions.filter(x=>wk.includes(dkey(new Date(x.date))));
@@ -1645,9 +1645,20 @@ function socDoc(){const s=S.sessions[S.sessions.length-1],wk=lastNDays(dkey(),7)
 const SDB=()=>CL.db||CL.sdb||null;
 let _socT=null;function socPush(){if(_socT)return;_socT=setTimeout(async()=>{_socT=null;if(!SDB()||!S.profile.username||S.social&&S.social.share===false)return;const id=await socId();if(!id)return;
   const d=socDoc(),str=JSON.stringify({...d,at:0});if(SOC.lastPush===str)return;try{await SDB().collection('social').doc(id).set(JSON.parse(JSON.stringify(d)));SOC.lastPush=str;SOC.err=null}catch(e){SOC.err=e&&e.code||'err';SOC.lastPush=null}},1500)}
+/* arkadaştan gelen veriler güvenilmez: ekrana basılmadan önce temizlenir (XSS koruması) */
+const SAFE_IMG=/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/;
+const sid=v=>String(v==null?'':v).replace(/[^A-Za-z0-9_-]/g,'').slice(0,128);
+function sanR(v,k,dp){dp=dp||0;if(dp>8)return null;
+  if(typeof v==='string'){if(k==='photo'||k==='img')return v.length<400000&&SAFE_IMG.test(v)?v:null;
+    if(k==='username'||k==='fromUser')return v.toLowerCase().replace(/[^a-z0-9_.]/g,'').slice(0,20);
+    if(k==='uid'||k==='from'||k==='to'||k==='id'||k==='ref')return sid(v);
+    return v.replace(/[<>"'`\\]/g,'').slice(0,2000)}
+  if(Array.isArray(v))return v.slice(0,300).map(x=>sanR(x,k==='fr'?'uid':k,dp+1));
+  if(v&&typeof v==='object'){const o={};Object.keys(v).slice(0,300).forEach(kk=>{if(/^[A-Za-z0-9_$-]{1,40}$/.test(kk))o[kk]=sanR(v[kk],kk,dp+1)});return o}
+  return typeof v==='number'?(isFinite(v)?v:0):typeof v==='boolean'||v==null?v:null}
 async function socLoad(force){if(!SDB()||SOC.busy)return;if(S.profile.username)socPush();if(!force&&Date.now()-SOC.t<20000)return;SOC.busy=true;const id=await socId();
-  try{await Promise.all((S.friends||[]).map(async f=>{try{const d=await SDB().collection('social').doc(f.uid).get();SOC.friends[f.uid]=d&&d.exists?JSON.parse(JSON.stringify(d.data())):null}catch(e){}}));
-    if(id){try{const q=await SDB().collection('pokes').where('to','==',id).get();SOC.pokes=q.docs.filter(d=>d.exists).map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()))})).sort((a,b)=>b.at-a.at)}catch(e){}}
+  try{await Promise.all((S.friends||[]).map(async f=>{try{const d=await SDB().collection('social').doc(f.uid).get();SOC.friends[f.uid]=d&&d.exists?sanR(JSON.parse(JSON.stringify(d.data()))):null}catch(e){}}));
+    if(id){try{const q=await SDB().collection('pokes').where('to','==',id).get();SOC.pokes=q.docs.filter(d=>d.exists).map(d=>({...sanR(JSON.parse(JSON.stringify(d.data()))),id:sid(d.id)})).sort((a,b)=>b.at-a.at)}catch(e){}}
     SOC.t=Date.now()}finally{SOC.busy=false}
   const nw=inboxNew();if(nw.length&&ui.lastBan!==nw[0].id&&ui.view!=='friends'){const p=nw[0];ui.lastBan=p.id;const who=p.fromName||'@'+p.fromUser;
     remShow(p.type==='req'?{id:'rq'+p.id,ic:'🤝',t:`${who} seni arkadaş olarak ekledi`,m:'İsteği kabul edersen birbirinizin antrenmanlarını görürsünüz.',act:[['Gör',"A.go('friends')"]]}
@@ -4045,7 +4056,7 @@ SADECE JSON: {"recipes":[{"name":"","time":15,"kcal":0,"p":0,"c":0,"f":0,"ingred
   async unSave(){const v=(document.getElementById('un_in').value||'').trim().toLowerCase().replace(/^@/,'');const r=await unClaim(v);if(r!==true)return toast(r);closeSheet();render(true);toast('@'+v+' kaydedildi')},
   async friendAdd(){const el=document.getElementById('fr_u'),v=(el&&el.value||'').trim().toLowerCase().replace(/^@/,'');if(!unOk(v))return toast('Geçerli bir kullanıcı adı yaz');if(v===S.profile.username)return toast('Bu senin kullanıcı adın 🙂');
     if(!SDB())return toast('Bulut bağlantısı yok');try{const q=await SDB().collection('social').where('username','==',v).get(),d=q.docs.find(x=>x.exists);if(!d)return toast('@'+v+' bulunamadı');
-      const fid=d.id;if((S.friends||[]).some(f=>f.uid===fid))return toast('Zaten arkadaşın');S.friends=[...(S.friends||[]),{uid:fid,username:v}];SOC.friends[fid]=JSON.parse(JSON.stringify(d.data()));save();render(true);
+      const fid=sid(d.id);if(!fid)return toast('@'+v+' bulunamadı');if((S.friends||[]).some(f=>f.uid===fid))return toast('Zaten arkadaşın');S.friends=[...(S.friends||[]),{uid:fid,username:v}];SOC.friends[fid]=sanR(JSON.parse(JSON.stringify(d.data())));save();render(true);
       SOC.lastPush=null;socPush();const ok=await inboxSend(fid,{type:'req'});toast(ok?'✓ @'+v+' eklendi · istek gönderildi':'✓ @'+v+' eklendi (istek gönderilemedi: düzenleme izni gerekli)')}catch(e){toast('Aranamadı, tekrar dene')}},
   async reqOk(pid){const p=SOC.pokes.find(x=>x.id===pid);if(!p)return;if(!(S.friends||[]).some(f=>f.uid===p.from))S.friends=[...(S.friends||[]),{uid:p.from,username:p.fromUser}];save();
     await inboxSend(p.from,{type:'acc'});await A.pokeDel(pid);SOC.lastPush=null;socPush();socLoad(true);toast('✓ @'+p.fromUser+' arkadaşın oldu')},

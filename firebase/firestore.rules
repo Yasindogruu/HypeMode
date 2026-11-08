@@ -1,24 +1,38 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Kendi verilerin: sadece sen okur/yazarsın
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Kendi verilerin (antrenman, beslenme, sağlık...): sadece sen okur/yazarsın
     match /data/users/{uid}/{doc} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if isMe(uid);
     }
-    // Arkadaş profili (kullanıcı adı, son antrenman özeti): giriş yapan herkes okur, sadece sahibi yazar
+
+    // Arkadaş profili (ad, son antrenman özeti): sadece sahibi ve sahibinin arkadaş listesindekiler okur
     match /social/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isMe(uid) || (signedIn() && resource.data.fr is list && request.auth.uid in resource.data.fr);
+      allow write: if isMe(uid) && request.resource.data.uid == uid;
     }
-    // Dürtme, istek, beğeni, yorum: gönderen yazar; sadece gönderen ve alan görür/siler
+
+    // Kullanıcı adı listesi (arkadaş bulmak için): sadece kullanıcı adı ve ad
+    match /names/{uid} {
+      allow read: if signedIn();
+      allow write: if isMe(uid) && request.resource.data.username is string
+                   && request.resource.data.username.matches('^[a-z0-9_.]{3,20}$');
+    }
+
+    // Dürtme, istek, beğeni, yorum: gönderen kendi adına yazar; sadece gönderen ve alan görür/siler
     match /pokes/{id} {
-      allow read, delete: if request.auth != null && (resource.data.to == request.auth.uid || resource.data.from == request.auth.uid);
-      allow create: if request.auth != null && request.resource.data.from == request.auth.uid;
+      allow read, delete: if signedIn() && (resource.data.to == request.auth.uid || resource.data.from == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.from == request.auth.uid
+                    && request.resource.data.to is string;
     }
-    // Bildirim aboneliği: sahibi yazar, arkadaşlar bildirim göndermek için okur
+
+    // Bildirim aboneliği: sahibi yazar, giriş yapanlar bildirim göndermek için okur
     match /push/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if signedIn();
+      allow write: if isMe(uid);
     }
   }
 }

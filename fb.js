@@ -42,7 +42,11 @@ async function loadBackend() {
 // Firestore iç içe dizileri desteklemediği için gövde JSON metni olarak saklanır;
 // sorgu ve güvenlik kuralları için gereken alanlar ayrıca üst seviyeye yazılır.
 const IDX = ['username', 'to', 'from', 'uid'];
-const enc = b => { const o = { j: JSON.stringify(b) }; IDX.forEach(k => { if (b && typeof b[k] === 'string') o[k] = b[k] }); return o };
+const enc = b => {
+  const o = { j: JSON.stringify(b) }; IDX.forEach(k => { if (b && typeof b[k] === 'string') o[k] = b[k] });
+  if (b && Array.isArray(b.fr)) o.fr = b.fr.filter(x => typeof x === 'string').slice(0, 300); // güvenlik kuralı için: profili kimler görebilir
+  return o;
+};
 const dec = x => { if (x && typeof x.j === 'string') { try { return JSON.parse(x.j) } catch (e) { return null } } return x };
 function errMap(e) {
   const m = String(e && e.message || e || ''); let c = String(e && e.code || '').replace(/^firestore\//, '');
@@ -58,11 +62,21 @@ function makeDb() {
   const col = path => ({
     doc: id => ({
       get: () => wrap(B.get(path + '/' + id).then(d => snap(id, d))),
-      set: body => wrap(B.set(path + '/' + id, enc(body))),
+      set: body => {
+        // kullanıcı adı araması için ayrı, sadece ad içeren kayıt (profil detayları sadece arkadaşlara açık)
+        if (path === 'social' && body && body.username) B.set('names/' + id, enc({ uid: id, username: body.username, name: String(body.name || '').slice(0, 40) })).catch(() => { });
+        return wrap(B.set(path + '/' + id, enc(body)));
+      },
       delete: () => wrap(B.del(path + '/' + id))
     }),
     get: () => wrap(B.list(path).then(a => ({ docs: a.map(x => snap(x.id, x.data)) }))),
-    where: (f, op, v) => ({ get: () => wrap(B.where(path, f, v).then(a => ({ docs: a.map(x => snap(x.id, x.data)) }))) })
+    where: (f, op, v) => ({
+      get: () => {
+        const run = c => B.where(c, f, v).then(a => ({ docs: a.map(x => snap(x.id, x.data)) }));
+        if (path === 'social' && f === 'username') return wrap(run('names').catch(() => run('social')));
+        return wrap(run(path));
+      }
+    })
   });
   return { collection: col };
 }

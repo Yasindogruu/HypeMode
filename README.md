@@ -37,6 +37,12 @@
 - Enerji bankası, uyku koçu, biyolojik yaş
 - Sağlık ve stres monitörü, regl döngüsü takibi
 
+**⌚ Google Fitbit desteği**
+- Google Fitbit (Fitbit Air) ve Google Health verileriyle çalışır: uyku evreleri, HRV, dinlenik nabız, kan oksijeni, solunum hızı, adım ve aktif dakika
+- Toparlanma, uyku ve yük halkaları, enerji bankası ve uyku koçu bu verilerle kişiselleşir
+- Veriler Google Health'ten dışa aktarılıp **Ayarlar → Fitbit Air / Google Health** bölümünden yüklenir
+- Saat bağlı değilken uyku ve kiloyu elle girerek ya da örnek veriyle de kullanılabilir
+
 **👥 Arkadaşlar**
 - Kullanıcı adıyla arkadaş ekleme ve arkadaşlık istekleri
 - Arkadaşının son antrenmanını görme, beğenme ve yorum yapma
@@ -80,9 +86,11 @@ docs/                 Kurulum rehberi ve ekran görüntüleri
 
 Kendi kopyanı kurmak istersen: [docs/KURULUM.md](docs/KURULUM.md)
 
-## Gizlilik
+## Gizlilik ve güvenlik
 
-- Verilerin sadece senin hesabında tutulur, başkası okuyamaz.
-- Arkadaşların, sen isteği kabul ettikten sonra sadece adını, kullanıcı adını ve antrenman özetini görür.
-- Kilo, beslenme, sağlık ve döngü verileri hiç paylaşılmaz.
+- **Kendi verilerin** (antrenman, beslenme, kilo, sağlık, döngü) sadece senin hesabında tutulur. Veritabanı kuralları başka hiçbir kullanıcının okumasına izin vermez.
+- **Arkadaş profili** (ad, kullanıcı adı, son antrenman özeti) sadece karşılıklı arkadaş olduğun kişilere açıktır. Bu kural sunucuda uygulanır; başkaları göremez.
+- **Arkadaştan gelen her veri** (ad, yorum, fotoğraf) ekrana basılmadan önce temizlenir; bu alanlara gizlenmiş kod çalışmaz.
+- **Giriş:** Şifreler Firebase'de geri çözülemeyecek şekilde (hash) saklanır. Google ile girişte şifren uygulamaya hiç gelmez.
+- **Bağlantı:** Tüm bağlantılar HTTPS ile şifrelidir; veriler Google sunucularında şifreli olarak saklanır.
 - Sağlık tahminleri bilgilendirme amaçlıdır, tıbbi tavsiye değildir.
