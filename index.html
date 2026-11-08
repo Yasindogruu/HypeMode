@@ -634,6 +634,24 @@ label.btn{display:flex;align-items:center;justify-content:center}
 .thm{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.thm button{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--mut);background:none;border:0}
 .thm i{width:48px;height:48px;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 1px rgba(255,255,255,.15)}.thm button.on i{border-color:#fff}.thm button.on{color:#fff;font-weight:700}
 
+/* ===== Hızlı antrenman ===== */
+.qk-go{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:12px 14px;border-radius:18px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.14);text-align:left}
+.qk-go span{font-size:22px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(var(--a1rgb),.25)}
+.qk-go div{flex:1;min-width:0}.qk-go b{display:block;font-size:15px}.qk-go small{color:rgba(255,255,255,.7);font-size:12.5px}.qk-go i{font-style:normal;font-size:20px;opacity:.6}
+.q-in{font-size:16px;padding:13px 14px;border-radius:14px}
+.q-res{margin-top:8px;max-height:42dvh;overflow:auto}
+.q-row{display:flex;align-items:center;gap:10px;width:100%;padding:10px 6px;border-bottom:1px solid var(--line);text-align:left}
+.q-row div{flex:1;min-width:0}.q-row b{display:block;font-size:14.5px}.q-row small{color:var(--mut);font-size:12px}
+.q-row i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--card2);font-weight:700}
+.q-dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none;margin-left:4px}
+.q-cust span{font-size:16px}
+.q-sel{padding:12px;border-radius:16px;background:var(--card2);border:1px solid var(--line);margin-bottom:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.q-f{margin-top:8px}.q-f input{padding:9px 10px}
+.qgoal{margin:10px 20px 0;padding:12px 14px;border-radius:16px;background:rgba(var(--a1rgb),.12);border:1px solid rgba(var(--a1rgb),.35)}
+.qgoal span{font-size:13px;color:var(--mut)}.qgoal.ok{background:rgba(62,230,160,.12);border-color:rgba(62,230,160,.4)}.qgoal.ok span{color:#3ee6a0;font-weight:700}
+.qg-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}.qg-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a3),var(--a1));transition:width .3s}
+.qgoal.ok .qg-bar i{background:#3ee6a0}.qgoal .pill{margin-top:10px}
+
 /* ===== Masaüstü (bilgisayar tarayıcısı) ===== */
 .dko{display:none!important}
 @media(min-width:960px){
@@ -2204,6 +2222,7 @@ function programsV(){
      <div class="nx-m">${n.exercises.length} egzersiz · ${planSets(n)} set · ~${planMin(n)} dk${nl?' · son: '+ago(nl.date):''}</div>
      <div class="nx-a"><button class="btn" onclick="A.openPlan('${n.id}')">▶ Başla</button><button class="btn ghost" onclick="A.pickPlan()">Değiştir</button></div></div>`
    :`<div class="nx"><div class="nx-t">Henüz şablon yok</div><div class="nx-m">İlk antrenman şablonunu oluştur ya da ev programlarından birini ekle.</div><div class="nx-a"><button class="btn" onclick="A.editPlan()">+ Şablon oluştur</button></div></div>`}
+   <button class="qk-go" onclick="A.quick()"><span>⚡</span><div><b>Hızlı antrenman</b><small>Tek hareket ya da birkaç hareket · ör. bugün 100 şınav</small></div><i>›</i></button>
   </div>
   <div class="st-card">
    <div class="row between" style="align-items:flex-start"><div><div class="st-k">Antrenman hacmi</div><div class="st-big">${tons(vol)}<span> ton</span></div>
@@ -2272,6 +2291,8 @@ function workoutV(){
   <div class="lx-head"><div class="lx-top"><div style="flex:1;min-width:0"><span class="mtag" style="--c:${gc}">${MUSCLES[e.muscle]||'Diğer'}</span>
     <div class="lx-t">${esc(e.name)}</div>${e.tr?`<div class="lx-s">${esc(e.tr)}</div>`:''}</div><button class="lx-body" onclick="A.exInfo('${ja(e.name)}')">${bodyMini(e.name,e.muscle,58)}</button></div>
     <div class="lx-tools"><button onclick="A.formInfo('${ja(e.name)}')">🎯 Form</button><button onclick="A.exInfo('${ja(e.name)}')">📈 Geçmiş</button><button onclick="A.swapSheet()">⇄ Değiştir</button><button class="${ssg?'on':''}" onclick="A.ssSheet()">🔗 ${ssg?'Süperset '+e.ss:'Süperset'}</button>${e.alt?`<button class="alt" onclick="A.altSwap()">↔ ${esc(altP(e.alt).en)}</button>`:''}${!e.t?`<button class="${ui.tmrOpen||(hold&&hold.i==null)?'on':''}" onclick="A.tmrToggle()">⏱ Zamanlayıcı</button>`:''}${!e.t&&ns&&num(ns.kg)>0?`<button onclick="A.plates()">🏋️ Plaka</button>`:''}</div></div>
+  ${e.goal?(()=>{const dn=e.sets.filter(x=>x.done&&tyOf(x)!=='w').reduce((t,x)=>t+(num(x.reps)||0),0),pc=Math.min(100,Math.round(dn/e.goal*100)),un=e.t?'sn':'tekrar';
+    return `<div class="qgoal ${dn>=e.goal?'ok':''}"><div class="row between"><b>🎯 Hedef: ${e.goal} ${un}</b><span>${dn>=e.goal?'🎉 Tamamlandı!':`${dn} / ${e.goal} · kalan ${e.goal-dn}`}</span></div><div class="qg-bar"><i style="width:${pc}%"></i></div>${dn<e.goal&&e.sets.every(x=>x.done)?`<button class="pill" onclick="A.qMore()">+ Kalan ${e.goal-dn} ${un} için set ekle</button>`:''}</div>`})():''}
   ${ssg?`<div class="ssban"><b>🔗 Süperset ${e.ss}</b><div>${ssg.map(j=>`<span class="${j===a.idx?'on':''}">${esc(a.ex[j].name)}</span>`).join('<i>→</i>')}</div><small>Aralarında dinlenme yok; turun son hareketinden sonra dinlen.</small></div>`:''}
   <div class="coachl"><span>🤖</span><div>${sg.why}${e.note?`<small>💡 ${esc(e.note)}</small>`:''}</div></div>
   ${holdCard(e,a,nextSet,allDone)}
@@ -2957,6 +2978,36 @@ function genPick(pool,lvl,pref){if(!pool.length)return null;
 function genAlts(x,lvl,used,n=4){const eq=gp().eq,ex=[...used,x[0]],out=[],sb=x.sub&&MSUB[x[2]]?((gp().sub[x[2]]||[]).filter(k=>x.sub.includes(k))[0]||x.sub[0]):null;
   for(let k=0;k<n;k++){const a=(sb&&genPick(genPool(x[2],eq,lvl,ex,sb),lvl,x[5]))||genPick(genPool(x[2],eq,lvl,ex),lvl,x[5])||genPick(genPool(x[2],eq,3,ex),lvl)||genPick(genPool(x[2],['bodyweight','band'],lvl,ex),lvl);if(!a)break;ex.push(a[0]);out.push(a)}return out}
 const altStr=a=>a[0]+'|'+a[1]+(a[5]==='t'?'|t':'');
+const qNorm=t=>String(t||'').toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ş/g,'s').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,' ').trim();
+const QPOP=['Push Up','Pull Up','Plank','Burpee','Dips','Crunch','Lunge','Jumping Jack','Mountain Climber','Squat (Barbell)','Bench Press (Barbell)','Deadlift (Barbell)'];
+function qPool(){if(!qPool.c){const seen=new Set();qPool.c=[];
+  const add=(name,tr,muscle,eq,t,note)=>{if(!name||seen.has(name))return;seen.add(name);qPool.c.push({name,tr,muscle,eq,t:t?1:0,note:note||'',k:qNorm(name+' '+tr)})};
+  XDB.forEach(x=>add(x[0],x[1],x[2],x[3],x[5]==='t',x[6]));
+  try{S.plans.forEach(p=>(p.exercises||[]).forEach(e=>add(e.name,e.tr||'',e.muscle,e.eq||'',e.t,e.note)))}catch(e){}
+  try{S.sessions.forEach(ss=>ss.sets.forEach(x=>add(x.ex,'',x.muscle,'',x.t)))}catch(e){}}
+  return qPool.c}
+function qRes(){const q=qNorm(A._q.q),P=qPool();let r;
+  if(!q){const recent=[...new Set(S.sessions.slice(-15).reverse().flatMap(s=>s.sets.map(x=>x.ex)))].slice(0,6);
+    const names=[...recent,...QPOP.filter(n=>!recent.includes(n))];r=names.map(n=>P.find(x=>x.name===n)).filter(Boolean).slice(0,10)}
+  else{const w=q.split(' ');r=P.map(x=>{if(!w.every(t=>x.k.includes(t)))return null;const tr=qNorm(x.tr),en=qNorm(x.name);
+      const sc=(tr===q||en===q?0:tr.startsWith(q)||en.startsWith(q)?1:2)+(x.name.length/200);return[sc,x]}).filter(Boolean).sort((a,b)=>a[0]-b[0]).map(z=>z[1]).slice(0,12)}
+  A._qr=r.slice();
+  const rows=r.map((x,i)=>`<button class="q-row" onclick="A.qAdd(${i})"><span class="q-dot" style="--c:${(MGI[mgOf(x.muscle)]||[])[2]||'#9b9ba4'}"></span><div><b>${esc(x.tr||x.name)}</b><small>${esc(x.tr&&x.tr!==x.name?x.name+' · ':'')}${MUSCLES[x.muscle]||''}${x.t?' · ⏱ süreli':''}</small></div><i>+</i></button>`).join('');
+  let cust='';if(q){A._qr.push({name:A._q.q.trim(),tr:'',muscle:'core',eq:'bodyweight',t:0,custom:1});cust=`<button class="q-row q-cust" onclick="A.qAdd(${A._qr.length-1})"><span>✏️</span><div><b>“${esc(A._q.q.trim())}” adıyla ekle</b><small>Listede yoksa kendi hareketini yaz</small></div><i>+</i></button>`}
+  return (q?'':'<div class="mini" style="margin:4px 0 6px">'+(S.sessions.length?'Son yaptıkların ve popüler':'Popüler')+'</div>')+(rows||(q?'<div class="lbl" style="padding:8px 2px">Bulunamadı.</div>':''))+cust}
+function qHint(s){const goal=num(s.goal)||0,n=num(s.sets)||(goal?Math.max(1,Math.min(10,Math.ceil(goal/(s.t?60:25)))):3);
+  if(!goal)return `${n} set · tekrarları antrenmanda girersin`;const per=Math.floor(goal/n),r=goal-per*n;return `${n} set × ~${per}${r?'–'+(per+1):''} ${s.t?'sn':'tekrar'} = ${goal}`}
+function qSel(){const L=A._q.sel;if(!L.length)return '';
+  const ms=Object.entries(MUSCLES).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  return `<div class="mini" style="margin:14px 0 6px">Seçilenler</div>${L.map((s,i)=>{const bw=s.eq==='bodyweight'||s.eq==='band';return `<div class="q-sel">
+    <div class="row between"><b>${esc(s.tr||s.name)}</b><button class="x" onclick="A.qDel(${i})">✕</button></div>
+    ${s.custom?`<select onchange="A.qSet(${i},'muscle',this.value)" style="margin:8px 0 0">${ms.replace(`value="${s.muscle}"`,`value="${s.muscle}" selected`)}</select>`:''}
+    <div class="grid3 q-f"><div><div class="mini">${s.t?'Toplam sn':'Toplam tekrar'}</div><input id="q_g${i}" inputmode="numeric" placeholder="ör. ${s.t?180:100}" value="${s.goal}" oninput="A.qSet(${i},'goal',this.value)"></div>
+     <div><div class="mini">Set</div><input inputmode="numeric" placeholder="otomatik" value="${s.sets}" oninput="A.qSet(${i},'sets',this.value)"></div>
+     <div><div class="mini">${bw?'Ek kg':'Kg'}</div><input inputmode="decimal" placeholder="${bw?'0':'—'}" value="${s.kg}" oninput="A.qSet(${i},'kg',this.value)"></div></div>
+    <div class="lbl" id="q_h${i}" style="margin-top:6px">${qHint(s)}</div></div>`}).join('')}
+   <div class="grid2" style="margin-top:12px"><button class="btn" onclick="A.qStart()">▶ Başlat</button><button class="btn ghost" onclick="A.qLog()">✓ Yaptım, kaydet</button></div>
+   <div class="lbl" style="margin-top:8px;line-height:1.45">“Başlat” setleri tek tek takip eder ve hedefe kalan tekrarı gösterir. Zaten yaptıysan “Yaptım, kaydet” hedefi setlere bölüp antrenman olarak kaydeder.</div>`}
 function genEx(x,lvl,used){const rx=RX[lvl][x[5]],alts=genAlts(x,lvl,used),alt=alts[0];
   const e={name:x[0],tr:x[1],muscle:x[2],sets:rx[0],repMin:rx[1],repMax:rx[2],inc:['barbell','machine','cable','ezbar','plate'].includes(x[3])?2.5:x[3]==='dumbbell'||x[3]==='kettlebell'?2:0,note:x[6],eq:x[3]};
   if(x[5]==='t'){e.t=1;e.fix=0}else if(x[3]==='bodyweight'||x[3]==='band')e.fix=0;
@@ -3281,7 +3332,7 @@ const A=window.A={
       if(prev.some(x=>x.t))return;const pb=Math.max(...prev.map(x=>e1rm(x.kg,x.reps))),nb=Math.max(...sets.filter(x=>x.ex===n).map(x=>e1rm(x.kg,x.reps)));
       if(nb>pb)prs.push(`${n}: tahmini 1RM ${fmt(Math.round(pb*10)/10)} → ${fmt(Math.round(nb*10)/10)} kg`)});
     const sess={id:uid(),planId:a.planId,planName:a.planName,date:new Date().toISOString(),dur:Math.round((Date.now()-a.startedAt)/1000),sets,prs};if(wu.length)sess.wu=wu;
-    const tp=plan(a.planId);if(tp&&tp.tmpl!=='gen-last'){try{const df=tplDiff(tp,a);if(df.chg.length){sess.tpl={pid:tp.id,chg:df.chg,out:df.out,prev:df.prev,applied:false};if(S.settings.autoTpl!==false){tp.exercises=JSON.parse(JSON.stringify(df.out));sess.tpl.applied=true}}}catch(err){}}
+    const tp=plan(a.planId);if(tp&&tp.tmpl!=='gen-last'&&tp.tmpl!=='quick-last'){try{const df=tplDiff(tp,a);if(df.chg.length){sess.tpl={pid:tp.id,chg:df.chg,out:df.out,prev:df.prev,applied:false};if(S.settings.autoTpl!==false){tp.exercises=JSON.parse(JSON.stringify(df.out));sess.tpl.applied=true}}}catch(err){}}
     S.sessions.push(sess);
     const tdp=todaysPlan();if(tdp&&tdp.id===a.planId)S.next=(S.next+1)%activePlans().length;
     S.active=null;restEnd=0;save();ui.view='summary';render();
@@ -3716,6 +3767,38 @@ JSON şeması: {"options":[{"name":"egzersiz adı","muscle":"quads|hamstrings|gl
     try{let p=S.plans.find(x=>x.tmpl==='gen-last');if(!p){p={id:uid(),tmpl:'gen-last',archived:true};S.plans.push(p)}
       p.name=G.name;p.archived=true;p.exercises=JSON.parse(JSON.stringify(G.exercises));hold=null;ui.tmrOpen=false;closeSheet();save();A.start(p.id)}
     catch(e){toast('⚠️ Başlatılamadı: '+(e&&e.message||e))}},
+  /* ---- hızlı antrenman ---- */
+  quick(){closeSheet();qPool.c=null;A._q={q:'',sel:[]};setTimeout(()=>{A.qDraw();setTimeout(()=>{const i=document.getElementById('q_in');if(i)i.focus()},80)},60)},
+  qDraw(){const Q=A._q;sheet(`<h3>⚡ Hızlı antrenman</h3><div class="lbl" style="margin:-6px 0 12px;line-height:1.5">Şablon gerekmez: hareketi bul, istersen hedef koy (ör. 100 tekrar). Canlı takip et ya da yaptıysan direkt kaydet.</div>
+    <input id="q_in" class="q-in" type="search" autocomplete="off" placeholder="🔍 Hareket ara… (şınav, squat, plank, barfiks)" value="${esc(Q.q)}" oninput="A.qSearch(this.value)">
+    <div id="q_res" class="q-res">${qRes()}</div><div id="q_sel">${qSel()}</div>`)},
+  qSearch(v){A._q.q=v;const r=document.getElementById('q_res');if(r)r.innerHTML=qRes()},
+  qAdd(i){const x=A._qr[i];if(!x)return;const Q=A._q;
+    if(Q.sel.some(s=>s.name===x.name))return toast('Zaten ekli');
+    Q.sel.push({...x,goal:x.goal||'',sets:'',kg:''});Q.q='';const inp=document.getElementById('q_in');if(inp)inp.value='';
+    document.getElementById('q_res').innerHTML=qRes();document.getElementById('q_sel').innerHTML=qSel();
+    setTimeout(()=>{const g=document.getElementById('q_g'+(Q.sel.length-1));if(g)g.focus()},50)},
+  qDel(i){A._q.sel.splice(i,1);document.getElementById('q_sel').innerHTML=qSel()},
+  qSet(i,k,v){const s=A._q.sel[i];if(!s)return;s[k]=k==='muscle'?v:(v===''?'':Math.max(0,parseFloat(String(v).replace(',','.'))||0));if(k==='goal'||k==='sets'){const h=document.getElementById('q_h'+i);if(h)h.innerHTML=qHint(s)}},
+  qBuild(){const L=A._q.sel;if(!L.length){toast('Önce bir hareket seç');return null}
+    return L.map(s=>{const goal=num(s.goal)||0,n=num(s.sets)||(goal?Math.max(1,Math.min(10,Math.ceil(goal/(s.t?60:25)))):3);
+      const per=goal?Math.max(1,Math.round(goal/n)):0,bw=s.eq==='bodyweight'||s.eq==='band'||s.custom&&!num(s.kg);
+      const e={name:s.name,tr:s.tr||'',muscle:s.muscle||'core',sets:n,repMin:per||(s.t?30:8),repMax:per||(s.t?60:15),inc:bw?0:2.5,eq:s.eq||'bodyweight',note:s.note||''};
+      if(s.t){e.t=1;e.fix=0}else if(bw)e.fix=0;if(goal)e.goal=goal;e._kg=num(s.kg);return e})},
+  qStart(){const ex=A.qBuild();if(!ex)return;
+    let p=S.plans.find(x=>x.tmpl==='quick-last');if(!p){p={id:uid(),tmpl:'quick-last',archived:true};S.plans.push(p)}
+    p.name=ex.length===1?ex[0].name+(ex[0].goal?' · '+ex[0].goal+(ex[0].t?' sn':' tekrar'):''):'Hızlı antrenman';p.archived=true;p.exercises=ex.map(({_kg,...e})=>e);
+    closeSheet();A.start(p.id);
+    S.active.ex.forEach((e,j)=>{const src=ex[j];e.sets.forEach(st=>{if(st.kg===''||st.kg==null)st.kg=src._kg!=null?src._kg:(e.fix===0||e.t?0:'')});
+      if(e.goal){const w=e.sets.filter(x=>tyOf(x)!=='w'),per=Math.floor(e.goal/w.length);let rem=e.goal-per*w.length;w.forEach(x=>{x.reps=per+(rem>0?1:0);rem--})}});
+    save();render(true)},
+  qLog(){const ex=A.qBuild();if(!ex)return;if(ex.some(e=>!e.goal))return toast('Kaydetmek için her harekete hedef/toplam yaz');
+    const sets=[];ex.forEach(e=>{const per=Math.floor(e.goal/e.sets);let rem=e.goal-per*e.sets;for(let k=0;k<e.sets;k++){sets.push({ex:e.name,muscle:e.muscle,kg:e._kg||0,reps:per+(rem>0?1:0),rpe:null,...(e.t?{t:1}:{})});rem--}});
+    const dur=Math.round(sets.length*75+ex.reduce((a,e)=>a+(e.t?e.goal:e.goal*2.5),0));
+    const sess={id:uid(),planId:null,planName:ex.length===1?ex[0].name+' · '+ex[0].goal+(ex[0].t?' sn':' tekrar'):'Hızlı antrenman',date:new Date().toISOString(),dur,sets,prs:[],quick:1};
+    S.sessions.push(sess);closeSheet();save();ui.view='summary';render();toast('✓ Kaydedildi')},
+  qMore(){const e=S.active.ex[S.active.idx];if(!e.goal)return A.addSet();const dn=e.sets.filter(x=>x.done&&tyOf(x)!=='w').reduce((t,x)=>t+(num(x.reps)||0),0),rem=e.goal-dn;if(rem<=0)return;
+    const l=e.sets.filter(x=>tyOf(x)!=='w').pop()||{};e.sets.push({kg:l.kg??0,reps:Math.min(rem,num(l.reps)||rem),rpe:'',done:false});save();render(true)},
   genSave(){const G=ui.gen;if(!G)return;S.plans.push({id:uid(),name:G.name,exercises:JSON.parse(JSON.stringify(G.exercises))});save();toast('Şablonlarına eklendi');render(true)},
   /* ---- set türleri & süperset ---- */
   styInfo(){sheet(`<h3>Set türleri & süperset</h3><div class="lbl" style="margin:-6px 0 12px;line-height:1.5">Antrenmanda set numarasına dokunarak türünü değiştirebilirsin. Şablon düzenlerken ısınma seti, son set türü ve süperset de seçilebilir.</div>
@@ -4107,7 +4190,7 @@ SADECE JSON: {"recipes":[{"name":"","time":15,"kcal":0,"p":0,"c":0,"f":0,"ingred
     sheet(`<h3>${isT?'Koç notları':'Günün özeti'}</h3>${ms.map(m=>`<div class="sugg" style="margin:0 0 10px">${m}</div>`).join('')}`)},
   stressInfo(){sheet(`<h3>Stres monitörü</h3><p class="lbl" style="line-height:1.6">0–3 arası tahmini bir değer: son nabız ölçümlerinin dinlenik nabzına göre ne kadar yüksek olduğuna ve HRV'nin normalinin altına inip inmediğine bakar. 0–1 düşük, 1–2 orta, 2–3 yüksek. Hareket hâlindeyken yüksek görünmesi normaldir. Tıbbi bir ölçüm değildir.</p>`)},
   quickAdd(){sheet(`<h3>Ekle</h3><div class="grid2">
-    <button class="btn ghost" onclick="A.close();A.go('programs')">🏋️ Antrenman</button><button class="btn ghost" onclick="A.close();A.snap()">📸 Fotoğraftan kalori</button>
+    <button class="btn ghost" onclick="A.close();A.go('programs')">🏋️ Antrenman</button><button class="btn ghost" onclick="A.quick()">⚡ Hızlı antrenman</button><button class="btn ghost" onclick="A.close();A.snap()">📸 Fotoğraftan kalori</button>
     <button class="btn ghost" onclick="A.drink('su',250)">💧 +250 ml su</button><button class="btn ghost" onclick="A.close();A.go('food')">🍽️ Öğün / takviye</button>
     <button class="btn ghost" onclick="A.close();A.go('food');setTimeout(()=>A.scrollTo('bw'),300)">⚖️ Kilo / uyku</button>
     <button class="btn ghost" onclick="A.close();A.cardioAdd()">🏃 Kardiyo</button>${cycOn()?`<button class="btn ghost" onclick="A.close();A.go('cycle')">🌸 Döngü</button>`:''}</div>`)},
