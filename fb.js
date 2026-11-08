@@ -109,6 +109,7 @@ const CSS = `
 .hmacc .row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.hmacc .row2 .btn{flex:1;min-width:140px}
 `;
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const NATIVE = () => !!window.HM_NATIVE;
 const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const AUTH_ERR = {
@@ -144,9 +145,10 @@ function showLogin() {
       ${msg ? `<div class="${msg.ok ? 'ok' : 'er'}">${msg.t}</div>` : ''}
       <button class="b" id="hmB" type="submit">${rs ? 'Bağlantı gönder' : up ? 'Hesap oluştur' : 'Giriş yap'}</button>
     </form>
-    ${rs ? '' : `<div class="or"><span>ya da</span></div><button class="g" id="hmG"><svg viewBox="0 0 48 48" width="20" height="20"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Google ile devam et</button>`}
+    ${rs || NATIVE() ? '' : `<div class="or"><span>ya da</span></div><button class="g" id="hmG"><svg viewBox="0 0 48 48" width="20" height="20"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Google ile devam et</button>`}
     ${rs ? '<button class="l" data-m="in">← Girişe dön</button>' : up ? '<button class="l" data-m="in">Zaten hesabım var · Giriş yap</button>' : '<button class="l" data-m="up">Hesabın yok mu? Hesap oluştur</button><button class="l" data-m="reset">Şifremi unuttum</button>'}
-    ${isIOS() && !standalone() ? '<div class="tip">📱 <b>Uygulama gibi kullanmak için:</b> Safari\'de alttaki Paylaş düğmesine (□↑) bas → <b>Ana Ekrana Ekle</b>. Sonra HypeMode\'u ana ekrandaki simgeden aç; bildirimler de ancak böyle çalışır.</div>' : ''}
+    ${NATIVE() ? '<div class="tip">📱 iPhone uygulamasında e-posta ve şifreyle giriş yapılır (Google, uygulama içinden girişe izin vermiyor).</div>' : ''}
+    ${isIOS() && !standalone() && !NATIVE() ? '<div class="tip">📱 <b>Uygulama gibi kullanmak için:</b> Safari\'de alttaki Paylaş düğmesine (□↑) bas → <b>Ana Ekrana Ekle</b>. Sonra HypeMode\'u ana ekrandaki simgeden aç; bildirimler de ancak böyle çalışır.</div>' : ''}
   </div>`;
   const g = document.getElementById('hmG');
   if (g) g.onclick = async () => {
@@ -175,7 +177,8 @@ const pushOk = () => !!(C.push && C.push.worker && C.push.vapidPublic) && 'servi
 window.HMAcct = {
   card() {
     let pz = '';
-    if (!(C.push && C.push.worker)) pz = '<div class="lbl" style="margin-top:8px">Kapalıyken bildirim kurulmamış (kurulum rehberi, isteğe bağlı adım).</div>';
+    if (NATIVE()) pz = '<div class="lbl" style="margin-top:8px">📱 iPhone uygulaması: su, yemek, antrenman ve uyku hatırlatmaları kapalıyken de gelir (Ayarlar → Hatırlatmalar). Arkadaş dürtmeleri uygulama kapalıyken sadece ana ekrandaki web sürümüne gelir.</div>';
+    else if (!(C.push && C.push.worker)) pz = '<div class="lbl" style="margin-top:8px">Kapalıyken bildirim kurulmamış (kurulum rehberi, isteğe bağlı adım).</div>';
     else if (isIOS() && !standalone()) pz = '<div class="lbl" style="margin-top:8px">🔔 Kapalıyken bildirim için önce Paylaş → <b>Ana Ekrana Ekle</b>, sonra uygulamayı simgeden aç.</div>';
     else if (!pushOk()) pz = '<div class="lbl" style="margin-top:8px">Bu tarayıcı kapalıyken bildirimi desteklemiyor (iPhone için iOS 16.4+ gerekir).</div>';
     else if (Notification.permission === 'granted' && localStorage.getItem('hm-push') === '1') pz = '<div class="lbl" style="margin-top:8px">🔔 Kapalıyken bildirim açık: arkadaşlarının dürtmeleri, istekleri ve yorumları telefonuna gelir.</div><div class="row2"><button class="btn ghost" onclick="HMAcct.pushTest()">Deneme bildirimi</button></div>';
