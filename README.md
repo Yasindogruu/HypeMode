@@ -33,6 +33,7 @@
 - Günlük kalori ve makro takibi, su ve içecekler
 - Fotoğraftan kalori tahmini ve "Ne pişirsem?" (Claude ile)
 - Uyarlanabilir kalori hedefi, sık yenenler, takviyeler
+- Hedefler: definasyon, koruma ve kas kazanımı (bulk). Bulk hızı araştırmalara göre ayarlanır: haftada vücut ağırlığının %0,25–0,5'i, ileri seviyede %0,15 (Iraki ve ark. 2019; Helms ve ark. 2023)
 
 **😴 Toparlanma**
 - Uyku, toparlanma ve yük halkaları
@@ -50,6 +51,7 @@
 - Arkadaşının son antrenmanını görme, beğenme ve yorum yapma
 - Dürtme ("Hadi antrenmana!", "Su iç!"); uygulama kapalıyken de bildirim gelir
 - Arkadaşının programını kopyalama
+- Ortak antrenman: arkadaşın antrenmana başlayınca bildirim gelir; canlı ilerlemesini görüp "Birlikte yap" ile aynı antrenmanı başlatabilir, tezahürat gönderebilirsin
 
 **📱 Her cihazda**
 - Ana ekrana eklenince uygulama gibi tam ekran açılır, çevrimdışı da açılır
