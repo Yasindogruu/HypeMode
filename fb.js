@@ -17,6 +17,7 @@ async function loadBackend() {
   const db = F.getFirestore(app);
   if (C.emulator) { A.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true }); F.connectFirestoreEmulator(db, '127.0.0.1', 8085) }
   // Okumalar her zaman sunucudan: çevrimdışıyken boş önbellek "veri yok" sanılıp bulut ezilmesin
+  A.getRedirectResult(auth).catch(e => { window.__hmRedirErr = e });
   const rows = q => q.docs.map(d => ({ id: d.id, data: d.data() }));
   return {
     onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email } : null)),
@@ -24,6 +25,11 @@ async function loadBackend() {
     signUp: (e, p) => A.createUserWithEmailAndPassword(auth, e, p),
     reset: e => A.sendPasswordResetEmail(auth, e),
     signOut: () => A.signOut(auth),
+    google: async () => {
+      const pr = new A.GoogleAuthProvider(); pr.setCustomParameters({ prompt: 'select_account' });
+      try { return await A.signInWithPopup(auth, pr) }
+      catch (e) { if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test(String(e && e.code))) return A.signInWithRedirect(auth, pr); throw e }
+    },
     get: async path => { const s = await F.getDocFromServer(F.doc(db, path)); return s.exists() ? s.data() : null },
     set: (path, data) => F.setDoc(F.doc(db, path), data),
     del: path => F.deleteDoc(F.doc(db, path)),
@@ -80,6 +86,9 @@ const CSS = `
 #hmAuth .l{display:block;margin:16px auto 0;background:none;border:0;color:#d4d4d8;font:inherit;font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 #hmAuth .er{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,69,58,.14);border:1px solid rgba(255,69,58,.35);font-size:13.5px;line-height:1.45}
 #hmAuth .ok{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.35);font-size:13.5px;line-height:1.45}
+#hmAuth .or{display:flex;align-items:center;gap:12px;margin:22px 0 0;color:#71717a;font-size:12.5px}#hmAuth .or:before,#hmAuth .or:after{content:'';flex:1;height:1px;background:#2c2c30}
+#hmAuth .g{width:100%;margin-top:16px;height:52px;border-radius:999px;border:1px solid #3a3a40;background:#151517;color:#fff;font:inherit;font-weight:600;font-size:15.5px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+#hmAuth .g:disabled{opacity:.6}
 #hmAuth .tip{margin-top:26px;padding:14px;border-radius:16px;background:#151517;border:1px solid #2c2c30;font-size:13px;color:#c7c7cc;line-height:1.5}
 #hmAuth .sp{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#fff;animation:hmsp .8s linear infinite;margin:60px auto 0}
 @keyframes hmsp{to{transform:rotate(360deg)}}
@@ -93,6 +102,10 @@ const AUTH_ERR = {
   'auth/email-already-in-use': 'Bu e-postayla zaten hesap var. Giriş yap.', 'auth/weak-password': 'Şifre en az 6 karakter olmalı.',
   'auth/invalid-email': 'E-posta adresi geçersiz.', 'auth/missing-password': 'Şifreni yaz.', 'auth/network-request-failed': 'İnternet bağlantısı yok gibi görünüyor.',
   'auth/too-many-requests': 'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.', 'auth/operation-not-allowed': 'Firebase\'de E-posta/Şifre girişi açık değil (kurulum adımı 3).',
+  'auth/unauthorized-domain': 'Google girişi için Firebase → Authentication → Settings → Authorized domains bölümüne bu sitenin adresini ekle.',
+  'auth/account-exists-with-different-credential': 'Bu e-posta başka bir yöntemle kayıtlı. E-posta ve şifreyle giriş yap.',
+  'auth/internal-error': 'Google girişi açılamadı. Firebase\'de Google girişinin açık olduğundan emin ol ya da e-postayla giriş yap.',
+  'auth/popup-closed-by-user': '', 'auth/cancelled-popup-request': '',
   'auth/configuration-not-found': 'Firebase\'de Authentication henüz açılmamış (kurulum adımı 3).', 'auth/api-key-not-valid.-please-pass-a-valid-api-key.': 'config.js içindeki Firebase bilgileri hatalı.'
 };
 let mode = 'in', msg = null;
@@ -117,9 +130,16 @@ function showLogin() {
       ${msg ? `<div class="${msg.ok ? 'ok' : 'er'}">${msg.t}</div>` : ''}
       <button class="b" id="hmB" type="submit">${rs ? 'Bağlantı gönder' : up ? 'Hesap oluştur' : 'Giriş yap'}</button>
     </form>
+    ${rs ? '' : `<div class="or"><span>ya da</span></div><button class="g" id="hmG"><svg viewBox="0 0 48 48" width="20" height="20"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Google ile devam et</button>`}
     ${rs ? '<button class="l" data-m="in">← Girişe dön</button>' : up ? '<button class="l" data-m="in">Zaten hesabım var · Giriş yap</button>' : '<button class="l" data-m="up">Hesabın yok mu? Hesap oluştur</button><button class="l" data-m="reset">Şifremi unuttum</button>'}
     ${isIOS() && !standalone() ? '<div class="tip">📱 <b>Uygulama gibi kullanmak için:</b> Safari\'de alttaki Paylaş düğmesine (□↑) bas → <b>Ana Ekrana Ekle</b>. Sonra HypeMode\'u ana ekrandaki simgeden aç; bildirimler de ancak böyle çalışır.</div>' : ''}
   </div>`;
+  const g = document.getElementById('hmG');
+  if (g) g.onclick = async () => {
+    g.disabled = true; g.lastChild.textContent = 'Bekle…';
+    try { await B.google(); msg = null }
+    catch (err) { const c = String(err && err.code || ''); const t = c in AUTH_ERR ? AUTH_ERR[c] : ('Google girişi olmadı: ' + esc(c || err.message || err)); msg = t ? { t } : null; showLogin() }
+  };
   ovl.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; msg = null; showLogin() });
   const f = document.getElementById('hmF');
   f.onsubmit = async ev => {
@@ -217,7 +237,7 @@ async function boot() {
     showError('<b>Bağlanılamadı.</b><br>İlk açılışta internet gerekiyor. Bağlantını kontrol edip tekrar dene.', true); return;
   }
   B.onAuth(u => {
-    if (!u) { ME = null; showLogin(); return }
+    if (!u) { ME = null; if (window.__hmRedirErr) { const c = String(window.__hmRedirErr.code || ''); window.__hmRedirErr = null; if (AUTH_ERR[c]) msg = { t: AUTH_ERR[c] } } showLogin(); return }
     // yeni cihaz ya da başka hesap: bu cihazdaki eski kopyayı temizle, buluttan temiz yükle
     if (localStorage.getItem('hm-uid') !== u.uid) {
       localStorage.setItem('hm-uid', u.uid);
