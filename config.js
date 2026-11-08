@@ -11,7 +11,7 @@ window.HM_CONFIG = {
   },
   // 2) İsteğe bağlı: kapalıyken bildirim. Cloudflare Worker adresini "worker" alanına yapıştır.
   push: {
-    worker: "",
+    worker: "https://hypemode-push.ysndogru54.workers.dev",
     vapidPublic: "BFe1JaqO2xMlSi1RFeoNp2brMovGIKPREukddmni8qbIW1-_lvc62L5PX2PA2znY03dVR_BSOackU9CfFsaZcAI",
     key: "FhnWuv7OvX2fIeYEQaqiyTTx"
   }
