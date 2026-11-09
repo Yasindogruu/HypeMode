@@ -13,9 +13,9 @@
 <p align="center">
   <img src="docs/img/home.png" width="19%" alt="Bugün ekranı">
   <img src="docs/img/workout.png" width="19%" alt="Antrenman ekranı">
-  <img src="docs/img/live.png" width="19%" alt="Canlı antrenman">
+  <img src="docs/img/academy.png" width="19%" alt="Egzersiz Akademisi">
+  <img src="docs/img/tools.png" width="19%" alt="Araçlar">
   <img src="docs/img/food.png" width="19%" alt="Yemek ekranı">
-  <img src="docs/img/stats.png" width="19%" alt="Özet ekranı">
 </p>
 
 ## Özellikler
@@ -26,7 +26,8 @@
 - **Hızlı antrenman:** Hareketi ara, hedef koy (ör. 100 şınav), başlat ya da direkt kaydet
 - **Ev / salon modu:** Evdeysen şablondaki hareketler eldeki ekipmana göre otomatik değişir
 - **Otomatik ısınma setleri:** Çalışma kilona göre ısınma setlerini hesaplar
-- 400'den fazla hareket ve evde antrenman oluşturucu (ekipman ve bölge seçimi)
+- **Egzersiz Akademisi:** 400'den fazla hareket; adım adım anlatım, sık hatalar, önerilen set/tekrar, video ve tıklanabilir vücut haritası
+- Evde antrenman oluşturucu (ekipman ve bölge seçimi)
 - Form ipuçları, kas haritası, kardiyo yükü
 
 **🍽️ Beslenme**
@@ -34,6 +35,9 @@
 - Fotoğraftan kalori tahmini ve "Ne pişirsem?" (Claude ile)
 - Uyarlanabilir kalori hedefi, sık yenenler, takviyeler
 - Hedefler: definasyon, koruma ve kas kazanımı (bulk). Bulk hızı araştırmalara göre ayarlanır: haftada vücut ağırlığının %0,25–0,5'i, ileri seviyede %0,15 (Iraki ve ark. 2019; Helms ve ark. 2023)
+
+**🧮 Araçlar**
+- Kalori & makro, BKİ & ideal kilo, yağ oranı & bel-kalça oranı, 1RM, plaka hesaplayıcı, su ihtiyacı, kalp hızı bölgeleri
 
 **😴 Toparlanma**
 - Uyku, toparlanma ve yük halkaları
@@ -56,8 +60,9 @@
 **📱 Her cihazda**
 - Ana ekrana eklenince uygulama gibi tam ekran açılır, çevrimdışı da açılır
 - Tek hesapla telefon, iPad ve bilgisayarda aynı veriler
-- Geniş ekranda yan menülü masaüstü düzeni
-- Koyu, açık ve sistem teması; 7 ana renk
+- Geniş ekranda üst menülü masaüstü düzeni
+- Koyu, açık ve sistem teması; Gece teması dahil 8 ana renk
+- Ana ekran ve antrenman sayfası düzenlenebilir (istemediğin bölümleri gizle)
 - Türkçe ve İngilizce
 - Hesabı ve tüm verileri silme, verileri indirme
 
@@ -70,28 +75,6 @@
 3. Simgeden aç ve e-posta ya da Google ile hesap oluştur.
 4. Bildirim için **Ayarlar → Hesap → Kapalıyken bildirimleri aç**'a bas.
 
-## Nasıl çalışıyor
-
-| Parça | Ne kullanılıyor | Ücret |
-|---|---|---|
-| Uygulama | Tek dosya HTML + JavaScript, PWA (service worker) | — |
-| Barındırma | GitHub Pages | Ücretsiz |
-| Hesap ve veri | Firebase Authentication + Firestore | Ücretsiz (Spark) |
-| Kapalıyken bildirim | Web Push + Cloudflare Worker | Ücretsiz |
-| Yapay zekâ | Talimat kopyalanıp Claude'a yapıştırılır | Ücretsiz |
-
-```
-index.html            Uygulamanın tamamı
-fb.js                 Firebase giriş ve veritabanı bağlantısı
-config.js             Firebase ve bildirim ayarları
-sw.js                 Çevrimdışı açılış ve bildirimler
-manifest.webmanifest  Ana ekran simgesi ve uygulama bilgileri
-firebase/             Firestore güvenlik kuralları
-docs/                 Kurulum rehberi ve ekran görüntüleri
-```
-
-Kendi kopyanı kurmak istersen: [docs/KURULUM.md](docs/KURULUM.md)
-
 ## Gizlilik ve güvenlik
 
 - **Kendi verilerin** (antrenman, beslenme, kilo, sağlık, döngü) sadece senin hesabında tutulur. Veritabanı kuralları başka hiçbir kullanıcının okumasına izin vermez.
@@ -100,3 +83,7 @@ Kendi kopyanı kurmak istersen: [docs/KURULUM.md](docs/KURULUM.md)
 - **Giriş:** Şifreler Firebase'de geri çözülemeyecek şekilde (hash) saklanır. Google ile girişte şifren uygulamaya hiç gelmez.
 - **Bağlantı:** Tüm bağlantılar HTTPS ile şifrelidir; veriler Google sunucularında şifreli olarak saklanır.
 - Sağlık tahminleri bilgilendirme amaçlıdır, tıbbi tavsiye değildir.
+
+## Lisans
+
+© 2026 Yasin Doğru. Tüm hakları saklıdır. Bu depodaki kod, tasarım ve görseller izin alınmadan kopyalanamaz, değiştirilemez, dağıtılamaz veya başka bir uygulamada kullanılamaz. Ayrıntılar: [LICENSE](LICENSE)
