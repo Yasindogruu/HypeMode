@@ -1,6 +1,6 @@
 // HypeMode service worker: çevrimdışı açılış + kapalıyken bildirim
-const V = 'hm-v35';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './hm-icon-192-v3.png', './hm-icon-512-v3.png', './hm-apple-v3.png', './hm-favicon-v3.png'];
+const V = 'hm-v36';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './hm-icon-192-v3.png', './hm-icon-512-v3.png', './hm-apple-v3.png', './hm-favicon-v3.png', './fb-sdk.js?v=13.3.0', './f-inter-latin.woff2', './f-inter-latin-ext.woff2', './f-unbounded-latin.woff2', './f-unbounded-latin-ext.woff2', './gizlilik.html'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())) });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())) });
 self.addEventListener('fetch', e => {
@@ -10,9 +10,6 @@ self.addEventListener('fetch', e => {
     // önce ağ (güncellemeler hemen gelsin), yoksa önbellek
     e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res })
       .catch(() => caches.match(r).then(m => m || caches.match('./index.html'))));
-  } else if (/^(www\.gstatic\.com|fonts\.gstatic\.com|fonts\.googleapis\.com)$/.test(u.hostname)) {
-    // Firebase SDK ve yazı tipleri: önbellekten, arka planda tazele
-    e.respondWith(caches.match(r).then(m => { const net = fetch(r).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res }).catch(() => m); return m || net }));
   }
 });
 self.addEventListener('push', e => {

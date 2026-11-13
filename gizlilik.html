@@ -3,96 +3,110 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HypeMode · Aydınlatma Metni ve Gizlilik</title>
+<title>Aydınlatma Metni · HypeMode</title>
 <script src="config.js"></script>
 <style>
 @font-face{font-family:'Inter';font-weight:100 900;font-display:swap;src:url(f-inter-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Inter';font-weight:100 900;font-display:swap;src:url(f-inter-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{color-scheme:dark light}
-body{margin:0;background:#0b0b0d;color:#ececf0;font:15px/1.6 Inter,system-ui,sans-serif}
-@media (prefers-color-scheme:light){body{background:#f4f4f7;color:#18181c}.box{background:#fff!important;border-color:rgba(0,0,0,.08)!important}td,th{border-color:rgba(0,0,0,.1)!important}}
-main{max-width:760px;margin:0 auto;padding:32px 20px 80px}
-h1{font-size:26px;margin:0 0 6px}h2{font-size:18px;margin:32px 0 8px}h3{font-size:15px;margin:18px 0 4px}
-p,li{opacity:.85}small{opacity:.6}a{color:#ff7a5c}
-.box{background:#151518;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 18px;margin:12px 0}
-table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}td,th{border:1px solid rgba(255,255,255,.12);padding:8px;text-align:left;vertical-align:top}th{font-weight:600}
-.lang{float:right;font-size:13px}
+body{margin:0;background:#0b0b0d;color:#ececf0;font:15px/1.65 Inter,system-ui,sans-serif}
+@media (prefers-color-scheme:light){body{background:#f4f4f7;color:#18181c}td,th{border-color:rgba(0,0,0,.12)!important}nav a{background:#fff!important}}
+main{max-width:780px;margin:0 auto;padding:28px 20px 80px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}nav a{font-size:13px;padding:6px 12px;border-radius:999px;background:#18181c;color:inherit;text-decoration:none;opacity:.75}nav a.on{opacity:1;font-weight:700;outline:1px solid #ff6a4a}
+h1{font-size:24px;line-height:1.3;margin:0 0 4px}h2{font-size:17px;margin:30px 0 8px}h3{font-size:15px;margin:16px 0 4px}
+p,li{opacity:.88}small{opacity:.6}a{color:#ff7a5c}ol,ul{padding-left:22px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}td,th{border:1px solid rgba(255,255,255,.14);padding:8px;text-align:left;vertical-align:top}th{font-weight:600}
 </style>
 </head>
 <body><main>
-<a class="lang" href="#en">English ↓</a>
-<h1>Aydınlatma Metni ve Gizlilik Politikası</h1>
-<small>HypeMode · Sürüm 1 · Yürürlük: 13 Kasım 2026</small>
+<nav><a href="gizlilik.html" class="on">Aydınlatma Metni</a><a href="acik-riza.html" class="">Açık Rıza Metni</a><a href="kullanim-kosullari.html" class="">Kullanım Koşulları</a><a href="cerez.html" class="">Çerez ve Yerel Depolama</a></nav>
+<h1>Kişisel Verilerin Korunması Hakkında Aydınlatma Metni</h1>
+<small>Son güncelleme: 13 Kasım 2026 · Sürüm 2</small>
 
-<div class="box">Kısaca: HypeMode ücretsizdir; reklam, analitik, takip ya da oturum kaydı aracı kullanmaz ve verini satmaz. Verilerin hesabına bağlı olarak Google Firebase (ABD) sunucularında saklanır. Sağlık verilerin (nabız, uyku, kilo, döngü, fotoğraf) buluta <b>yalnızca ayrıca açık rıza verirsen</b> yedeklenir; vermezsen sadece cihazında kalır.</div>
+<p>HypeMode uygulamasını (web ve mobil sürümler, bundan sonra "Uygulama") kullanmanız sırasında işlenen kişisel verilerinize ilişkin olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun ("KVKK") 10. maddesi ve Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ uyarınca, veri sorumlusu sıfatıyla sizi bilgilendirmek isteriz.</p>
+<p>Bu metin yalnızca bilgilendirme amaçlıdır; sizden onay ya da rıza alınmasına yönelik değildir. Açık rızaya dayanan işlemler için ayrıca <a href="acik-riza.html">Açık Rıza Metni</a> sunulmaktadır.</p>
 
-<p>Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun ("KVKK") 10. maddesi ve Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ uyarınca hazırlanmıştır.</p>
+<h2>1. Veri Sorumlusu</h2>
+<p><b class="ctl">Yasin Doğru</b> (bireysel geliştirici)<br>İletişim: <span class="ct"></span></p>
 
-<h2>1. Veri sorumlusu</h2>
-<p><b id="ctl">Yasin Doğru</b> (bireysel geliştirici, HypeMode uygulaması).<br>İletişim ve başvuru: <span id="ct"></span></p>
-
-<h2>2. Hangi verileri işliyoruz?</h2>
+<h2>2. İşlenen Kişisel Verileriniz</h2>
 <table>
-<tr><th>Kategori</th><th>Veriler</th><th>Nerede tutulur</th></tr>
-<tr><td>Kimlik ve iletişim</td><td>E-posta adresi, ad, kullanıcı adı, profil fotoğrafı (isteğe bağlı)</td><td>Hesap (Firebase)</td></tr>
-<tr><td>Uygulama kullanımı</td><td>Antrenman programları ve kayıtları, beslenme ve su kayıtları, hedefler, ayarlar</td><td>Cihaz + hesap (Firebase)</td></tr>
-<tr><td><b>Sağlık (özel nitelikli)</b></td><td>Nabız, HRV, kan oksijeni, solunum, uyku evreleri, adım ve aktivite (Google Health/Fitbit'ten okunur); kilo ve vücut ölçüleri; regl döngüsü; takviye kayıtları; ilerleme fotoğrafları</td><td>Cihaz. Hesaba yalnızca açık rızanla</td></tr>
-<tr><td>Sosyal</td><td>Arkadaş listesi, arkadaşlarına gönderdiğin dürtme, beğeni, yorum ve istekler; paylaşmayı seçtiğin antrenman özetleri</td><td>Hesap (Firebase)</td></tr>
-<tr><td>İşlem güvenliği</td><td>Giriş oturumu, Google Health erişim belirteci (cihazda), bildirim aboneliği</td><td>Cihaz + hesap</td></tr>
-<tr><td>Teknik</td><td>IP adresi ve tarayıcı bilgisi: uygulamayı barındıran ve hizmet veren sağlayıcılar tarafından bağlantı sırasında görülür. Biz ayrıca kayıt tutmayız.</td><td>Sağlayıcılar</td></tr>
+<tr><th>Veri kategorisi</th><th>Kişisel veriler</th></tr>
+<tr><td>Kimlik</td><td>Ad, kullanıcı adı</td></tr>
+<tr><td>İletişim</td><td>E-posta adresi</td></tr>
+<tr><td>Görsel kayıt</td><td>Profil fotoğrafı (isteğe bağlı)</td></tr>
+<tr><td>Müşteri işlem / kullanım</td><td>Antrenman programları ve kayıtları, beslenme ve su kayıtları, hedefler, uygulama ayarları</td></tr>
+<tr><td>Sosyal etkileşim</td><td>Arkadaş listesi; arkadaşlarınıza gönderdiğiniz istek, dürtme, beğeni ve yorumlar; paylaşmayı seçtiğiniz antrenman özetleri</td></tr>
+<tr><td>İşlem güvenliği</td><td>Oturum ve kimlik doğrulama bilgileri, bildirim aboneliği bilgisi, engelleme ve şikâyet kayıtları</td></tr>
+<tr><td><b>Sağlık (özel nitelikli)</b></td><td>Nabız, kalp atış değişkenliği (HRV), kan oksijeni, solunum hızı, uyku evreleri, adım ve aktivite verileri (bağlamanız hâlinde Google Health / Fitbit hesabınızdan okunur); kilo ve vücut ölçüleri; adet döngüsü kayıtları; takviye kayıtları; ilerleme fotoğrafları</td></tr>
+<tr><td>Teknik</td><td>IP adresi ve tarayıcı bilgisi (yalnızca hizmet sağlayıcıların sunucularına bağlantı sırasında)</td></tr>
 </table>
-<p>Konum, rehber, reklam kimliği ya da ödeme bilgisi toplamayız. Uygulamada ödeme yoktur.</p>
+<p>Uygulama konum, rehber, reklam kimliği veya ödeme bilgisi toplamaz; Uygulamada ödeme ve reklam bulunmamaktadır.</p>
 
-<h2>3. Amaçlar ve hukuki sebepler</h2>
+<h2>3. Kişisel Verilerinizin İşlenme Amaçları</h2>
 <ul>
-<li>Hesabını oluşturmak, verilerini cihazların arasında eşitlemek ve uygulamanın özelliklerini sunmak: <b>sözleşmenin kurulması ve ifası</b> (KVKK m.5/2-c).</li>
-<li>Güvenliği sağlamak ve kötüye kullanımı önlemek: <b>meşru menfaat</b> (m.5/2-f).</li>
-<li>Sağlık verilerinin bulutta yedeklenmesi: <b>açık rıza</b> (m.6/2). Rıza vermezsen bu veriler yalnızca cihazında işlenir ve bize ya da üçüncü kişilere iletilmez.</li>
-<li>Verilerin yurt dışındaki sunuculara aktarılması: <b>açık rıza</b> (m.9/6-a). Hesap ve bulut özellikleri bu rızaya dayanır.</li>
-<li>Arkadaş özellikleri (paylaştığın antrenman özetleri, mesajlar): senin talebin ve tercihlerin. Paylaşım ayarlarından istediğin an kapatabilirsin.</li>
+<li>Üyelik hesabınızın oluşturulması ve yönetilmesi,</li>
+<li>Uygulama hizmetlerinin (antrenman, beslenme, uyku ve toparlanma takibi, kişisel öneriler) sunulması,</li>
+<li>Verilerinizin cihazlarınız arasında eşitlenmesi ve yedeklenmesi,</li>
+<li>Arkadaş özelliklerinin ve bildirimlerin sağlanması,</li>
+<li>Bilgi güvenliğinin sağlanması, kötüye kullanımın ve hukuka aykırı içeriğin önlenmesi, şikâyetlerin değerlendirilmesi,</li>
+<li>İlgili kişi başvurularının yanıtlanması ve hukuki yükümlülüklerin yerine getirilmesi.</li>
 </ul>
-<p>Skorlar (hazırlık, uyku kalitesi, yük vb.) cihazında hesaplanır. Otomatik bir karar alınmaz; öneriler tıbbi tavsiye değildir.</p>
+<p>Uygulamadaki puanlar (hazırlık, uyku kalitesi, yük vb.) cihazınızda hesaplanır; bunlar tıbbi teşhis veya tavsiye değildir ve hakkınızda otomatik bir karar alınmasında kullanılmaz.</p>
 
-<h2>4. Kimlere ve hangi ülkelere aktarılıyor?</h2>
+<h2>4. Kişisel Verilerin Toplanma Yöntemi ve Hukuki Sebepleri</h2>
+<p>Kişisel verileriniz, Uygulamaya girdiğiniz bilgiler aracılığıyla ve bağlamanız hâlinde Google Health (Fitbit) hesabınızdan elektronik ortamda, otomatik yollarla toplanmaktadır.</p>
 <table>
-<tr><th>Alıcı</th><th>Ne için</th><th>Ülke</th></tr>
-<tr><td>Google LLC – Firebase Authentication ve Cloud Firestore</td><td>Hesap, giriş ve bulut yedeği</td><td>ABD ve Google'ın veri merkezleri</td></tr>
-<tr><td>Google LLC – Google Health API ve Google ile giriş</td><td>Fitbit verilerini senin izninle okumak</td><td>ABD</td></tr>
-<tr><td>Cloudflare, Inc. – Workers</td><td>Uygulama kapalıyken arkadaş bildirimlerini iletmek (gönderen adı ve kısa mesaj)</td><td>ABD ve küresel ağ</td></tr>
-<tr><td>Apple, Google, Mozilla – Web Push servisleri</td><td>Bildirimin telefonuna ulaşması</td><td>ABD</td></tr>
-<tr><td>Anthropic PBC – yalnızca uygulamayı claude.ai bağlantısı üzerinden kullanıyorsan</td><td>Hesap verilerinin claude.ai depolamasında saklanması (Firebase yerine)</td><td>ABD</td></tr>
-<tr><td>GitHub, Inc.</td><td>Uygulama dosyalarının barındırılması (yalnızca bağlantı bilgisi)</td><td>ABD</td></tr>
+<tr><th>Hukuki sebep</th><th>Kapsam</th></tr>
+<tr><td>Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması (KVKK m.5/2-c)</td><td>Üyelik, hesap yönetimi, Uygulama hizmetlerinin sunulması, arkadaş özellikleri</td></tr>
+<tr><td>Veri sorumlusunun hukuki yükümlülüğü (m.5/2-ç)</td><td>İlgili kişi başvuruları, 5651 sayılı Kanun kapsamındaki yükümlülükler</td></tr>
+<tr><td>Bir hakkın tesisi, kullanılması veya korunması (m.5/2-e)</td><td>Şikâyet ve uyuşmazlık kayıtları</td></tr>
+<tr><td>Meşru menfaat (m.5/2-f)</td><td>Bilgi güvenliği, kötüye kullanımın önlenmesi</td></tr>
+<tr><td><b>Açık rıza (m.6/2)</b></td><td>Sağlık verilerinizin bulut sunucularında saklanması. Açık rıza vermezseniz sağlık verileriniz yalnızca cihazınızda işlenir, tarafımıza veya üçüncü kişilere iletilmez.</td></tr>
+<tr><td><b>Açık rıza (m.9/6-a)</b></td><td>Hesap ve bulut yedeği için verilerinizin yurt dışındaki sunuculara aktarılması. Açık rıza vermezseniz Uygulamayı hesap açmadan, yalnızca cihazınızda kullanabilirsiniz.</td></tr>
 </table>
-<p>Yazı tipleri ve uygulama dosyaları kendi sunucumuzdan yüklenir. Verilerini satmayız, reklam ya da profil çıkarma için kullanmayız. Kanunen zorunlu hâllerde yetkili kurumlarla paylaşılabilir.</p>
 
-<h2>5. Toplama yöntemi</h2>
-<p>Veriler, uygulamaya kendi girdiğin bilgilerden ve izin verdiğinde Google Health (Fitbit) hesabından otomatik yollarla toplanır.</p>
+<h2>5. Kişisel Verilerin Aktarılması</h2>
+<p>Kişisel verileriniz, yukarıdaki amaçlarla ve KVKK m.8 ve m.9'a uygun olarak aşağıdaki hizmet sağlayıcılara aktarılabilmektedir:</p>
+<table>
+<tr><th>Alıcı</th><th>Aktarım amacı</th><th>Ülke</th></tr>
+<tr><td>Google LLC (Firebase Authentication, Cloud Firestore)</td><td>Hesap, kimlik doğrulama, bulut yedeği</td><td>ABD</td></tr>
+<tr><td>Google LLC (Google Health API, Google ile oturum açma)</td><td>Bağlamanız hâlinde Fitbit verilerinin okunması</td><td>ABD</td></tr>
+<tr><td>Cloudflare, Inc. (Workers)</td><td>Uygulama kapalıyken arkadaş bildirimlerinin iletilmesi (gönderen adı, kısa mesaj)</td><td>ABD</td></tr>
+<tr><td>Apple Inc., Google LLC, Mozilla Corp. (Web Push)</td><td>Bildirimlerin cihazınıza ulaştırılması</td><td>ABD</td></tr>
+<tr><td>GitHub, Inc.</td><td>Uygulama dosyalarının barındırılması (yalnızca bağlantı bilgisi)</td><td>ABD</td></tr>
+<tr><td>Anthropic PBC</td><td>Yalnızca Uygulamayı claude.ai bağlantısı üzerinden kullanmanız hâlinde verilerin saklanması</td><td>ABD</td></tr>
+<tr><td>Yetkili kamu kurum ve kuruluşları</td><td>Kanunen zorunlu hâllerde</td><td>Türkiye</td></tr>
+</table>
+<p>Arkadaşlarınız, yalnızca paylaşmayı seçtiğiniz bilgileri (ad, kullanıcı adı, profil fotoğrafı, antrenman özetleri, gönderdiğiniz mesajlar) görebilir. Kilo, beslenme, sağlık ve döngü verileriniz arkadaşlarınızla paylaşılmaz. Verileriniz satılmaz, reklam veya profil çıkarma amacıyla kullanılmaz.</p>
 
-<h2>6. Saklama süresi</h2>
-<p>Hesap verilerin, hesabın açık olduğu sürece saklanır. <b>Ayarlar → Hesap → "Hesabımı ve tüm verilerimi sil"</b> ile buluttaki tüm verilerin ve hesabın silinir. Cihazdaki veriler sen silene kadar cihazında kalır. Sağlık verisi rızanı geri çekersen bu veriler bir sonraki eşitlemede buluttan kaldırılır. Biz trafik/erişim kaydı tutmayız. Sağlayıcıların kendi güvenlik kayıtları kendi politikalarına tabidir.</p>
+<h2>6. Saklama Süresi</h2>
+<p>Kişisel verileriniz hesabınız açık olduğu sürece saklanır. Hesabınızı Uygulama içinden (Ayarlar → Hesap → "Hesabımı ve tüm verilerimi sil") sildiğinizde buluttaki verileriniz silinir. Cihazınızdaki veriler, siz silene kadar cihazınızda kalır. Sağlık verilerine ilişkin açık rızanızı geri almanız hâlinde bu veriler bir sonraki eşitlemede buluttan kaldırılır. Şikâyet kayıtları, değerlendirme tamamlandıktan sonra en geç 1 yıl içinde silinir. Tarafımızca ayrıca trafik veya erişim kaydı tutulmamaktadır.</p>
 
-<h2>7. Hakların (KVKK m.11)</h2>
-<p>Kişisel verilerinin işlenip işlenmediğini öğrenme, bilgi talep etme, amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme, aktarıldığı üçüncü kişileri bilme, eksik ya da yanlış işlendiyse düzeltilmesini, silinmesini veya yok edilmesini isteme, bu işlemlerin aktarılan kişilere bildirilmesini isteme, otomatik sistemlerle analiz sonucu aleyhine bir sonuç çıkmasına itiraz etme ve kanuna aykırı işleme sebebiyle zarara uğrarsan zararın giderilmesini talep etme haklarına sahipsin.</p>
-<p>Verilerini <b>Ayarlar → Hesap → "Verilerimi indir"</b> ile dilediğin an indirebilir, uygulamadan düzeltebilir veya silebilirsin. Diğer talepler için yukarıdaki iletişim adresine yazabilirsin. Başvurular en geç 30 gün içinde ücretsiz yanıtlanır. Kişisel Verileri Koruma Kurulu'na şikâyet hakkın saklıdır.</p>
+<h2>7. KVKK'nın 11. Maddesi Kapsamındaki Haklarınız</h2>
+<p>Kişisel veri sahibi olarak:</p>
+<ol type="a">
+<li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+<li>Kişisel verileriniz işlenmişse buna ilişkin bilgi talep etme,</li>
+<li>Kişisel verilerinizin işlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+<li>Yurt içinde veya yurt dışında kişisel verilerinizin aktarıldığı üçüncü kişileri bilme,</li>
+<li>Kişisel verilerinizin eksik veya yanlış işlenmiş olması hâlinde bunların düzeltilmesini isteme,</li>
+<li>KVKK'nın 7. maddesinde öngörülen şartlar çerçevesinde kişisel verilerinizin silinmesini veya yok edilmesini isteme,</li>
+<li>(e) ve (f) bentleri uyarınca yapılan işlemlerin, kişisel verilerinizin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+<li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+<li>Kişisel verilerinizin kanuna aykırı olarak işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+</ol>
+<p>haklarına sahipsiniz. Verilerinizi Uygulama içinden (Ayarlar → Hesap → "Verilerimi indir") dilediğiniz zaman indirebilir, düzeltebilir veya silebilirsiniz.</p>
 
-<h2>8. Çerezler ve yerel depolama</h2>
-<p>Uygulama, verilerini cihazında tutmak için tarayıcının yerel depolamasını kullanır. Takip, reklam veya analitik çerezi kullanılmaz.</p>
+<h2>8. Başvuru Yöntemi</h2>
+<p>Yukarıdaki haklarınıza ilişkin taleplerinizi, Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ'e uygun olarak; kimliğinizi tespit edici bilgileri ve talebinizi içeren bir dilekçeyi, Uygulamaya kayıtlı e-posta adresinizden <span class="ct"></span> adresine göndererek iletebilirsiniz. Başvurularınız, talebin niteliğine göre en kısa sürede ve en geç <b>30 gün</b> içinde ücretsiz olarak sonuçlandırılır. Başvurunuzun reddedilmesi, verilen cevabı yetersiz bulmanız veya süresinde cevap verilmemesi hâllerinde Kişisel Verileri Koruma Kurulu'na şikâyette bulunma hakkınız saklıdır.</p>
 
-<h2>9. Kullanıcı içeriği, yer sağlayıcı ve telif bildirimi</h2>
-<p>HypeMode, kullanıcıların yalnızca arkadaş olarak eklediği kişilerle paylaştığı kısa mesaj, yorum, ad ve profil fotoğrafı için 5651 sayılı Kanun kapsamında <b>yer sağlayıcı</b> sıfatıyla hizmet verir. Kullanıcı içeriklerini önceden kontrol etmeyiz. Uygulamadaki <b>Engelle</b> ve <b>Şikayet et</b> seçeneklerini kullanabilir veya hukuka aykırı içerik ya da telif hakkı (5846 sayılı Kanun) ihlali bildirimini iletişim adresine gönderebilirsin. Bildirimde içeriğin nerede olduğunu ve hak sahipliğini belirt. Bildirimler incelenir ve hukuka aykırı içerik en kısa sürede, en geç 48 saat içinde kaldırılır.</p>
-<p>Yer sağlayıcı: <span class="ctl2">Yasin Doğru</span> · İletişim: <span class="ct2"></span></p>
-
-<h2>10. Değişiklikler</h2>
-<p>Bu metin güncellendiğinde uygulama içinde bildirilir ve gerekirse rızan yeniden istenir.</p>
-
-<hr style="margin:48px 0;opacity:.2">
-<h1 id="en">Privacy Notice (English summary)</h1>
-<p>HypeMode is free and uses no ads, analytics, tracking or session recording, and never sells your data. Controller: <span class="ctl2">Yasin Doğru</span> (individual developer), contact: <span class="ct2"></span>. Your account data (email, name, username, workouts, meals, settings, social activity) is stored with Google Firebase in the USA based on your explicit consent to transfer abroad. Health data (heart rate, HRV, SpO₂, sleep, steps, weight, cycle, progress photos) is backed up to the cloud <b>only with your separate explicit consent</b>; otherwise it stays on your device. Other recipients: Google Health API (reading Fitbit data with your permission), Cloudflare Workers and Web Push services (friend notifications), GitHub (hosting). Scores are computed on your device and are not medical advice. You can download or delete all your data in Settings → Account, and contact us for any other request under KVKK Art. 11. User content shared with friends can be blocked or reported in the app; unlawful or infringing content is removed within 48 hours of notice.</p>
+<h2>9. Değişiklikler</h2>
+<p>Bu Aydınlatma Metni gerektiğinde güncellenebilir. Güncel sürüm her zaman bu sayfada yayımlanır ve önemli değişiklikler Uygulama içinde bildirilir.</p>
 </main>
 <script>
 (function(){var c=(window.HM_CONFIG||{}).contact||{},em=c.email,gh=c.github||'https://github.com/Yasindogruu/HypeMode/issues',nm=c.name||'Yasin Doğru';
-var h=(em?'<a href="mailto:'+em+'">'+em+'</a> · ':'')+'<a href="'+gh+'" target="_blank" rel="noopener">GitHub</a>';
-document.getElementById('ct').innerHTML=h;document.getElementById('ctl').textContent=nm;
-document.querySelectorAll('.ct2').forEach(function(e){e.innerHTML=h});document.querySelectorAll('.ctl2').forEach(function(e){e.textContent=nm})})();
+var h=(em?'<a href="mailto:'+em+'">'+em+'</a>':'<i>(e-posta adresi eklenecek)</i>')+' · <a href="'+gh+'" target="_blank" rel="noopener">GitHub</a>';
+document.querySelectorAll('.ct').forEach(function(e){e.innerHTML=h});document.querySelectorAll('.ctl').forEach(function(e){e.textContent=nm})})();
 </script>
 </body></html>

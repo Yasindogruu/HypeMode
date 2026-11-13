@@ -92,7 +92,7 @@ function makeUser() {
 
 /* ---------- giriş ekranı ---------- */
 const CSS = `
-#hmAuth .ck{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:12.5px;line-height:1.45;opacity:.85;text-align:left;cursor:pointer}#hmAuth .ck input{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:#ff5a3c}#hmAuth .ck a{color:#ff8a6a}
+#hmAuth .lg2{font-size:12.5px;line-height:1.5;opacity:.7;margin:14px 0 0;text-align:left}#hmAuth .lg2 a{color:#ff8a6a}#hmAuth .ck{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:12.5px;line-height:1.45;opacity:.85;text-align:left;cursor:pointer}#hmAuth .ck input{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:#ff5a3c}#hmAuth .ck a{color:#ff8a6a}
 #hmAuth{position:fixed;inset:0;z-index:500;background:var(--bg,#000);color:#fff;overflow:auto;display:flex;flex-direction:column;align-items:center;font-family:Inter,system-ui,sans-serif}
 #hmAuth:before{content:'';position:absolute;left:0;right:0;top:0;height:420px;background:radial-gradient(120% 90% at 50% 0%,rgba(var(--a1rgb,255,59,48),.75),rgba(var(--a1rgb,255,59,48),.12) 55%,transparent 80%);pointer-events:none}
 #hmAuth .in{position:relative;width:100%;max-width:400px;padding:calc(env(safe-area-inset-top) + 64px) 24px 40px}
@@ -149,17 +149,20 @@ function showLogin() {
     <form id="hmF" autocomplete="on">
       <label for="hmE">E-posta</label><input id="hmE" type="email" autocomplete="email" inputmode="email" required>
       ${rs ? '' : `<label for="hmP">Şifre${up ? ' (en az 6 karakter)' : ''}</label><input id="hmP" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" required minlength="6">`}
-      ${rs ? '' : `<label class="ck"><input type="checkbox" id="hmK" ${localStorage.getItem('hm-rz-cloud') ? 'checked' : ''}><span><a href="gizlilik.html" target="_blank" rel="noopener">Aydınlatma Metni</a>'ni okudum. Hesabımın ve verilerimin Google Firebase (ABD) sunucularında saklanmasına, yani yurt dışına aktarılmasına açık rıza veriyorum.</span></label>`}
+      ${rs ? '' : `<div class="lg2">${up ? 'Hesap oluşturarak <a href="kullanim-kosullari.html" target="_blank" rel="noopener">Kullanım Koşulları</a>\'nı kabul etmiş olursun. ' : ''}Kişisel verilerinin nasıl işlendiğini <a href="gizlilik.html" target="_blank" rel="noopener">Aydınlatma Metni</a>\'nde okuyabilirsin.</div>
+      <label class="ck"><input type="checkbox" id="hmK"><span><a href="acik-riza.html" target="_blank" rel="noopener">Açık Rıza Metni</a> kapsamında, hesabım ve cihazlar arası eşitleme için verilerimin yurt dışına (Google Firebase, ABD) aktarılmasına açık rıza veriyorum.</span></label>`}
       ${msg ? `<div class="${msg.ok ? 'ok' : 'er'}">${msg.t}</div>` : ''}
       <button class="b" id="hmB" type="submit">${rs ? 'Bağlantı gönder' : up ? 'Hesap oluştur' : 'Giriş yap'}</button>
     </form>
     ${rs || NATIVE() ? '' : `<div class="or"><span>ya da</span></div><button class="g" id="hmG"><svg viewBox="0 0 48 48" width="20" height="20"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Google ile devam et</button>`}
     ${rs ? '<button class="l" data-m="in">← Girişe dön</button>' : up ? '<button class="l" data-m="in">Zaten hesabım var · Giriş yap</button>' : '<button class="l" data-m="up">Hesabın yok mu? Hesap oluştur</button><button class="l" data-m="reset">Şifremi unuttum</button>'}
+    ${rs ? '' : '<button class="l" id="hmLocal" style="opacity:.75">Hesap açmadan devam et · veriler yalnızca bu cihazda</button>'}
     ${NATIVE() ? '<div class="tip">📱 iPhone uygulamasında e-posta ve şifreyle giriş yapılır (Google, uygulama içinden girişe izin vermiyor).</div>' : ''}
     ${isIOS() && !standalone() && !NATIVE() ? '<div class="tip">📱 <b>Uygulama gibi kullanmak için:</b> Safari\'de alttaki Paylaş düğmesine (□↑) bas → <b>Ana Ekrana Ekle</b>. Sonra HypeMode\'u ana ekrandaki simgeden aç; bildirimler de ancak böyle çalışır.</div>' : ''}
   </div>`;
   const g = document.getElementById('hmG');
-  const ckOk = () => { const k = document.getElementById('hmK'); if (k && !k.checked) { msg = { t: 'Devam etmek için Aydınlatma Metni onayını işaretle.' }; showLogin(); return false } localStorage.setItem('hm-rz-cloud', String(Date.now())); return true };
+  const ckOk = () => { const k = document.getElementById('hmK'); if (k && !k.checked) { msg = { t: 'Hesap kullanmak için yurt dışı aktarım onayı gerekiyor. İstemiyorsan aşağıdan hesapsız devam edebilirsin.' }; showLogin(); return false } localStorage.setItem('hm-rz-cloud', String(Date.now())); return true };
+  const lc = document.getElementById('hmLocal'); if (lc) lc.onclick = () => { localStorage.setItem('hm-local', '1'); localStorage.removeItem('hm-rz-cloud'); hideOvl(); ready(null) };
   if (g) g.onclick = async () => {
     if (!ckOk()) return;
     g.disabled = true; g.lastChild.textContent = 'Bekle…';
@@ -187,6 +190,7 @@ function showLogin() {
 const pushOk = () => !!(C.push && C.push.worker && C.push.vapidPublic) && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 window.HMAcct = {
   card() {
+    if (localStorage.getItem('hm-local') === '1') return `<div class="card hmacc"><b>👤 Hesap</b><div class="lbl" style="margin:6px 0 12px;line-height:1.5">Hesapsız kullanıyorsun: verilerin yalnızca bu cihazda. Hesap açarsan cihazların arasında eşitlenir ve arkadaş özellikleri açılır.</div><div class="row2"><button class="btn" onclick="HMAcct.goAcct()">Hesap aç / giriş yap</button><button class="btn ghost" onclick="A.backupFile()">⬇️ Verilerimi indir</button></div></div>`;
     let pz = '';
     if (NATIVE()) pz = '<div class="lbl" style="margin-top:8px">📱 iPhone uygulaması: su, yemek, antrenman ve uyku hatırlatmaları kapalıyken de gelir (Ayarlar → Hatırlatmalar). Arkadaş dürtmeleri uygulama kapalıyken sadece ana ekrandaki web sürümüne gelir.</div>';
     else if (!(C.push && C.push.worker)) pz = '<div class="lbl" style="margin-top:8px">Kapalıyken bildirim kurulmamış (kurulum rehberi, isteğe bağlı adım).</div>';
@@ -199,11 +203,12 @@ window.HMAcct = {
       <div class="row2"><button class="btn ghost" onclick="A.backupFile()">⬇️ Verilerimi indir</button><button class="btn ghost" onclick="HMAcct.out()">Çıkış yap</button></div>
       <button class="link" style="margin-top:12px;color:var(--bad);font-size:13px" onclick="HMAcct.del()">Hesabımı ve tüm verilerimi sil</button></div>`;
   },
+  goAcct() { localStorage.removeItem('hm-local'); location.reload() },
   async out() {
     if (!confirm('Çıkış yapılsın mı? Verilerin hesabında kalır; bu cihazdaki kopya silinir.')) return;
     try { await unsubscribePush() } catch (e) { }
     try { await B.signOut() } catch (e) { }
-    try { localStorage.removeItem(APP_KEY); localStorage.removeItem('hm-uid'); localStorage.removeItem('hm-push') } catch (e) { }
+    try { localStorage.removeItem(APP_KEY); localStorage.removeItem('hm-uid'); localStorage.removeItem('hm-push'); localStorage.removeItem('hm-rz-cloud') } catch (e) { }
     location.reload();
   },
   async del() {
@@ -226,7 +231,7 @@ window.HMAcct = {
       try { await unsubscribePush() } catch (e) { }
       await B.deleteUser();
     } catch (e) { pushState = ''; alert('Silme tamamlanamadı: ' + (e && (e.code || e.message) || e) + '\nTekrar dene.'); rerender(); return; }
-    try { localStorage.removeItem(APP_KEY); localStorage.removeItem('hm-uid'); localStorage.removeItem('hm-push') } catch (e) { }
+    try { localStorage.removeItem(APP_KEY); localStorage.removeItem('hm-uid'); localStorage.removeItem('hm-push'); localStorage.removeItem('hm-rz-cloud') } catch (e) { }
     alert('Hesabın ve tüm verilerin silindi.'); location.reload();
   },
   async push() { await enablePush(true); rerender() },
@@ -284,6 +289,7 @@ async function boot() {
   if (!window.__HM_MOCK && !(C.firebase && C.firebase.apiKey && !/YAPISTIR|PASTE/.test(C.firebase.apiKey))) {
     showError('<b>Kurulum eksik.</b><br>config.js dosyasına Firebase bilgilerini yapıştırman gerekiyor (kurulum rehberi, adım 4).'); return;
   }
+  if (localStorage.getItem('hm-local') === '1') { ready(null); return }
   const known = localStorage.getItem('hm-uid');
   if (!known) showLoading();
   try { B = await loadBackend() } catch (e) {
