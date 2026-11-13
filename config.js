@@ -10,7 +10,7 @@ window.HM_CONFIG = {
     appId: "1:937892675224:web:237ed8d8a32e613adbdaed"
   },
   // Yasal iletişim (aydınlatma metni ve şikayetler için). E-posta eklemen önerilir (KVKK başvuruları için).
-  contact: { name: "Yasin Doğru", email: "", github: "https://github.com/Yasindogruu/HypeMode/issues" },
+  contact: { name: "Yasin Doğru", email: "ysndogru54@gmail.com", github: "https://github.com/Yasindogruu/HypeMode/issues" },
   // 2) İsteğe bağlı: kapalıyken bildirim. Cloudflare Worker adresini "worker" alanına yapıştır.
   push: {
     worker: "https://hypemode-push.ysndogru54.workers.dev",
