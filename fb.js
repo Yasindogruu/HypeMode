@@ -2,7 +2,6 @@
 // Uygulama, Claude yapıtındaki claude.use('db'|'user') arayüzünü bekliyor.
 // Bu dosya aynı arayüzü Firebase Auth (e-posta/şifre) + Firestore ile sağlar.
 const C = window.HM_CONFIG || {};
-const SDK = 'https://www.gstatic.com/firebasejs/' + (C.sdkVersion || '13.2.0') + '/';
 const APP_KEY = 'pulse-coach-v1';
 const ready = window.__hmResolve || (() => {});
 let B = null, ME = null, ovl = null, pushState = '';
@@ -10,8 +9,8 @@ let B = null, ME = null, ovl = null, pushState = '';
 /* ---------- arka uç (Firebase ya da test için sahte) ---------- */
 async function loadBackend() {
   if (window.__HM_MOCK) return window.__HM_MOCK;
-  const [{ initializeApp }, A, F] = await Promise.all([
-    import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore-lite.js')]);
+  // Firebase SDK kendi sunucumuzdan (fb-sdk.js) yüklenir; gstatic'e istek gitmez
+  const M = await import('./fb-sdk.js?v=13.3.0'); const [{ initializeApp }, A, F] = [M.APP, M.AUTH, M.FS];
   const app = initializeApp(C.firebase);
   const auth = A.getAuth(app);
   const db = F.getFirestore(app);
@@ -48,7 +47,7 @@ async function loadBackend() {
 /* ---------- claude.use('db') uyumlu katman ---------- */
 // Firestore iç içe dizileri desteklemediği için gövde JSON metni olarak saklanır;
 // sorgu ve güvenlik kuralları için gereken alanlar ayrıca üst seviyeye yazılır.
-const IDX = ['username', 'to', 'from', 'uid'];
+const IDX = ['username', 'to', 'from', 'uid', 'type'];
 const enc = b => {
   const o = { j: JSON.stringify(b) }; IDX.forEach(k => { if (b && typeof b[k] === 'string') o[k] = b[k] });
   if (b && Array.isArray(b.fr)) o.fr = b.fr.filter(x => typeof x === 'string').slice(0, 300); // güvenlik kuralı için: profili kimler görebilir
@@ -93,6 +92,7 @@ function makeUser() {
 
 /* ---------- giriş ekranı ---------- */
 const CSS = `
+#hmAuth .ck{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:12.5px;line-height:1.45;opacity:.85;text-align:left;cursor:pointer}#hmAuth .ck input{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:#ff5a3c}#hmAuth .ck a{color:#ff8a6a}
 #hmAuth{position:fixed;inset:0;z-index:500;background:var(--bg,#000);color:#fff;overflow:auto;display:flex;flex-direction:column;align-items:center;font-family:Inter,system-ui,sans-serif}
 #hmAuth:before{content:'';position:absolute;left:0;right:0;top:0;height:420px;background:radial-gradient(120% 90% at 50% 0%,rgba(var(--a1rgb,255,59,48),.75),rgba(var(--a1rgb,255,59,48),.12) 55%,transparent 80%);pointer-events:none}
 #hmAuth .in{position:relative;width:100%;max-width:400px;padding:calc(env(safe-area-inset-top) + 64px) 24px 40px}
@@ -149,6 +149,7 @@ function showLogin() {
     <form id="hmF" autocomplete="on">
       <label for="hmE">E-posta</label><input id="hmE" type="email" autocomplete="email" inputmode="email" required>
       ${rs ? '' : `<label for="hmP">Şifre${up ? ' (en az 6 karakter)' : ''}</label><input id="hmP" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" required minlength="6">`}
+      ${rs ? '' : `<label class="ck"><input type="checkbox" id="hmK" ${localStorage.getItem('hm-rz-cloud') ? 'checked' : ''}><span><a href="gizlilik.html" target="_blank" rel="noopener">Aydınlatma Metni</a>'ni okudum. Hesabımın ve verilerimin Google Firebase (ABD) sunucularında saklanmasına, yani yurt dışına aktarılmasına açık rıza veriyorum.</span></label>`}
       ${msg ? `<div class="${msg.ok ? 'ok' : 'er'}">${msg.t}</div>` : ''}
       <button class="b" id="hmB" type="submit">${rs ? 'Bağlantı gönder' : up ? 'Hesap oluştur' : 'Giriş yap'}</button>
     </form>
@@ -158,7 +159,9 @@ function showLogin() {
     ${isIOS() && !standalone() && !NATIVE() ? '<div class="tip">📱 <b>Uygulama gibi kullanmak için:</b> Safari\'de alttaki Paylaş düğmesine (□↑) bas → <b>Ana Ekrana Ekle</b>. Sonra HypeMode\'u ana ekrandaki simgeden aç; bildirimler de ancak böyle çalışır.</div>' : ''}
   </div>`;
   const g = document.getElementById('hmG');
+  const ckOk = () => { const k = document.getElementById('hmK'); if (k && !k.checked) { msg = { t: 'Devam etmek için Aydınlatma Metni onayını işaretle.' }; showLogin(); return false } localStorage.setItem('hm-rz-cloud', String(Date.now())); return true };
   if (g) g.onclick = async () => {
+    if (!ckOk()) return;
     g.disabled = true; g.lastChild.textContent = 'Bekle…';
     try { await B.google(); msg = null }
     catch (err) { const c = String(err && err.code || ''); const t = c in AUTH_ERR ? AUTH_ERR[c] : ('Google girişi olmadı: ' + esc(c || err.message || err)); msg = t ? { t } : null; showLogin() }
@@ -167,6 +170,7 @@ function showLogin() {
   const f = document.getElementById('hmF');
   f.onsubmit = async ev => {
     ev.preventDefault(); const e = document.getElementById('hmE').value.trim(), pEl = document.getElementById('hmP'), p = pEl ? pEl.value : '';
+    if (mode !== 'reset' && !ckOk()) { const ee = document.getElementById('hmE'); if (ee) ee.value = e; return }
     const btn = document.getElementById('hmB'); btn.disabled = true; btn.textContent = 'Bekle…';
     try {
       if (mode === 'reset') { await B.reset(e); msg = { ok: true, t: 'Bağlantı gönderildi. E-postanı (gerekirse spam klasörünü) kontrol et.' }; mode = 'in'; showLogin(); return }
