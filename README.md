@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="icon-192.png" width="96" alt="HypeMode simgesi">
+<img src="hm-icon-192-v3.png" width="96" alt="HypeMode simgesi">
 
 # HypeMode
 
