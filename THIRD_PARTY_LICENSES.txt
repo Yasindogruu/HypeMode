@@ -1,0 +1,8 @@
+HypeMode bundles the following third-party software and fonts:
+
+- Firebase JavaScript SDK (fb-sdk.js) — Copyright Google LLC — Apache License 2.0
+  https://github.com/firebase/firebase-js-sdk · https://www.apache.org/licenses/LICENSE-2.0
+- Inter (f-inter-*.woff2) — Copyright The Inter Project Authors — SIL Open Font License 1.1
+- Unbounded (f-unbounded-*.woff2) — Copyright The Unbounded Project Authors — SIL Open Font License 1.1
+- Oswald (f-oswald-*.woff2) — Copyright The Oswald Project Authors — SIL Open Font License 1.1
+  https://openfontlicense.org
