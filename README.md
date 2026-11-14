@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="hm-icon-192-v3.png" width="96" alt="HypeMode simgesi">
+<img src="assets/icons/hm-icon-192-v3.png" width="96" alt="HypeMode simgesi">
 
 # HypeMode
 
@@ -100,11 +100,11 @@
 3. Simgeden aç; e-posta ya da Google ile hesap oluştur veya hesap açmadan devam et.
 4. Bildirim için **Ayarlar → Hesap → Kapalıyken bildirimleri aç**'a bas.
 
-**iOS uygulaması (Apple Sağlık + canlı nabız):** Xcode projesiyle kişisel cihaza yüklenir. Uygulama siteyi yüklediği için web'deki her güncelleme uygulamaya da anında gelir.
+**iOS uygulaması (Apple Sağlık + canlı nabız):** [ios/](ios/README.md) klasöründeki Xcode projesiyle kişisel cihaza yüklenir. Uygulama siteyi yüklediği için web'deki her güncelleme uygulamaya da anında gelir.
 
 ## Gizlilik ve güvenlik
 
-- **Yasal metinler:** [Aydınlatma Metni](https://yasindogruu.github.io/HypeMode/gizlilik.html) · [Açık Rıza Metni](https://yasindogruu.github.io/HypeMode/acik-riza.html) · [Kullanım Koşulları](https://yasindogruu.github.io/HypeMode/kullanim-kosullari.html) · [Çerez ve Yerel Depolama](https://yasindogruu.github.io/HypeMode/cerez.html)
+- **Yasal metinler:** [Aydınlatma Metni](https://yasindogruu.github.io/HypeMode/legal/gizlilik.html) · [Açık Rıza Metni](https://yasindogruu.github.io/HypeMode/legal/acik-riza.html) · [Kullanım Koşulları](https://yasindogruu.github.io/HypeMode/legal/kullanim-kosullari.html) · [Çerez ve Yerel Depolama](https://yasindogruu.github.io/HypeMode/legal/cerez.html)
 - **Açık rıza:** Verilerin yurt dışındaki sunuculara (Google Firebase, ABD) aktarılması ve sağlık verilerinin buluta yedeklenmesi için ayrı ayrı onay istenir. Sağlık verisine onay vermezsen bu veriler yalnızca cihazında kalır. Onaylarını Ayarlar → Gizlilik ve yasal bölümünden istediğin an değiştirebilirsin.
 - **Hesapsız kullanım:** İstersen hesap açmadan, veriler yalnızca cihazında kalacak şekilde kullanabilirsin.
 - **Takip yok:** Reklam, analitik, oturum kaydı ya da takip aracı kullanılmaz. Yazı tipleri ve Firebase kütüphanesi de kendi sunucumuzdan yüklenir.
@@ -119,16 +119,26 @@
 
 ## Depo düzeni
 
-| Yol | İçerik |
-|---|---|
-| `index.html` | Uygulamanın tamamı (tek dosya) |
-| `sw.js`, `manifest.webmanifest` | Çevrimdışı çalışma ve ana ekrana ekleme |
-| `fb.js`, `fb-sdk.js`, `config.js` | Hesap, bulut ve arkadaş özellikleri (Firebase) |
-| `m3d.js` | Egzersiz Akademisi'ndeki 3D hareket animasyonları |
-| `firestore.rules` | Veritabanı güvenlik kuralları |
-| `gizlilik.html`, `acik-riza.html`, `kullanim-kosullari.html`, `cerez.html` | Yasal metinler |
-| `hm-*.png`, `f-*.woff2` | Simgeler ve yazı tipleri |
-| `docs/screenshots/` | Ekran görüntüleri; eski sürüm `docs/screenshots/eski/` içinde |
+```
+HypeMode/
+├── index.html            Web uygulaması (GitHub Pages bu dosyayı yayınlar)
+├── sw.js                 Çevrimdışı çalışma ve bildirimler
+├── manifest.webmanifest  Ana ekrana ekleme
+├── 404.html              Eski bağlantıları yeni klasörlere yönlendirir
+├── assets/
+│   ├── fonts/            Yazı tipleri (kendi sunucumuzdan)
+│   └── icons/            Uygulama simgeleri
+├── js/                   Firebase, hesap/arkadaş özellikleri, 3D animasyonlar
+├── legal/                Aydınlatma metni, açık rıza, kullanım koşulları, çerez
+├── firebase/             Veritabanı güvenlik kuralları
+├── ios/                  iOS uygulaması (Swift · HealthKit · Bluetooth)  → ios/README.md
+├── tools/                Python araçları: veri analizi, ekran görüntüsü  → tools/README.md
+└── docs/screenshots/     Ekran görüntüleri; eski sürüm eski/ içinde
+```
+
+## Python ile veri analizi
+
+`tools/analyze.py` uygulamadan indirdiğin yedeği okuyup grafikli bir rapor çıkarır: haftalık hacim, güç gelişimi, HRV trendi, uyku ↔ antrenman ilişkisi, beslenme ve kilo. Ayrıntılar: [tools/README.md](tools/README.md)
 
 ## Lisans
 

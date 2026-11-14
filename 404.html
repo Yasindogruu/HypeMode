@@ -1,0 +1,9 @@
+<!doctype html><html lang="tr"><meta charset="utf-8"><title>HypeMode</title>
+<script>
+// Eski adresleri yeni klasörlere yönlendir
+(function(){var p=location.pathname,b=p.replace(/[^/]*$/,''),f=p.split('/').pop();
+var m={'gizlilik.html':'legal/','acik-riza.html':'legal/','kullanim-kosullari.html':'legal/','cerez.html':'legal/'};
+if(m[f]&&b.indexOf('/legal/')<0){location.replace(b+m[f]+f+location.search+location.hash);return}
+if(/^hm-.*\.png$/.test(f)){location.replace(b+'assets/icons/'+f);return}
+location.replace('/HypeMode/')})();
+</script><p>Yönlendiriliyor… <a href="/HypeMode/">HypeMode</a></p></html>

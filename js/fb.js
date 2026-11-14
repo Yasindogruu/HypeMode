@@ -149,8 +149,8 @@ function showLogin() {
     <form id="hmF" autocomplete="on">
       <label for="hmE">E-posta</label><input id="hmE" type="email" autocomplete="email" inputmode="email" required>
       ${rs ? '' : `<label for="hmP">Şifre${up ? ' (en az 6 karakter)' : ''}</label><input id="hmP" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" required minlength="6">`}
-      ${rs ? '' : `<div class="lg2">${up ? 'Hesap oluşturarak <a href="kullanim-kosullari.html" target="_blank" rel="noopener">Kullanım Koşulları</a>\'nı kabul etmiş olursun. ' : ''}Kişisel verilerinin nasıl işlendiğini <a href="gizlilik.html" target="_blank" rel="noopener">Aydınlatma Metni</a>\'nde okuyabilirsin.</div>
-      <label class="ck"><input type="checkbox" id="hmK"><span><a href="acik-riza.html" target="_blank" rel="noopener">Açık Rıza Metni</a> kapsamında, hesabım ve cihazlar arası eşitleme için verilerimin yurt dışına (Google Firebase, ABD) aktarılmasına açık rıza veriyorum.</span></label>`}
+      ${rs ? '' : `<div class="lg2">${up ? 'Hesap oluşturarak <a href="legal/kullanim-kosullari.html" target="_blank" rel="noopener">Kullanım Koşulları</a>\'nı kabul etmiş olursun. ' : ''}Kişisel verilerinin nasıl işlendiğini <a href="legal/gizlilik.html" target="_blank" rel="noopener">Aydınlatma Metni</a>\'nde okuyabilirsin.</div>
+      <label class="ck"><input type="checkbox" id="hmK"><span><a href="legal/acik-riza.html" target="_blank" rel="noopener">Açık Rıza Metni</a> kapsamında, hesabım ve cihazlar arası eşitleme için verilerimin yurt dışına (Google Firebase, ABD) aktarılmasına açık rıza veriyorum.</span></label>`}
       ${msg ? `<div class="${msg.ok ? 'ok' : 'er'}">${msg.t}</div>` : ''}
       <button class="b" id="hmB" type="submit">${rs ? 'Bağlantı gönder' : up ? 'Hesap oluştur' : 'Giriş yap'}</button>
     </form>
