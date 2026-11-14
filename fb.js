@@ -40,7 +40,7 @@ async function loadBackend() {
     set: (path, data) => F.setDoc(F.doc(db, path), data),
     del: path => F.deleteDoc(F.doc(db, path)),
     list: async col => rows(await F.getDocs(F.collection(db, col))),
-    where: async (col, f, v) => rows(await F.getDocs(F.query(F.collection(db, col), F.where(f, '==', v))))
+    where: async (col, f, v, op) => rows(await F.getDocs(F.query(F.collection(db, col), F.where(f, op || '==', v))))
   };
 }
 
@@ -78,7 +78,7 @@ function makeDb() {
     get: () => wrap(B.list(path).then(a => ({ docs: a.map(x => snap(x.id, x.data)) }))),
     where: (f, op, v) => ({
       get: () => {
-        const run = c => B.where(c, f, v).then(a => ({ docs: a.map(x => snap(x.id, x.data)) }));
+        const run = c => B.where(c, f, v, op).then(a => ({ docs: a.map(x => snap(x.id, x.data)) }));
         if (path === 'social' && f === 'username') return wrap(run('names').catch(() => run('social')));
         return wrap(run(path));
       }

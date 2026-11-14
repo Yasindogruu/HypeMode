@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Kendi verilerin (antrenman, beslenme, saglik...): sadece sen okur/yazarsin
+    match /data/users/{uid}/{doc} {
+      allow read, write: if isMe(uid);
+    }
+
+    // Arkadas profili (ad, son antrenman ozeti): sadece sahibi ve sahibinin arkadas listesindekiler okur
+    match /social/{uid} {
+      allow read: if isMe(uid) || (signedIn() && resource.data.fr is list && request.auth.uid in resource.data.fr);
+      allow create, update: if isMe(uid) && request.resource.data.uid == uid;
+      allow delete: if isMe(uid);
+    }
+
+    // Kullanici adi listesi (arkadas bulmak icin): sadece kullanici adi ve ad
+    match /names/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isMe(uid) && request.resource.data.username is string
+                   && request.resource.data.username.matches('^[a-z0-9_.]{3,20}$');
+      allow delete: if isMe(uid);
+    }
+
+    // Durtme, istek, begeni, yorum: gonderen kendi adina yazar; sadece gonderen ve alan gorur/siler
+    // Arkadaslik istegi herkese gidebilir; mesaj, durtme, yorum ve begeni yalnizca karsi tarafin arkadas listesindeysen
+    function isFriendOf(other) { return exists(/databases/$(database)/documents/social/$(other))
+      && get(/databases/$(database)/documents/social/$(other)).data.fr is list
+      && request.auth.uid in get(/databases/$(database)/documents/social/$(other)).data.fr; }
+    match /pokes/{id} {
+      allow read, delete: if signedIn() && (resource.data.to == request.auth.uid || resource.data.from == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.from == request.auth.uid
+                    && request.resource.data.to is string
+                    && (request.resource.data.type == 'req' || isFriendOf(request.resource.data.to));
+    }
+
+    // Yemek paylasimlari: sahibi yazar/siler; sadece sahibi ve gonderideki arkadas listesindekiler okur
+    match /posts/{id} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || (resource.data.fr is list && request.auth.uid in resource.data.fr));
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.fr is list
+                    && request.resource.data.j is string && request.resource.data.j.size() < 600000;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // Sikayetler: giris yapan herkes gonderebilir, kimse okuyamaz (yalnizca Firebase konsolundan)
+    match /reports/{id} {
+      allow create: if signedIn() && request.resource.data.from == request.auth.uid;
+    }
+
+    // Bildirim aboneligi: sahibi yazar, giris yapanlar bildirim gondermek icin okur
+    match /push/{uid} {
+      allow read: if isMe(uid) || isFriendOf(uid);
+      allow write: if isMe(uid);
+    }
+  }
+}
