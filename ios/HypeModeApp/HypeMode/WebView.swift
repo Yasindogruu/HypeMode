@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import WebKit
 import UserNotifications
+import WidgetKit
 
 let HM_URL = URL(string: "https://yasindogruu.github.io/HypeMode/")!
 
@@ -96,6 +97,12 @@ struct WebView: UIViewRepresentable {
                     add("swake", at, (b["body"] as? String) ?? "Uyku döngün bitti, kalkmak için en iyi an.")
                     if let at2 = b["at2"] as? Double, at2 > at { add("swake2", at2, "En geç kalkış saatin geldi.") }
                 }
+            case "widget":
+                if let snap = b["snap"] as? String {
+                    UserDefaults(suiteName: "group.com.yasindogru.hypemode")?.set(snap, forKey: "snap")
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+                reply(id, ["ok": true])
             case "open":
                 if let s = b["url"] as? String, let u = URL(string: s) { UIApplication.shared.open(u) }
             default: break

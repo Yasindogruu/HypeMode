@@ -1,5 +1,5 @@
 // HypeMode service worker: çevrimdışı açılış + kapalıyken bildirim
-const V = 'hm-v95';
+const V = 'hm-v96';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './assets/icons/hm-icon-192-v3.png', './assets/icons/hm-icon-512-v3.png', './assets/icons/hm-apple-v3.png', './assets/icons/hm-favicon-v3.png', './js/fb-sdk.js?v=13.3.0', './assets/fonts/f-inter-latin.woff2', './assets/fonts/f-inter-latin-ext.woff2', './assets/fonts/f-unbounded-latin.woff2', './assets/fonts/f-unbounded-latin-ext.woff2', './legal/gizlilik.html', './js/m3d.js?v=5'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())) });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())) });
