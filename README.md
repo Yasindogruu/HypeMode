@@ -138,7 +138,9 @@ HypeMode/
 
 ## Python ile veri analizi
 
-`tools/analyze.py` uygulamadan indirdiğin yedeği okuyup grafikli bir rapor çıkarır: haftalık hacim, güç gelişimi, HRV trendi, uyku ↔ antrenman ilişkisi, beslenme ve kilo. Ayrıntılar: [tools/README.md](tools/README.md)
+`tools/analyze.py` uygulamadan indirdiğin yedeği okuyup grafikli bir rapor çıkarır: haftalık hacim, güç gelişimi, HRV trendi, uyku ↔ antrenman ilişkisi, beslenme ve kilo.
+
+`tools/recovery_model.py` makine öğrenmesiyle **yarın sabahki toparlanmanı** tahmin eder (Ridge ve gradient boosting, zaman sıralı doğrulama, özellik önemi). Ayrıntılar: [tools/README.md](tools/README.md)
 
 ## Lisans
 
