@@ -6,6 +6,7 @@ final class HRM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var cm: CBCentralManager?
     private var p: CBPeripheral?
     private var wanted = false
+    private var batTimer: Timer?
     var onBpm: ((Int, String) -> Void)?
     var onState: ((String) -> Void)?
     var onBattery: ((Int, String) -> Void)?
@@ -22,6 +23,7 @@ final class HRM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         cm?.stopScan()
         if let p = p { cm?.cancelPeripheralConnection(p) }
         p = nil
+        batTimer?.invalidate(); batTimer = nil
         onState?("off")
     }
 
@@ -43,12 +45,14 @@ final class HRM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         if c.state == .poweredOn { scan() } else if wanted { onState?("bt-off") }
     }
     func centralManager(_ c: CBCentralManager, didDiscover x: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) { connect(x) }
-    func centralManager(_ c: CBCentralManager, didConnect x: CBPeripheral) { x.discoverServices([svc, bsvc]) }
+    func centralManager(_ c: CBCentralManager, didConnect x: CBPeripheral) { x.discoverServices(nil) }
     func centralManager(_ c: CBCentralManager, didFailToConnect x: CBPeripheral, error: Error?) { onState?("lost") }
     func centralManager(_ c: CBCentralManager, didDisconnectPeripheral x: CBPeripheral, error: Error?) {
         if wanted { onState?("lost"); c.connect(x, options: nil) }
     }
     func peripheral(_ x: CBPeripheral, didDiscoverServices error: Error?) {
+        let ids = (x.services ?? []).map { $0.uuid.uuidString }.joined(separator: ",")
+        onState?("svc:" + (ids.isEmpty ? "-" : ids))
         x.services?.forEach { sv in
             if sv.uuid == svc { x.discoverCharacteristics([chr], for: sv) }
             if sv.uuid == bsvc { x.discoverCharacteristics([bchr], for: sv) }
@@ -56,14 +60,23 @@ final class HRM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     func peripheral(_ x: CBPeripheral, didDiscoverCharacteristicsFor s: CBService, error: Error?) {
         if s.uuid == bsvc {
-            s.characteristics?.filter { $0.uuid == bchr }.forEach { x.readValue(for: $0); if $0.properties.contains(.notify) { x.setNotifyValue(true, for: $0) } }
+            let bc = s.characteristics?.filter { $0.uuid == bchr } ?? []
+            bc.forEach { x.readValue(for: $0); if $0.properties.contains(.notify) { x.setNotifyValue(true, for: $0) } }
+            batTimer?.invalidate()
+            if let c = bc.first {
+                batTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak x] _ in x?.readValue(for: c) }
+            }
             return
         }
         s.characteristics?.filter { $0.uuid == chr }.forEach { x.setNotifyValue(true, for: $0) }
         onState?("on")
     }
     func peripheral(_ x: CBPeripheral, didUpdateValueFor c: CBCharacteristic, error: Error?) {
-        if c.uuid == bchr, let d = c.value, let v = d.first { onBattery?(Int(v), x.name ?? "Bileklik"); return }
+        if c.uuid == bchr {
+            if let e = error { onState?("baterr:" + e.localizedDescription); return }
+            if let d = c.value, let v = d.first { onBattery?(Int(v), x.name ?? "Bileklik") }
+            return
+        }
         guard let d = c.value, d.count >= 2 else { return }
         let f = d[d.startIndex]
         let b1 = Int(d[d.startIndex + 1])

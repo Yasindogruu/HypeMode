@@ -46,7 +46,10 @@ struct WebView: UIViewRepresentable {
                 let n = name.replacingOccurrences(of: "'", with: "")
                 self?.js("window.__hmHR&&__hmHR(\(b),'\(n)')")
             }
-            hrm.onState = { [weak self] st in self?.js("window.__hmHRState&&__hmHRState('\(st)')") }
+            hrm.onState = { [weak self] st in
+                let t = st.replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "\\", with: "").replacingOccurrences(of: "\n", with: " ")
+                self?.js("window.__hmHRState&&__hmHRState('\(t)')")
+            }
             hrm.onBattery = { [weak self] v, name in
                 let n = name.replacingOccurrences(of: "'", with: "")
                 self?.js("window.__hmBat&&__hmBat(\(v),'\(n)')")
