@@ -1,44 +1,25 @@
-# HypeMode ekran görüntüleri
+# Screenshots
 
-[← Ana sayfaya dön](../../README.md) · [▶ Uygulamayı aç](https://yasindogruu.github.io/HypeMode/)
+[← Back](../../README.md) · [▶ Open the app](https://yasindogruu.github.io/HypeMode/) · Taken with sample data.
 
-Görüntüler örnek veriyle alınmıştır.
-
-## Güncel sürüm (Kasım 2026)
-
-### Bugün ve sağlık
-
-| Bugün | Kalp atışı | Uyku | Yük |
+| Today | Heart rate | Sleep | Strain |
 |:---:|:---:|:---:|:---:|
-| <img src="bugun.png" width="200" alt="Bugün ekranı: vücut tahmini, enerji eğrisi"> | <img src="kalp.png" width="200" alt="Kalp atışı detay sayfası"> | <img src="uyku.png" width="200" alt="Uyku detay sayfası"> | <img src="yuk.png" width="200" alt="Yük detay sayfası"> |
-| Vücut tahmini, 10 saatlik enerji eğrisi, HRV haritası | Gün boyu nabız, bölgeler, canlı nabız | Uyku skoru, evreler, düzen | 0–21 günlük yük |
+| <img src="today.png" width="200" alt="Today"> | <img src="heart.png" width="200" alt="Heart rate"> | <img src="sleep.png" width="200" alt="Sleep"> | <img src="strain.png" width="200" alt="Strain"> |
 
-### Antrenman, yemek ve araçlar
-
-| Antrenman | Yemek | Araçlar |
+| Workout | Food | Tools |
 |:---:|:---:|:---:|
-| <img src="antrenman.png" width="200" alt="Antrenman sayfası"> | <img src="yemek.png" width="200" alt="Yemek sayfası"> | <img src="araclar.png" width="200" alt="Araçlar sayfası"> |
-| Haftalık hedef, sıradaki antrenman, şablonlar | Yakıt paneli, öğünler, su ve içecekler | Kalori, BKİ, yağ oranı, 1RM, plaka, su, nabız bölgeleri |
+| <img src="workout.png" width="200" alt="Workout"> | <img src="food.png" width="200" alt="Food"> | <img src="tools.png" width="200" alt="Tools"> |
 
-### Profil ve ayarlar
-
-| Profil ve arkadaşlar | Ayarlar |
+| Profile & friends | Settings |
 |:---:|:---:|
-| <img src="profil.png" width="200" alt="Profil ve arkadaşlar sayfası"> | <img src="ayarlar.png" width="200" alt="Ayarlar sayfası"> |
-| Hikâyeler, akış, meydan okumalar, sıralama | Görünüm, dil, bildirimler, bağlantılar |
+| <img src="profile.png" width="200" alt="Profile and friends"> | <img src="settings.png" width="200" alt="Settings"> |
 
-### Büyük ekranlar
-
-| iPad (yatay) | Bilgisayar |
+| iPad | Desktop |
 |:---:|:---:|
-| <img src="ipad.png" width="420" alt="iPad yatay görünüm"> | <img src="masaustu.png" width="420" alt="Masaüstü görünüm"> |
+| <img src="ipad.png" width="420" alt="iPad landscape"> | <img src="desktop.png" width="420" alt="Desktop"> |
 
-## Eski sürüm
+## Earlier design
 
-İlk tasarımdan görüntüler, karşılaştırma için duruyor.
-
-| Bugün | Kalp | Uyku | Yük | Antrenman | Yemek |
+| Today | Heart | Sleep | Strain | Workout | Food |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| <img src="eski/home.png" width="130" alt="Eski Bugün ekranı"> | <img src="eski/heart.png" width="130" alt="Eski kalp sayfası"> | <img src="eski/sleep.png" width="130" alt="Eski uyku sayfası"> | <img src="eski/strain.png" width="130" alt="Eski yük sayfası"> | <img src="eski/workout.png" width="130" alt="Eski antrenman ekranı"> | <img src="eski/food.png" width="130" alt="Eski yemek ekranı"> |
-
-<img src="eski/desktop.png" width="600" alt="Eski masaüstü görünümü">
+| <img src="old/home.png" width="130" alt="Old Today"> | <img src="old/heart.png" width="130" alt="Old heart"> | <img src="old/sleep.png" width="130" alt="Old sleep"> | <img src="old/strain.png" width="130" alt="Old strain"> | <img src="old/workout.png" width="130" alt="Old workout"> | <img src="old/food.png" width="130" alt="Old food"> |

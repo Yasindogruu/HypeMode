@@ -1,26 +1,26 @@
-# HypeMode iOS uygulaması
+# HypeMode for iOS
 
-Web uygulamasını yerel bir iOS kabuğunda çalıştırır ve web'in yapamadığı şeyleri ekler:
+A native shell around the web app that adds what the web can't do:
 
-- **Apple Sağlık (HealthKit):** nabız, uyku, adım, kalori, HRV, SpO₂, solunum, VO₂max, kilo, boy ve antrenmanları okur; öğün, su, kafein, antrenman ve kiloyu yazar.
-- **Canlı nabız:** bileklikten Bluetooth (Heart Rate 0x180D) ile anlık nabız ve pil seviyesi.
-- **Akıllı uyandırma:** uyku döngüsüne göre yerel bildirim.
-- Kamera ve galeri erişimi.
+- **Apple Health** – reads heart rate, sleep, steps, HRV, SpO₂, weight and workouts; writes meals, water, caffeine, workouts and weight.
+- **Live heart rate** – over Bluetooth (Heart Rate service 0x180D), with battery level when the band supports it.
+- **Widgets** – home and lock screen: recovery, energy and sleep.
+- **Smart wake** – local notifications based on sleep cycles.
 
-Uygulama `https://yasindogruu.github.io/HypeMode/` adresini yüklediği için web'e gönderilen her güncelleme uygulamaya da anında gelir. Web ile uygulama arasındaki köprü `window.webkit.messageHandlers.hm` üzerinden çalışır.
+The app loads the live site, so web updates reach it instantly. Web ↔ native bridge: `window.webkit.messageHandlers.hm`.
 
-| Dosya | Görevi |
+| File | Purpose |
 |---|---|
-| `HypeMode/HypeModeApp.swift` | Uygulama girişi |
-| `HypeMode/WebView.swift` | WKWebView, JS köprüsü, izinler, bildirimler |
-| `HypeMode/Health.swift` | HealthKit okuma/yazma |
-| `HypeMode/HRM.swift` | CoreBluetooth canlı nabız ve pil |
+| `HypeMode/WebView.swift` | WKWebView, JS bridge, permissions, notifications |
+| `HypeMode/Health.swift` | HealthKit read/write |
+| `HypeMode/HRM.swift` | Bluetooth heart rate and battery |
+| `HypeModeWidget/` | WidgetKit extension |
 
-## Kurulum (kişisel cihaz, ücretsiz)
+## Install on your own device (free)
 
-1. `HypeModeApp/HypeMode.xcodeproj` dosyasını Xcode ile aç.
-2. TARGETS → HypeMode → Signing & Capabilities → **Team**: kendi Apple ID'n (Personal Team).
-3. Cihazı kabloyla bağla, üstten seç ve ▶'ye bas.
-4. Cihazda Ayarlar → Genel → VPN ve Cihaz Yönetimi → geliştirici sertifikasına **Güven**.
+1. Open `HypeModeApp/HypeMode.xcodeproj` in Xcode.
+2. For both targets, set **Signing → Team** to your Apple ID.
+3. Select your device and press ▶.
+4. On the device, trust the developer certificate in Settings → General → VPN & Device Management.
 
-Ücretsiz hesapla yüklenen uygulama 7 gün geçerlidir; süre dolunca ▶ ile yeniden yükle.
+Free signing lasts 7 days; press ▶ again to reinstall.

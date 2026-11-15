@@ -8,8 +8,8 @@ Kullanım:
 import argparse, asyncio, os
 from playwright.async_api import async_playwright
 
-PAGES = [("bugun", "home"), ("kalp", "hrd"), ("uyku", "slp"), ("yuk", "yuk"), ("antrenman", "programs"),
-         ("yemek", "food"), ("araclar", "tools"), ("profil", "friends"), ("ayarlar", "settings")]
+PAGES = [("today", "home"), ("heart", "hrd"), ("sleep", "slp"), ("strain", "yuk"), ("workout", "programs"),
+         ("food", "food"), ("tools", "tools"), ("profile", "friends"), ("settings", "settings")]
 PREP = """(()=>{A.obSkip();const S=window.__hm.S();S.settings.rz={v:2,cloud:false,health:true};A.giDemo();})()"""
 
 
@@ -30,7 +30,7 @@ async def shoot(url, out):
         pg = await page(390, 844, 2, True)
         for name, view in PAGES:
             await go(pg, view); await pg.screenshot(path=os.path.join(out, name + ".png")); print("✓", name)
-        for name, (w, h, t) in {"ipad": (1180, 820, True), "masaustu": (1440, 900, False)}.items():
+        for name, (w, h, t) in {"ipad": (1180, 820, True), "desktop": (1440, 900, False)}.items():
             pg = await page(w, h, 1, t); await go(pg, "home"); await pg.screenshot(path=os.path.join(out, name + ".png")); print("✓", name)
         await b.close()
 
