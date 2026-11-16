@@ -29,6 +29,7 @@ struct WebView: UIViewRepresentable {
         wv.navigationDelegate = context.coordinator
         if #available(iOS 16.4, *) { wv.isInspectable = true }
         context.coordinator.web = wv
+        HMVoice.shared.web = wv
         wv.load(URLRequest(url: HM_URL, cachePolicy: .reloadRevalidatingCacheData))
         return wv
     }
@@ -103,6 +104,7 @@ struct WebView: UIViewRepresentable {
             case "widget":
                 if let snap = b["snap"] as? String {
                     UserDefaults(suiteName: "group.com.yasindogru.hypemode")?.set(snap, forKey: "snap")
+                    UserDefaults.standard.set(snap, forKey: "hm-snap")
                     WidgetCenter.shared.reloadAllTimelines()
                 }
                 reply(id, ["ok": true])
