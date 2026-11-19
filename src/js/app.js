@@ -239,17 +239,14 @@ function programsV(){
   const rc=recov(),hist=S.sessions.slice().reverse(),shown=ui.histAll?hist:hist.slice(0,1);
   const ng=n?planGroups(n):[],nl=n?lastOfPlan(n):null,PH=S.settings.pgHide||['vol'],pv=k=>!PH.includes(k);
   return `<div class="st-hero">
-   <div class="st-top"><div class="st-title">Antrenman</div><button class="icon-btn" onclick="A.editPlan()" aria-label="Yeni şablon">${I.plus}</button></div>
+   <div class="st-top"><div class="st-title">Antrenman</div></div>
    ${wkPanel()}
    ${tpEntry()}
    ${n?`<div class="nx"><div class="nx-k">Sıradaki antrenman</div><div class="nx-t">${esc(n.name)}</div><div class="nx-tags">${gTags(ng)}</div>
      <div class="nx-m">${n.exercises.length} egzersiz · ${planSets(n)} set · ~${planMin(n)} dk${nl?' · son: '+ago(nl.date):''}</div>
      <div class="nx-a"><button class="btn" onclick="A.openPlan('${n.id}')">▶ Başla</button><button class="btn ghost" onclick="A.pickPlan()">Değiştir</button></div></div>`
-   :`<div class="nx"><div class="nx-t">Henüz şablon yok</div><div class="nx-m">İlk antrenman şablonunu oluştur ya da ev programlarından birini ekle.</div><div class="nx-a"><button class="btn" onclick="A.editPlan()">+ Şablon oluştur</button></div></div>`}
+   :`<div class="nx"><div class="nx-t">${TT('Henüz programın yok','No program yet')}</div><div class="nx-m">${TT('Hedefine ve seviyene göre programını oluştur; antrenman günlerin burada sırayla çıkar.','Build your program; your training days appear here in order.')}</div><div class="nx-a"><button class="btn" onclick="A.go('tprog')">${TT('Program oluştur','Build program')}</button></div></div>`}
    </div>
-  <div class="pad row between" style="align-items:flex-end"><div class="gcat">Şablonlar</div><button class="addl" onclick="A.editPlan()">+ Yeni</button></div>
-  <div class="tpx">${act.map((p,i)=>tplLine(p,n,i)).join('')}<button class="tpx-add" onclick="A.editPlan()"><span>＋</span>Yeni şablon oluştur</button></div>
-  ${arc.length?`<div class="pad"><button class="exbtn" onclick="A.arcToggle()">${TT('Arşiv','Archive')} (${arc.length}) <span>${ui.arcOpen?'▴':'▾'}</span></button></div>${ui.arcOpen?`<div class="tl">${arc.map(p=>tplRow(p,null)).join('')}</div>`:''}`:''}
   <div class="st-hero2">
    <div class="loc-sw"><button class="${S.settings.loc!=='home'?'on':''}" onclick="A.setLoc('gym')">Salon</button><button class="${S.settings.loc==='home'?'on':''}" onclick="A.setLoc('home')">Ev</button></div>
    ${S.settings.loc==='home'?`<button class="loc-eq" onclick="A.locEq()"><span>Evdeki ekipman: <b>${homeEq().filter(x=>x!=='bodyweight').map(k=>(EQ.find(q=>q[0]===k)||[0,0,k])[2]).join(', ')||'sadece vücut ağırlığı'}</b></span><i>Düzenle ›</i></button>`:''}
@@ -1816,7 +1813,7 @@ ${JSON.stringify(ctx)}`;
   wkGoal(){A.pick({t:TT('Haftalık antrenman hedefi','Weekly workout goal'),v:S.settings.wkGoal||3,min:1,max:7,step:1,u:TT('antrenman','workouts'),cb:v=>{S.settings.wkGoal=v;save();render(true)}})},
   frOpenU(u){const i=(ui._F||[]).findIndex(f=>f.uid===u);if(i<0){ui._F=(S.friends||[]).map(f=>({...f,d:SOC.friends[f.uid]}))}const j=(ui._F||[]).findIndex(f=>f.uid===u);if(j>=0)A.frOpen(j)},
   chJoin(id){const c=new Set((S.social&&S.social.ch)||[]);c.has(id)?c.delete(id):c.add(id);S.social={...(S.social||{}),ch:[...c]};SOC.lastPush=null;save();socPush();render(true)},
-  async plike(pid,fid){const k='like:'+pid;S.sentFx=S.sentFx||{};if(S.sentFx[k])return;const f=(S.friends||[]).find(x=>x.uid===fid)||{};const ok=await inboxSend(fid,{type:'like',ref:pid,msg:'🍽️ paylaşımını beğendi'});if(ok){S.sentFx={...S.sentFx,[k]:1};save();render(true)}else toast(TT('Gönderilemedi','Could not send'))},
+  plike(pid,fid){return A._lk(fid,pid,'paylaşımını beğendi')},
   story(uid){const me=uid==='me'||uid===SOC.me,id=me?SOC.me:uid,L=(SOC.posts||[]).filter(p=>p.uid===id).sort((a,b)=>a.at-b.at);if(!L.length)return;
     const d=me?{name:S.profile.name,photo:S.profile.photo,username:S.profile.username}:((SOC.friends[id]||{}));const day=L.filter(p=>Date.now()-p.at<864e5);let i=day.length?L.length-day.length:Math.max(0,L.length-5);const Ls=L.slice(i);i=0;
     A.storyClose();const o=document.createElement('div');o.className='sty';o.setAttribute('role','dialog');document.body.appendChild(o);let T=null;
@@ -2415,8 +2412,13 @@ SADECE JSON: {"recipes":[{"name":"","time":15,"kcal":0,"p":0,"c":0,"f":0,"ingred
   pcPos(v){ui.pcPos=+v;const b=document.querySelector('.cmp-b'),l=document.querySelector('.cmp-l');if(b)b.style.clipPath=`inset(0 0 0 ${v}%)`;if(l)l.style.left=v+'%'},
   pcDel(id){ask('Bu ilerleme fotoğrafı silinsin mi?',()=>{S.photos=S.photos.filter(p=>p.id!==id);ui.pcSel=null;save();render(true)},'Sil')},
   /* ---- arkadaş: beğeni, yorum, program kopyalama ---- */
-  async like(fid,un,sid){const k='like:'+sid;S.sentFx=S.sentFx||{};if(S.sentFx[k])return toast('Zaten beğendin');const ok=await inboxSend(fid,{type:'like',ref:sid,msg:'👏 antrenmanını beğendi'});
-    if(ok){S.sentFx={...S.sentFx,[k]:1};save();render(true);toast('👏 Beğendin')}else toast('Gönderilemedi')},
+  like(fid,un,sid){return A._lk(fid,sid,'👏 antrenmanını beğendi')},
+  async _lk(fid,ref,msg){const k='like:'+ref;S.sentFx=S.sentFx||{};const cur=S.sentFx[k];tap();
+    if(cur){const n={...S.sentFx};delete n[k];S.sentFx=n;save();render(true);if(typeof cur==='string'&&SDB())try{await SDB().collection('pokes').doc(cur).delete()}catch(e){}return}
+    S.sentFx={...S.sentFx,[k]:1};save();render(true);
+    const pid=await inboxSend(fid,{type:'like',ref,msg});
+    if(pid){S.sentFx={...S.sentFx,[k]:pid};save()}else{const n={...S.sentFx};delete n[k];S.sentFx=n;save();render(true);
+      toast(!SDB()?TT('Beğenmek için hesabına giriş yap','Sign in to like'):SOC.sendErr==='perm'?TT('Beğenilemedi: arkadaşın seni henüz eklememiş','Could not like: your friend has not added you yet'):TT('Gönderilemedi, bağlantını kontrol et','Could not send, check your connection'))}},
   async hrmConnect(){if(HMN()){HRM.nat={name:'Nabız',on:false};S.settings.hrmAuto=1;save();webkit.messageHandlers.hm.postMessage({cmd:'hrm',on:true});return}if(!navigator.bluetooth){sheet(`<h3>${TT('Canlı nabız','Live heart rate')}</h3><p class="lbl" style="line-height:1.5">${TT('iPhone ve iPad\'de Safari Bluetooth\'a izin vermiyor. Canlı nabız için HypeMode\'u ücretsiz <b>Bluefy</b> tarayıcısında aç (App Store). Android ve bilgisayarda Chrome ile çalışır.','Safari on iPhone/iPad has no Bluetooth access. Open HypeMode in the free Bluefy browser (App Store). Works in Chrome on Android and desktop.')}</p><p class="lbl" style="line-height:1.5">${TT('Bileklikte nabız yayınını aç: Google Health uygulaması → cihazın → <b>Nabzı paylaş</b>.','Turn on heart rate sharing on your band (Google Health app → device → Share heart rate).')}</p>`);return}
     try{const dev=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});HRM.dev=dev;
       dev.addEventListener('gattserverdisconnected',async()=>{if(HRM.dev!==dev)return;try{await A.hrmLink(dev)}catch(e){HRM.bpm=null;hrmPaint();render(true);toast(TT('Nabız bağlantısı koptu','HR disconnected'))}});

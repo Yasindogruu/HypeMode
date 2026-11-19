@@ -129,7 +129,7 @@ function sleepDV(){const d=ui.hdDay||dkey(),H=HD(),x=H[d]||{},sl=x.sleep||{},sc=
     <div class="drl"><span><i class="sq" style="background:#ffb547"></i>${TT('Uyku borcu','Sleep debt')}</span><div><b>+${debtAdd} dk</b></div></div>
     <div class="lbl" style="margin-top:10px;line-height:1.5">${TT(`Dün geceye ${tmT(debt)} uyku borcuyla girdin; son yükün ihtiyacına ${strAdd} dk ekledi.`,`You carried ${tmT(debt)} of sleep debt into last night; recent strain added ${strAdd} min to your need.`)}</div></div>
    <div class="dp-t">${TT('Uyku düzeni · son 7 gece','Sleep consistency · last 7 nights')}</div>${sleepCons(d)}
-   <div class="dp-t">${TT('Şekerlemeler','Naps')}<small>${TT('son 7 gün','last 7 days')}</small></div>${napsCard(d)}
+   <div class="dp-t">${TT('Şekerlemeler','Naps')}<small>${new Date(d+'T12:00').toLocaleDateString(LOC(),{day:'numeric',month:'long'})}</small></div>${napsCard(d)}
    <div class="dp-t">${TT('Uykuyu anlamak','Understand your night')}</div>
    <div class="dp-c dpl"><button class="dpr" onclick="__inf('d')"><div><b>${TT('Uyku evreleri ne anlama gelir','What the stages mean')}</b></div><i>›</i></button><button class="dpr" onclick="__inf('need')"><div><b>${TT('Uyku ihtiyacı nasıl hesaplanır','How sleep need is calculated')}</b></div><i>›</i></button><button class="dpr" onclick="__inf('cons')"><div><b>${TT('Düzen neden önemli','Why consistency matters')}</b></div><i>›</i></button></div>
    <div style="height:120px"></div></div>`}
@@ -170,8 +170,8 @@ function sleepCons(d){const days=lastNDays(d,7).reverse(),rows=days.map(k=>({k,.
     <path d="${line('b')}" fill="none" stroke="currentColor" stroke-opacity=".75" stroke-width="1.4" stroke-dasharray="4 3"/><path d="${line('w')}" fill="none" stroke="currentColor" stroke-opacity=".75" stroke-width="1.4" stroke-dasharray="4 3"/>
     ${last.b!=null?pill(X(n-1),Math.max(10,Y(last.b)-12),mfmt(last.b))+pill(X(n-1),Math.min(Hh-B-2,Y(last.w)+12),mfmt(last.w)):''}</svg>
    <div class="lbl" style="margin-top:8px;line-height:1.5">${TT('Her çubuk bir gece: üst ucu yatış, alt ucu kalkış saati. Kesikli çizgiler önceki gecelerine göre ideal saatlerin; çubuklar çizgilere yakın kaldıkça düzenin yükselir.','Each bar is one night: the top is bedtime, the bottom is wake time. Dashed lines are your ideal times based on previous nights; staying close to them raises your score.')}</div></div>`}
-function napsCard(d){const H=HD(),days=lastNDays(d,7),naps=[];days.forEach(k=>{const sl=(H[k]||{}).sleep||{};(sl.naps||[]).forEach((n,i)=>naps.push({k,i,...n}))});
-  if(!naps.length)return `<div class="dp-c"><div class="nap0"><span>${lic('sun',20)}</span><div><b>${TT('Bu hafta şekerleme yok','No naps this week')}</b><small>${TT('Gündüz 15 dk\'dan uzun uyuduğunda Fitbit bunu şekerleme olarak kaydeder ve burada görünür.','When you sleep more than 15 min during the day, Fitbit records it as a nap and it shows here.')}</small></div></div></div>`;
+function napsCard(d){const H=HD(),days=[d],naps=[];days.forEach(k=>{const sl=(H[k]||{}).sleep||{};(sl.naps||[]).forEach((n,i)=>naps.push({k,i,...n}))});
+  if(!naps.length)return `<div class="dp-c"><div class="nap0"><span>${lic('sun',20)}</span><div><b>${TT('Bu gün şekerleme yok','No naps this day')}</b><small>${TT('Gündüz 15 dk\'dan uzun uyuduğunda Fitbit bunu şekerleme olarak kaydeder ve burada görünür.','When you sleep more than 15 min during the day, Fitbit records it as a nap and it shows here.')}</small></div></div></div>`;
   return naps.slice().reverse().map((n,j)=>{const x=H[n.k]||{},b=hm(n.bed),w=hm(n.wake),span=((w-b)%1440+1440)%1440||n.min;let pts=[];
     if(x.hr1){for(let m=0;m<=span;m++){const v=x.hr1[(b+m)%1440];if(v!=null)pts.push([m/span,v,mfmt(b+m)])}}else if(x.hr15){for(let m=0;m<=span;m+=15){const v=x.hr15[Math.floor(((b+m)%1440)/15)];if(v!=null)pts.push([m/span,v,mfmt(b+m)])}}
     const vs=pts.map(p=>p[1]),avg=vs.length?Math.round(vs.reduce((a,c)=>a+c,0)/vs.length*10)/10:null;
@@ -399,7 +399,8 @@ const I={
 
 /* ---------- data helpers ---------- */
 const plan=id=>S.plans.find(p=>p.id===id);
-const activePlans=()=>S.plans.filter(p=>!p.archived);
+/* yalnızca antrenman programının günleri (şablonlar kaldırıldı) */
+const activePlans=()=>((S.tp&&S.tp.ids)||[]).map(id=>S.plans.find(p=>p.id===id)).filter(p=>p&&!p.archived);
 const todaysPlan=()=>{const a=activePlans();return a.length?a[S.next%a.length]:null};
 const STALE=60*864e5;
 function lastPerf(name){

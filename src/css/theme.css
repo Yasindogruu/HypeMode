@@ -403,3 +403,4 @@ html:not(.lowpow) .chk svg{animation:ckpop .34s cubic-bezier(.3,1.6,.5,1)}@keyfr
 @keyframes pfc{from{transform:scale(.6);opacity:0}}@keyframes pfp{0%{opacity:1;transform:rotate(var(--a)) translateY(0)}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(-1 * var(--d) - 60px))}}@keyframes pfo{0%,80%{opacity:1}100%{opacity:0}}
 .prfx.calm,.prfx.calm .prfx-c{animation:none}
 @media (prefers-reduced-motion:reduce){.toast,.toast .tk,.chk svg,.prfx,.prfx-c{animation:none!important}.toast .tk{stroke-dashoffset:0}button:active{transform:none!important}}
+.fp-a button.on .ei-heart{fill:#ff4d5e;stroke:#ff4d5e}html:not(.lowpow) .fp-a button.on .ei-heart{animation:lkp .4s cubic-bezier(.3,1.8,.5,1)}@keyframes lkp{0%{transform:scale(.5)}100%{transform:scale(1)}}
