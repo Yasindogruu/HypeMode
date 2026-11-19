@@ -43,8 +43,7 @@ service cloud.firestore {
                   || isFriendOf(resource.data.uid));
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid
                     && request.resource.data.fr is list
-                    && request.resource.data.img is string && request.resource.data.img.size() < 900000
-                    && (!('cap' in request.resource.data) || (request.resource.data.cap is string && request.resource.data.cap.size() <= 500));
+                    && request.resource.data.j is string && request.resource.data.j.size() < 1000000;
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
     }
 
