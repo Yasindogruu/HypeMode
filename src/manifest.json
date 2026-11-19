@@ -9,6 +9,9 @@
  "i18n/en.json",
  "html/04.html",
  "js/core.js",
+ "js/perf/metrics.js",
+ "js/storage.js",
+ "js/data-and-sync.js",
  "js/health/google-health.js",
  "js/health/ios-bridge.js",
  "js/health/health-views.js",
@@ -18,6 +21,7 @@
  "js/social/friends.js",
  "js/i18n.js",
  "js/nutrition/adaptive.js",
+ "js/perf/morph.js",
  "js/tools.js",
  "js/workout/academy.js",
  "js/app.js",
@@ -28,5 +32,6 @@
  "js/guide-progress.js",
  "js/health/labs.js",
  "js/news.js",
+ "js/perf/runtime.js",
  "html/05.html"
 ]

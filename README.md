@@ -50,7 +50,10 @@ Health estimates are for information only and are not medical advice.
 
 ```
 src/                     Source code, split by feature
-  js/core.js               State, storage, helpers
+  js/core.js               App state and helpers
+  js/storage.js            IndexedDB storage, daily backups, quick-start copy
+  js/data-and-sync.js      Food database, saving, cloud sync
+  js/perf/                 Fast DOM updates, caching, power saving, performance panel
   js/app.js                Main screens (Today, Workout, Food, Profile)
   js/health/               Google Health (Fitbit), iOS bridge, health views, cycle, conditions, lab results
   js/nutrition/            Adaptive calories, meal programs, weekly meal plan

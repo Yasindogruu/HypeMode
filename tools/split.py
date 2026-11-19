@@ -7,6 +7,9 @@ import json, os, re, sys
 # JS bölümleri: bu başlıklardan biriyle başlayan satırda yeni dosya başlar (sırayla)
 JS = [
     (None, 'js/core.js'),
+    ('/* ===== Performans ölçümü', 'js/perf/metrics.js'),
+    ('/* ===== Kalıcı depolama', 'js/storage.js'),
+    ('/* ---------- besin veritabanı', 'js/data-and-sync.js'),
     ('/* ===== Google Health API', 'js/health/google-health.js'),
     ('/* ===== iOS uygulaması (WKWebView', 'js/health/ios-bridge.js'),
     ('/* ===== v2: ana ekran mini kartları', 'js/health/health-views.js'),
@@ -16,6 +19,7 @@ JS = [
     ('/* ================= Arkadaşlar', 'js/social/friends.js'),
     ('/* ===== Dil (TR / EN)', 'js/i18n.js'),
     ('/* ================= Uyarlanabilir kalori', 'js/nutrition/adaptive.js'),
+    ('/* ===== Hızlı çizim', 'js/perf/morph.js'),
     ('/* ===== Araçlar v2', 'js/tools.js'),
     ('/* ===== Egzersiz Akademisi ===== */\nconst', 'js/workout/academy.js'),
     ('/* ===== Vücut tahmini (Bugün)', 'js/app.js'),
@@ -26,6 +30,7 @@ JS = [
     ('/* ===== Rehber', 'js/guide-progress.js'),
     ('/* ===== Tahlil sonuçları', 'js/health/labs.js'),
     ('/* ===== Yenilikler', 'js/news.js'),
+    ('/* ===== Hesap önbelleği', 'js/perf/runtime.js'),
 ]
 CSS2 = [
     (None, 'css/app.css'),
