@@ -64,7 +64,8 @@ function nativeRem(){const H=window.webkit&&window.webkit.messageHandlers&&windo
   if(R.train.on)(R.train.days||[]).forEach(d=>at(R.train.time,{wd:d+1,title:'Antrenman vakti 🏋️',body:'Bugün antrenman günün.'}));
   if(R.sleep.on)at(R.sleep.time,{title:'Uyku vakti yaklaşıyor 🌙',body:'Ekranları kapat, 7–9 saat uyku toparlanmanın temeli.'});
   const k=JSON.stringify(it);if(k===nativeRem.k)return;nativeRem.k=k;try{H.postMessage({type:'reminders',items:it})}catch(e){}}
-function render(keep){try{applyTheme()}catch(e){}try{nativeRem()}catch(e){}
+function render(keep){const t0=performance.now();try{return render_(keep)}finally{const d=performance.now()-t0;PERF.renders++;PERF.renderMs+=d;if(d>PERF.renderMax)PERF.renderMax=d;if(PERF.boot==null)PERF.boot=performance.now()}}
+function render_(keep){try{applyTheme()}catch(e){}try{nativeRem()}catch(e){}
   const v=ui.view,y=window.scrollY;
   let h='';
   const OB=!S.onboarded&&!S.active;
@@ -79,7 +80,17 @@ function render(keep){try{applyTheme()}catch(e){}try{nativeRem()}catch(e){}
   if(!OB)h+=tabs(!MT);
   $app.classList.toggle('dsk',!OB);
   $app.dataset.v=ui.view;$app.classList.toggle('dk',!OB&&!matchMedia('(pointer:coarse)').matches&&['home','food','programs','stats','settings','friends'].includes(ui.view));$app.classList.toggle('vprog',ui.view==='programs');$app.classList.toggle('vtools',['tools','tool','academy','exd'].includes(ui.view));
-  try{const o=$app.querySelector('nav.tabs .tlens'),n=$app.querySelector('nav.tabs');if(o&&n&&o.style.opacity!=='0')tabLens._p=o.getBoundingClientRect().left-n.getBoundingClientRect().left}catch(e){}$app.innerHTML=h;void $app.offsetHeight;try{secOrder()}catch(e){}try{m3dScan()}catch(e){}try{tabLens()}catch(e){}try{fcCount()}catch(e){}try{navCam()}catch(e){}try{widgetSoon()}catch(e){}try{stripEmo($app)}catch(e){}if(render._v!==v){render._v=v;$app.classList.remove('vin');void $app.offsetWidth;$app.classList.add('vin');clearTimeout(render._vt);render._vt=setTimeout(()=>$app.classList.remove('vin'),900)}if((!OB||(!window.HM_PWA&&CL.waitRz))&&!(S.settings.rz&&S.settings.rz.v>=2)&&!ui._rzOpen&&!render._rzT){render._rzT=setTimeout(()=>{render._rzT=0;rzMaybe()},1200)}try{wgApply(ui.view)}catch(e){console.warn(e)}try{dkSplit();navCam();tabLens()}catch(e){}
+  try{const o=$app.querySelector('nav.tabs .tlens'),n=$app.querySelector('nav.tabs');if(o&&n&&o.style.opacity!=='0')tabLens._p=o.getBoundingClientRect().left-n.getBoundingClientRect().left}catch(e){}h=h.replace(/<img (?![^>]*loading=)/g,'<img loading="lazy" decoding="async" ');if(keep&&render._v===v&&S.settings.morph!==false&&$app.firstChild){try{morphHTML($app,h)}catch(e){PERF.err('morph: '+e.message);$app.innerHTML=h}}else $app.innerHTML=h;void $app.offsetHeight;try{secOrder()}catch(e){}try{m3dScan()}catch(e){}try{tabLens()}catch(e){}try{fcCount()}catch(e){}try{navCam()}catch(e){}try{widgetSoon()}catch(e){}try{stripEmo($app)}catch(e){}if(render._v!==v){render._v=v;$app.classList.remove('vin');void $app.offsetWidth;$app.classList.add('vin');clearTimeout(render._vt);render._vt=setTimeout(()=>$app.classList.remove('vin'),900)}if((!OB||(!window.HM_PWA&&CL.waitRz))&&!(S.settings.rz&&S.settings.rz.v>=2)&&!ui._rzOpen&&!render._rzT){render._rzT=setTimeout(()=>{render._rzT=0;rzMaybe()},1200)}try{wgApply(ui.view)}catch(e){console.warn(e)}try{dkSplit();navCam();tabLens()}catch(e){}
   if(v==='workout'){restBar();const c=document.querySelector('.exs.on');if(c&&c.parentElement)c.parentElement.scrollLeft=c.offsetLeft-c.parentElement.clientWidth/2+c.clientWidth/2}
   window.scrollTo(0,keep?y:0);
 }
+/* ===== Hızlı çizim: ekranı baştan kurmak yerine sadece değişen düğümleri güncelle ===== */
+function morphSame(x,y){return x.nodeType===y.nodeType&&(x.nodeType!==1||(x.tagName===y.tagName&&(x.id||'')===(y.id||'')))}
+function morphNode(x,y){if(x.nodeType!==1){if(x.nodeValue!==y.nodeValue)x.nodeValue=y.nodeValue;return}
+  const T=x.tagName;if(T==='CANVAS'||T==='VIDEO'||T==='IFRAME'||x.hasAttribute('data-keep'))return;
+  for(const a of [...x.attributes]){if(!y.hasAttribute(a.name)&&!(T==='DETAILS'&&a.name==='open'))x.removeAttribute(a.name)}
+  for(const a of y.attributes){if(x.getAttribute(a.name)!==a.value)x.setAttribute(a.name,a.value)}
+  if(T==='INPUT'||T==='TEXTAREA'||T==='SELECT'){if(document.activeElement!==x){const v=T==='TEXTAREA'?y.value:(y.getAttribute('value')||'');if(T!=='SELECT'&&x.type!=='file'&&x.value!==v)x.value=v;if(x.type==='checkbox'||x.type==='radio')x.checked=y.hasAttribute('checked')}if(T!=='SELECT')return}
+  morphKids(x,y)}
+function morphKids(a,b){const bn=[...b.childNodes];for(let i=0;i<bn.length;i++){const nb=bn[i],na=a.childNodes[i];if(!na){a.appendChild(nb);continue}if(morphSame(na,nb))morphNode(na,nb);else a.replaceChild(nb,na)}while(a.childNodes.length>bn.length)a.removeChild(a.lastChild)}
+function morphHTML(el,html){const t=document.createElement('template');t.innerHTML=html;morphKids(el,t.content)}

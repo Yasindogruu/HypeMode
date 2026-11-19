@@ -1,16 +1,32 @@
 // HypeMode service worker: çevrimdışı açılış + kapalıyken bildirim
-const V = 'hm-v138';
+const V = 'hm-v139';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './assets/icons/hm-icon-192-v3.png', './assets/icons/hm-icon-512-v3.png', './assets/icons/hm-apple-v3.png', './assets/icons/hm-favicon-v3.png', './js/fb-sdk.js?v=13.3.0', './assets/fonts/f-inter-latin.woff2', './assets/fonts/f-inter-latin-ext.woff2', './assets/fonts/f-unbounded-latin.woff2', './assets/fonts/f-unbounded-latin-ext.woff2', './legal/gizlilik.html', './js/m3d.js?v=5'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())) });
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())) });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())) });
+// Önbellek stratejisi:
+//  - sürümlü/değişmeyen dosyalar (yazı tipi, simge, ?v= ile kütüphaneler): önce önbellek, ağa hiç gitmeden anında açılır
+//  - uygulama sayfası: önce önbellekten anında açılır, arka planda yenisi indirilir (yeni sürüm sw.js ile gelince sayfa yenilenir)
+//  - diğerleri: önce ağ, yoksa önbellek
+const STATIC = u => /\.(woff2|png|jpe?g|svg|webmanifest)$/.test(u.pathname) || (u.searchParams.has('v') && !/sw\.js$/.test(u.pathname));
+const PAGE = (r, u) => r.mode === 'navigate' || /\/(index\.html)?$/.test(u.pathname);
 self.addEventListener('fetch', e => {
   const r = e.request; if (r.method !== 'GET') return;
-  const u = new URL(r.url);
-  if (u.origin === location.origin) {
-    // önce ağ (güncellemeler hemen gelsin), yoksa önbellek
-    e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res })
-      .catch(() => caches.match(r).then(m => m || caches.match('./index.html'))));
+  const u = new URL(r.url); if (u.origin !== location.origin) return;
+  if (STATIC(u)) {
+    e.respondWith(caches.match(r).then(m => m || fetch(r).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res })));
+    return;
   }
+  if (PAGE(r, u)) {
+    e.respondWith(caches.open(V).then(async c => {
+      const hit = await c.match('./index.html');
+      const net = fetch('./index.html', { cache: 'no-cache' }).then(res => { if (res.ok) c.put('./index.html', res.clone()); return res }).catch(() => null);
+      if (hit) { e.waitUntil(net); return hit }
+      return (await net) || Response.error();
+    }));
+    return;
+  }
+  e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => { if (res.ok) { const c = res.clone(); caches.open(V).then(x => x.put(r, c)) } return res })
+    .catch(() => caches.match(r).then(m => m || caches.match('./index.html'))));
 });
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {} } catch (x) { d = { body: e.data && e.data.text() } }

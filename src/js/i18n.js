@@ -1,7 +1,8 @@
 /* ===== Dil (TR / EN): ekrana basılan metinler sözlükle anında çevrilir ===== */
 const TT=(tr,en)=>LANG()==='en'?en:tr;const LANG=()=>(S&&S.settings&&S.settings.lang)==='en'?'en':'tr';const LOC=()=>LANG()==='en'?'en-US':'tr-TR';
 let I18N=null;const TRL=/[A-Za-zÇĞİÖŞÜçğıöşü]/;
-function i18nDict(){if(!I18N){try{I18N=JSON.parse(document.getElementById('i18n-en').textContent)}catch(e){I18N={}}}return I18N}
+function i18nDict(){if(I18N)return I18N;const el=document.getElementById('i18n-en'),tx=el&&el.textContent.trim();if(tx){try{I18N=JSON.parse(tx)}catch(e){I18N={}}return I18N}
+  if(el&&el.dataset.src&&!i18nDict._p)i18nDict._p=fetch(el.dataset.src).then(r=>r.json()).then(j=>{I18N=j;i18nApply(document.body);render(true)}).catch(()=>{I18N={}});return {}}
 function trOne(t){const D=i18nDict(),nums=[];const k=t.replace(/\d+(?:[.,]\d+)?/g,m=>{nums.push(m);return '#'});const v=D[k];if(v==null)return null;let i=0;return v.replace(/#/g,()=>nums[i++]??'#')}
 function trText(t,dp){dp=dp||0;if(dp>3)return null;let r=trOne(t);if(r!=null)return r;
   const m=t.match(/^([^A-Za-zÇĞİÖŞÜçğıöşü0-9"“(%~+#]*)([\s\S]*?)([\s›…:.⌚]*)$/);

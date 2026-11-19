@@ -120,6 +120,47 @@ try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
 if(!S){S=defaults();FRESH=true;window.__bootFresh=true;S._cf=1}
 if(!S.plans||!S.settings)S=defaults();
 {const d0=defaults();['mealPlan','groc','customIng','myRecipes','profile','drinks','supps','suppLog','photos','reports','health','cardio','cycle','bio'].forEach(k=>{if(!S[k])S[k]=d0[k]})}
+/* ===== Performans ölçümü ===== */
+const PERF={t0:performance.timeOrigin||Date.now(),boot:null,renders:0,renderMs:0,renderMax:0,long:0,longMs:0,idbMs:null,idbBoot:null,syncMs:null,ghMs:null,errs:[],
+  err(m){this.errs.unshift({t:Date.now(),m:String(m).slice(0,160)});this.errs.length=Math.min(this.errs.length,20)}};
+try{new PerformanceObserver(l=>l.getEntries().forEach(e=>{PERF.long++;PERF.longMs+=e.duration})).observe({type:'longtask',buffered:true})}catch(e){}
+addEventListener('error',e=>PERF.err((e.message||'hata')+(e.lineno?' @'+e.lineno:'')));addEventListener('unhandledrejection',e=>PERF.err('promise: '+(e.reason&&(e.reason.message||e.reason))));
+
+/* ===== Kalıcı depolama: IndexedDB ana kayıt, localStorage hızlı açılış kopyası, günlük yedek ===== */
+const IDB={db:null,ok:false,ready:false,t:null,p:null,bakDay:null};
+const idbReq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+function idbOpen(){if(IDB.p)return IDB.p;IDB.p=new Promise((ok,no)=>{try{if(!window.indexedDB)return no(new Error('no idb'));const r=indexedDB.open('hypemode',1);
+  r.onupgradeneeded=()=>{const d=r.result;['kv','bak'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n)})};
+  r.onsuccess=()=>{IDB.db=r.result;IDB.ok=true;ok(r.result)};r.onerror=()=>no(r.error);r.onblocked=()=>no(new Error('blocked'))}catch(e){no(e)}});return IDB.p}
+async function idbGet(st,k){const d=await idbOpen();return idbReq(d.transaction(st).objectStore(st).get(k))}
+async function idbPut(st,k,v){const d=await idbOpen();return idbReq(d.transaction(st,'readwrite').objectStore(st).put(v,k))}
+async function idbKeys(st){const d=await idbOpen();return idbReq(d.transaction(st).objectStore(st).getAllKeys())}
+async function idbDel(st,k){const d=await idbOpen();return idbReq(d.transaction(st,'readwrite').objectStore(st).delete(k))}
+function idbClone(o){try{return structuredClone(o)}catch(e){return JSON.parse(JSON.stringify(o))}}
+function idbSaveSoon(){if(!IDB.ready)return;clearTimeout(IDB.t);IDB.t=setTimeout(idbFlush,400)}
+async function idbFlush(){clearTimeout(IDB.t);if(!IDB.ready||!IDB.ok)return;const t0=performance.now();
+  try{const snap=idbClone(S);await idbPut('kv','state',snap);PERF.idbMs=Math.round(performance.now()-t0);
+    const day=dkey();if(IDB.bakDay!==day){IDB.bakDay=day;const ks=(await idbKeys('bak')).sort();if(!ks.includes(day)){await idbPut('bak',day,{ts:Date.now(),s:snap});ks.push(day)}
+      for(const k of ks.slice(0,-5))await idbDel('bak',k)}}catch(e){console.warn('idb',e);PERF.err('idb: '+(e&&e.message||e))}}
+/* localStorage'a sığdırılan hafif kopya: fotoğraflar ve dakika nabzı IndexedDB'de kalır */
+function slimState(){const o={...S};o.photos=(S.photos||[]).map(p=>p&&p.img?{...p,img:''}:p);const h={};Object.entries(S.health||{}).forEach(([d,v])=>{if(v&&v.hr1){const{hr1,...r}=v;h[d]=r}else h[d]=v});o.health=h;o._slim=1;return o}
+/* açılışta: IndexedDB'deki tam kayıt ile localStorage kopyasını birleştir, hiçbir veri kaybolmasın */
+async function idbBoot(){const t0=performance.now();
+  try{await idbOpen();const st=await idbGet('kv','state');
+    if(st&&st.settings&&st.plans){
+      if(!CL.loaded&&((st._ts||0)>=(S._ts||0)||FRESH||window.__bootFresh)){S=st;FRESH=false;window.__bootFresh=false;delete S._slim;DV++}
+      else{/* yerel kopya daha yeni: eksik ağır alanları IndexedDB'den tamamla */
+        const im=new Map((st.photos||[]).filter(p=>p&&p.img).map(p=>[p.id,p.img]));(S.photos||[]).forEach(p=>{if(p&&!p.img&&im.has(p.id))p.img=im.get(p.id)});
+        Object.entries(st.health||{}).forEach(([d,v])=>{if(v&&v.hr1&&S.health&&S.health[d]&&!S.health[d].hr1)S.health[d].hr1=v.hr1});delete S._slim}
+      IDB.ready=true;render(true)}
+    else{IDB.ready=true;if(S._slim){/* localStorage hafif kopyası var ama IndexedDB boş: dokunma, tam veriyi kaybetmemek için yazma */delete S._slim}idbFlush()}
+    PERF.idbBoot=Math.round(performance.now()-t0)}
+  catch(e){IDB.ok=false;IDB.ready=false;PERF.err('idb boot: '+(e&&e.message||e))}}
+addEventListener('pagehide',()=>{try{idbFlush()}catch(e){}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){try{idbFlush();if(CL.db&&CL.status==='synced')pushAll()}catch(e){}}});
+async function bakList(){try{return (await idbKeys('bak')).sort().reverse()}catch(e){return []}}
+async function bakRestore(k){const b=await idbGet('bak',k);if(!b||!b.s)return toast(TT('Yedek bulunamadı','Backup not found'));await idbPut('bak','before-restore',{ts:Date.now(),s:idbClone(S)});S=b.s;delete S._slim;save();render(true);toast(TT('Yedek geri yüklendi','Backup restored'))}
+let DV=0;
 
 /* ---------- besin veritabanı: 100 g/ml başına (yaklaşık), pw = 1 birimin gramı ---------- */
 const ig=(u,k,p,c,f,cat,pw,pu)=>({u,k,p,c,f,cat,pw,pu:pw?(pu||'adet'):undefined});
@@ -293,10 +334,11 @@ function goalLabel(){const p=S.profile;if(!p.applied)return'';const k=fmt(Math.r
 
 let _nsT=null;
 function buzz(k){const v=(S.settings&&S.settings.vib)||'normal';if(v==='off')return;const P={light:[60],normal:[200,80,200],strong:[400,120,400,120,600]};try{navigator.vibrate&&navigator.vibrate(k||P[v]||P.normal)}catch(_){}}
-function cacheLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){
+function cacheLocal(){if(IDB.ok&&IDB.ready){try{localStorage.setItem(KEY,JSON.stringify(slimState()))}catch(e){}idbSaveSoon();return true}
+  try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){
   try{localStorage.setItem(KEY,JSON.stringify({...S,photos:S.photos.map(p=>({...p,img:''}))}));}catch(e2){}
   if(!CL.db)setTimeout(()=>toast('⚠️ Depolama dolu: eski fotoğrafları sil ya da yedek alıp temizle'),50);return false}}
-function save(){S._ts=Date.now();FRESH=false;cacheLocal();try{hkWeightPush();hkPushSoon();swNotify()}catch(e){}if(CL.db&&CL.status==='synced')schedulePush();if(S.profile&&S.profile.username&&typeof socPush==='function')socPush()}
+function save(){S._ts=Date.now();FRESH=false;DV++;cacheLocal();try{hkWeightPush();hkPushSoon();swNotify()}catch(e){}if(CL.db&&CL.status==='synced')schedulePush();if(S.profile&&S.profile.username&&typeof socPush==='function')socPush()}
 
 /* ---------- bulut (kalıcı veritabanı) ---------- */
 const CL={db:null,user:null,sample:null,base:null,status:'local',last:{},timer:null,busy:false,again:false};
@@ -326,13 +368,14 @@ function applyRemote(docs){
     n.health=S.health||{};n.body=S.body||[];n.photos=S.photos||[];n.suppLog=S.suppLog||{};if(S.cycle)n.cycle=S.cycle;if(S.bio)n.bio=S.bio;if(S.profile&&S.profile.weight!=null)n.profile={...n.profile,weight:S.profile.weight};if(S.settings&&S.settings.ghHR)n.settings.ghHR=S.settings.ghHR;
     const ck=c=>c&&(c.id||c.date+c.type+c.time),hm2=new Map((S.cardio||[]).filter(c=>c&&c.hr!=null).map(c=>[ck(c),c.hr]));if(hm2.size&&n.cardio)n.cardio=n.cardio.map(c=>hm2.has(ck(c))&&c.hr==null?{...c,hr:hm2.get(ck(c))}:c);
     const sh=new Map(S.sessions.filter(x=>x&&x.hr).map(x=>[x.id||x.date,x.hr]));if(sh.size)n.sessions=n.sessions.map(x=>!x.hr&&sh.has(x.id||x.date)?{...x,hr:sh.get(x.id||x.date)}:x)}}
-  S=JSON.parse(JSON.stringify(n));
+  S=JSON.parse(JSON.stringify(n));DV++;
 }
-function schedulePush(){clearTimeout(CL.timer);CL.timer=setTimeout(pushAll,900)}
+function schedulePush(){clearTimeout(CL.timer);CL.timer=setTimeout(pushAll,2000)}
+const cloudSig=(id,b)=>id.startsWith('p-')?'ph|'+b.id+'|'+(b.img||'').length+'|'+(b.cap||'')+'|'+(b.date||''):JSON.stringify(b);
 async function pushAll(force){
   if(!CL.db||!CL.loaded||!rzC()||!rzD()||!['synced','offline'].includes(CL.status))return;if(CL.busy){CL.again=true;return}CL.busy=true;
-  try{const docs=JSON.parse(JSON.stringify(splitState())),col=CL.db.collection(CL.base);
-    for(const [id,body] of Object.entries(docs)){const str=JSON.stringify(body);if(!force&&CL.last[id]===str)continue;
+  const t0=performance.now();try{const docs=splitState(),col=CL.db.collection(CL.base);
+    for(const [id,body] of Object.entries(docs)){const str=cloudSig(id,body);if(!force&&CL.last[id]===str)continue;
       try{await col.doc(id).set(body);CL.last[id]=str}catch(e){
         if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,1500+Math.random()*1000));try{await col.doc(id).set(body);CL.last[id]=str}catch(e2){CL.status='offline'}}
         else if(e&&e.code==='quota_exceeded'){toast('⚠️ Bulut depolama dolu: eski fotoğrafları sil');}
@@ -340,7 +383,7 @@ async function pushAll(force){
         else{CL.status='offline'}}}
     if(CL.db)for(const id of Object.keys(CL.last)){if(!docs[id]){try{await col.doc(id).delete();delete CL.last[id]}catch(e){}}}
     if(CL.db&&CL.status==='offline')CL.status='synced';
-    if(CL.db&&CL.status==='synced')CL.lastSync=Date.now();
+    if(CL.db&&CL.status==='synced')CL.lastSync=Date.now();PERF.syncMs=performance.now()-t0;
   }finally{CL.busy=false;if(CL.again){CL.again=false;schedulePush()}}
 }
 async function initCloud(){
@@ -357,7 +400,7 @@ async function initCloud(){
     const docs={};snap.docs.forEach(d=>{if(d.exists)docs[d.id]=JSON.parse(JSON.stringify(d.data()))}); // buluttan gelen veri kilitli (salt okunur) olabilir: değiştirilebilir kopya al
     if(!docs.core){delete S._cf;CL.status='synced';await pushAll(true);if(!FRESH)toast('☁️ Verilerin buluta taşındı')}
     else{const remoteTs=docs.core._ts||0;
-      Object.entries(docs).forEach(([id,b])=>CL.last[id]=JSON.stringify(b));
+      Object.entries(docs).forEach(([id,b])=>CL.last[id]=cloudSig(id,b));
       if(!FRESH&&!window.__bootFresh&&!S._cf&&(S._ts||0)>remoteTs&&!CL.pendingRz){CL.status='synced';await pushAll()}
       else{applyRemote(docs);delete S._cf;CL.status='synced';CL.lastSync=Date.now();if(CL.pendingRz){S.settings.rz=CL.pendingRz;CL.pendingRz=null;save()}if(migrateProfile())save();cacheLocal();if(!S.active&&ui.view==='workout')ui.view='home';render(true)}}
   }catch(e){clearTimeout(t);CL.db=null;CL.err=e&&e.code||'err';CL.status=(e&&(e.code==='unavailable'||e.code==='resource_exhausted'))?'offline':'local';render(true);setTimeout(()=>socLoad(true),500)}

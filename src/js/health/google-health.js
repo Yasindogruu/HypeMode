@@ -47,8 +47,8 @@ function ghParseHR(dps,H){const by={},m1={};dps.forEach(dp=>{let t=null;ghWalk(d
 async function ghDevices(){try{const t=await ghToken(false);const r=await fetch('https://health.googleapis.com/v4/users/me/pairedDevices',{headers:{Authorization:'Bearer '+t,Accept:'application/json'}});if(!r.ok)throw new Error(r.status);const j=await r.json(),L=j.pairedDevices||j.devices||Object.values(j).find(Array.isArray)||[];
   S.settings.ghDev=L.map(dv=>{let bat=null,bl=null,mac=null,last=null;ghWalk(dv,(k,v)=>{if(typeof v==='object')return;if(bat==null&&/battery.*(level|percent)|^batteryLevel$/i.test(k)&&isFinite(+v))bat=+v;if(!bl&&/^battery(Status)?$/i.test(k))bl=String(v);if(!mac&&/mac|bluetooth|address/i.test(k))mac=String(v);if(!last&&/lastSync/i.test(k))last=String(v)});
    return{name:dv.deviceVersion||dv.displayName||dv.name||'Fitbit',type:dv.type||dv.formFactor||'',last:last?+new Date(last):null,bat,bl,mac,id:dv.name||dv.id||''}});save()}catch(e){console.warn('devices',e);S.settings.ghDevErr=String(e.message||e)}}
-async function ghSync(interactive){if(HMN())return hkSync();const days=Math.max(3,Math.min(60,+S.settings.ghDays||30)),since=new Date(Date.now()-days*864e5),iso=since.toISOString().slice(0,19),hrSince=new Date(Date.now()-2*864e5).toISOString().slice(0,19);
-  await ghToken(interactive);const H={},log=[],run=async(lab,fn)=>{try{await fn();log.push('✓ '+lab)}catch(e){log.push('✕ '+lab+(e.status===403?' (izin yok)':''));console.warn(e)}};
+async function ghSync(interactive){if(HMN())return hkSync();const gT0=performance.now(),inc=!interactive&&S.settings.ghLast&&S.settings.ghFull&&Date.now()-S.settings.ghFull<20*36e5,days=inc?3:Math.max(3,Math.min(60,+S.settings.ghDays||30)),since=(()=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-days+1);return d})(),iso=since.toISOString().slice(0,19),hrSince=new Date(Date.now()-2*864e5).toISOString().slice(0,19);
+  await ghToken(interactive);const H={},log=[],run=async(lab,fn)=>{await new Promise(r=>setTimeout(r,0));try{await fn();log.push('✓ '+lab)}catch(e){log.push('✕ '+lab+(e.status===403?' (izin yok)':''));console.warn(e)}};
   await run('Uyku',async()=>ghParseSleep(await ghGet('sleep',`sleep.interval.civil_end_time >= "${iso}"`),H));
   await run('Dinlenik nabız',async()=>ghParseDaily(await ghGet('daily-resting-heart-rate',`daily_resting_heart_rate.date >= "${iso.slice(0,10)}"`),H,'rhr',/beatsPerMinute|bpm|value/i));
   await run('HRV',async()=>ghParseDaily(await ghGet('daily-heart-rate-variability',`daily_heart_rate_variability.date >= "${iso.slice(0,10)}"`),H,'hrv',/rmssd|milli|average|value/i));
@@ -57,7 +57,7 @@ async function ghSync(interactive){if(HMN())return hkSync();const days=Math.max(
   await run('Adım',async()=>ghParseSteps(await ghGet('steps',`steps.interval.civil_start_time >= "${iso}"`),H));
   await run('Nabız (son 2 gün)',async()=>ghParseHR(await ghGet('heart-rate',`heart_rate.sample_time.civil_time >= "${hrSince}"`),H));
   let nx=0;await run('Antrenmanlar',async()=>{nx=ghParseEx(await ghGet('exercise',`exercise.interval.start_time >= "${iso}Z"`))});if(nx)log.push(nx+' yeni kardiyo');
-  {const k14=new Date(Date.now()-13*864e5).toISOString().slice(0,19),KA={},KB={};
+  {const k14=new Date(Date.now()-(inc?3:13)*864e5).toISOString().slice(0,19),KA={},KB={};
    await run('Aktif kalori',async()=>ghParseKcal(await ghGet('active-energy-burned',`active_energy_burned.interval.civil_start_time >= "${k14}"`),KA));
    await run('Bazal kalori',async()=>ghParseKcal(await ghGet('basal-energy-burned',`basal_energy_burned.interval.civil_start_time >= "${k14}"`),KB));
    new Set([...Object.keys(KA),...Object.keys(KB)]).forEach(d=>{const a=(KA[d]||{}).kcalOut,b=(KB[d]||{}).kcalOut;H[d]={...(H[d]||{}),...(a!=null?{kcalAct:a}:{}),...(a!=null&&b!=null?{kcalOut:a+b}:{})}})}
@@ -68,7 +68,7 @@ async function ghSync(interactive){if(HMN())return hkSync();const days=Math.max(
   await run('Aktif bölge dk.',async()=>{const dps=await ghGet('active-zone-minutes',`active_zone_minutes.interval.civil_start_time >= "${iso}"`),by={};dps.forEach(dp=>{const d=ghDateOf(dp),v=ghNum(dp,/activeZoneMinutes|minutes|value/i);if(d&&v!=null)by[d]=(by[d]||0)+v});Object.entries(by).forEach(([d,v])=>H[d]={...(H[d]||{}),azm:Math.round(v)})});
   await run('Cihaz',ghDevices);
   const n=Object.keys(H).length+nx;Object.entries(H).forEach(([d,v])=>{S.health[d]={...(S.health[d]||{}),...v}});
-  if(n){S.healthDemo=false;S.settings.ghOk=1;S.settings.ghLast=Date.now()}save();render(true);return{n,log}}
+  if(n){S.healthDemo=false;S.settings.ghOk=1;S.settings.ghLast=Date.now();if(!inc)S.settings.ghFull=Date.now()}PERF.ghMs=performance.now()-gT0;save();render(true);return{n,log}}
 /* ===== Google Health ek: antrenman, kalori, otomatik senk ===== */
 const GH_CT=t=>{t=String(t||'').toUpperCase();return /RUN|JOG/.test(t)?'run':/WALK|HIK/.test(t)?'walk':/BIK|CYCL|SPIN/.test(t)?'bike':/SWIM/.test(t)?'swim':/ROW/.test(t)?'row':/ELLIP/.test(t)?'ell':/ROPE|JUMP/.test(t)?'rope':/HIIT|INTERVAL|BOOT|CIRCUIT/.test(t)?'hiit':/STAIR|CLIMB/.test(t)?'stairs':/WEIGHT|STRENGTH|LIFT/.test(t)?'':'other'};
 function ghParseEx(dps){let n=0;const C=S.cardio=S.cardio||[];dps.forEach(dp=>{const ex=dp.exercise||dp;let st=null,en=null,ty='';

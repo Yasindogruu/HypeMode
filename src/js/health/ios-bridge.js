@@ -31,7 +31,7 @@ const HB=(()=>{const RM=()=>window.matchMedia&&matchMedia('(prefers-reduced-moti
 window.HB=HB;
 /* Uygulama içinde (iOS) sayfa günlerce açık kalabiliyor: yeni sürüm yayınlanınca kendini yenilesin */
 (()=>{const get=()=>fetch('sw.js?ts='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>(t.match(/hm-v\d+/)||[''])[0]).catch(()=>'');
-  let cur='';get().then(v=>cur=v);
+  let cur='';const stale=v=>{/* önbellekten açılan sayfa eskiyse bir kez yenile */if(window.HM_V&&v&&v!==window.HM_V&&sessionStorage.getItem('hmrl')!==v){try{sessionStorage.setItem('hmrl',v)}catch(e){}setTimeout(()=>{const busy=(typeof S!=='undefined'&&S.active)||document.querySelector('.sheet,.scrim,.sty,.cam,input:focus,textarea:focus');if(!busy)location.reload()},1500);return true}};get().then(v=>{cur=v;stale(v)});
   const chk=()=>{if(document.visibilityState!=='visible'||!cur)return;get().then(v=>{if(!v||v===cur)return;const busy=(typeof S!=='undefined'&&S.active)||document.querySelector('.sheet,.scrim,.sty,.cam,input:focus,textarea:focus');if(busy){return}location.reload()})};
   document.addEventListener('visibilitychange',chk);setInterval(chk,5*60e3)})();
 /* ===== Siri (iOS uygulaması) komutları ===== */
