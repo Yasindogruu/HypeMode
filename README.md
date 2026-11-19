@@ -61,6 +61,7 @@ src/                     Source code, split by feature
   manifest.json            File order for the build
 tools/build.py           Joins src/ into one file (the deployed index.html)
 tools/split.py           Splits a single-file build back into src/
+tools/*.py               Python: data analysis and recovery prediction model
 index.html, sw.js        Built web app and service worker (served by GitHub Pages)
 assets/  js/  legal/     Fonts and icons, libraries, legal texts
 firebase/                Database security rules
