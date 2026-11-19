@@ -47,13 +47,16 @@ function toolsV(){
     <button class="btn ghost" onclick="A.saveBody()">Kaydet</button>
     <div class="lbl" style="margin-top:8px">Saat aldığında bu alanlar otomatik dolacak.</div></div></div>`})()}`;
 }
+/* hesaplayıcılar ilgili sayfalarda: yemek (kalori, su), antrenman (1RM, plaka, nabız), ölçüler (BKİ, yağ) */
+function toolRow(ids,title){const L=ids.map(id=>TOOLS.find(t=>t.id===id)).filter(Boolean);if(!L.length)return '';
+  return `<div class="tlx" data-noi18n><div class="tlx-h">${title||TL_T2('Hesaplayıcılar','Calculators')}</div><div class="tlx-r">${L.map(t=>`<button class="tlx-b tc-${t.c}" onclick="A.tool('${t.id}')"><span class="tlx-i">${tIcon(t.ic,18)}</span><span class="tlx-t"><b>${TL_T2(...t.t)}</b><small>${TL_T2(...t.tag)}</small></span><i>›</i></button>`).join('')}</div></div>`}
 function toolPageV(){const t=TOOLS.find(x=>x.id===ui.tool);if(!t){ui.view='tools';return toolsV()}
   ui.tv=ui.tv&&ui.tv._id===t.id?ui.tv:{_id:t.id,...TL_tDef()};const v=ui.tv,col=TL_TCOL[t.c];
   const tt=TL_T2(...t.t).split(' '),last=tt.pop();
   const fld=x=>x.opts?`<div class="tf"><div class="tf-l">${x.lab}</div><div class="tf-seg" style="grid-template-columns:repeat(${x.opts.length},minmax(0,1fr))">${x.opts.map(([o,ic,l])=>`<button class="${String(v[x.k])===String(o)?'on':''}" onclick="A.tSet('${x.k}','${o}')">${tIcon(ic,18)}<span>${l}</span></button>`).join('')}</div></div>`
    :`<div class="tf"><div class="tf-l">${x.lab}<b id="tv_${x.k}">${fmt(v[x.k])}${x.u?' '+x.u:''}</b></div><input type="range" class="tf-r" min="${x.min}" max="${x.max}" step="${x.step}" value="${v[x.k]}" oninput="A.tSlide('${x.k}',this,'${x.u}')" style="--p:${Math.round((v[x.k]-x.min)/(x.max-x.min)*100)}%"></div>`;
   const others=TOOLS.filter(x=>x.id!==t.id).slice(0,3);
-  return `<div class="st-hero"><div class="st-top" style="padding:14px 20px 0"><button class="back" onclick="A.go('tools')" aria-label="Geri">‹</button><div class="ac-bc">${TL_T2('Araçlar','Tools')} › ${TL_T2(...t.t)}</div><span style="width:36px"></span></div></div>
+  return `<div class="st-hero"><div class="st-top" style="padding:14px 20px 0"><button class="back" onclick="A.go(ui.tFrom||'programs')" aria-label="Geri">‹</button><div class="ac-bc">${TL_T2('Hesaplayıcı','Calculator')} › ${TL_T2(...t.t)}</div><span style="width:36px"></span></div></div>
   <div class="tp dkfull" data-noi18n>
    <div class="tp-head"><span class="tp-tag">${TL_T2(...t.tag)}</span><h1 class="tp-t">${tt.join(' ')} <em>${last}</em></h1><p>${TL_T2(...t.d)}</p></div>
    <div class="tp-grid"><div class="card tp-in"><div class="tp-ct">${tIcon(t.ic,18)} ${TL_T2('Bilgilerin','Your details')}</div>${t.f().map(fld).join('')}

@@ -368,3 +368,38 @@ html[data-mode=light] .wpdays button.on{background:#15151a;color:#fff}
 .wpsec{margin:26px 18px 6px}.wpsec small{font:11px ui-monospace,Menlo,monospace;color:var(--mut);letter-spacing:.08em}.wpsec h3{margin:2px 0;font-size:20px}
 .ninfo summary{display:flex;flex-direction:column;gap:2px;cursor:pointer;list-style:none}.ninfo summary::-webkit-details-marker{display:none}.ninfo{margin-top:12px}
 html[data-mode=light] .wpo button.on{color:#0b5fa5}
+.ei{width:1.05em;height:1.05em;vertical-align:-.17em;flex:none;display:inline-block}.ei.solo{width:1.15em;height:1.15em}
+.plate .ei{width:.8em;height:.8em;opacity:.9}.cy-empty .ei{width:44px;height:44px;opacity:.7}.sr-i .ei,.act-i .ei,.wlog .ei,.gt-ic .ei{width:20px;height:20px}
+.sc-gl{stroke:var(--txt);stroke-opacity:.07;stroke-dasharray:2 4}.sc-bl{stroke:var(--txt);stroke-opacity:.14}
+.sc-x,.sc-y span{font-size:10.5px!important;font-variant-numeric:tabular-nums;color:var(--mut);opacity:1!important}
+.sc-tip{font-variant-numeric:tabular-nums;font-weight:600;border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.sb-b{fill:var(--sc,#34d399)!important;fill-opacity:.4!important}.sb-pk{fill:var(--sc,#34d399)!important;fill-opacity:1!important}
+.sbars text{font-size:10px;font-variant-numeric:tabular-nums}
+.tlx{margin:14px 16px}.tlx-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:0 4px 8px}
+.tlx-r{display:grid;gap:8px}.tlx-b{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line);text-align:left;color:var(--txt)}
+.tlx-i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--card2);flex:none}.tlx-t{flex:1;min-width:0}.tlx-t b{display:block;font-size:14px;font-weight:650}.tlx-t small{font-size:11px;color:var(--mut);letter-spacing:.04em}.tlx-b>i{font-style:normal;color:var(--mut);font-size:18px}
+.wk-hb{display:flex;gap:8px;align-items:center}.wk-hb .pill .ei{width:14px;height:14px}
+.wf{min-height:100dvh;display:flex;flex-direction:column}.wf-prog{display:flex;gap:4px;padding:14px 20px 0}.wf-prog i{flex:1;height:4px;border-radius:2px;background:var(--line)}.wf-prog i.on{background:var(--txt)}.wf-prog i.ok{background:#34d399}
+.wf-ex{padding:22px 20px 0;text-align:center}.wf-ex small{font-size:12px;color:var(--mut);letter-spacing:.04em}.wf-ex h2{font-size:26px;line-height:1.15;margin:6px 0 0;font-weight:750;letter-spacing:-.01em}
+.wf-set{text-align:center;margin-top:18px;font-size:15px;color:var(--mut)}.wf-set b{color:var(--txt);font-size:20px}.wf-set span{display:block;font-size:12.5px;margin-top:4px;font-variant-numeric:tabular-nums}
+.wf-in{display:grid;gap:14px;padding:22px 20px 0;margin-top:auto}.wf-f>span{display:block;text-align:center;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.wf-ctl{display:grid;grid-template-columns:72px 1fr 72px;align-items:center;gap:10px}.wf-ctl button{height:72px;border-radius:22px;background:var(--card2);border:1px solid var(--line);font-size:30px;font-weight:500;color:var(--txt)}
+.wf-ctl b{text-align:center;font-size:56px;font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.02em;cursor:pointer;line-height:1}
+.wf-dots{display:flex;justify-content:center;gap:8px;margin:20px 0 4px}.wf-dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}.wf-dots i.on{background:var(--txt);transform:scale(1.25)}.wf-dots i.ok{background:#34d399}
+.wf-done{margin:auto 20px 0;text-align:center;display:grid;gap:6px;justify-items:center}.wf-done .ei{width:56px;height:56px;color:#34d399}.wf-done b{font-size:20px}.wf-done span{color:var(--mut);font-size:14px}
+.wf-cta{padding-bottom:6px}.wf-cta .btn{min-height:64px;font-size:17px;border-radius:22px}
+body.wfm .rest{top:calc(236px + env(safe-area-inset-top));padding:16px 18px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;border-radius:20px}body.wfm .rest button{padding:10px 14px;font-size:14px}
+.rest .ei{width:16px;height:16px;vertical-align:-.2em}
+button,.btn{transition:transform .2s cubic-bezier(.3,1.5,.5,1),opacity .15s,background-color .2s,border-color .2s}
+html:not(.lowpow) button:not(:disabled):active,html:not(.lowpow) .btn:active{transform:scale(.96)!important;transition-duration:.06s}
+html:not(.lowpow) .chk svg{animation:ckpop .34s cubic-bezier(.3,1.6,.5,1)}@keyframes ckpop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+.toast{display:flex;align-items:center;gap:8px;animation:tin .28s cubic-bezier(.2,1.2,.4,1)}.toast.out{opacity:0;transition:opacity .2s}
+@keyframes tin{from{opacity:0;transform:translate(-50%,10px) scale(.96)}to{opacity:1;transform:translate(-50%,0)}}
+.toast .tk{width:16px;height:16px;fill:none;stroke:#16a34a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;animation:tkd .4s .1s ease-out forwards;flex:none}@keyframes tkd{to{stroke-dashoffset:0}}
+.prfx{position:fixed;inset:0;z-index:9000;display:grid;place-items:center;pointer-events:auto;background:rgba(0,0,0,.35);animation:pfo 2.2s ease forwards}
+.prfx-c{display:grid;justify-items:center;gap:4px;padding:22px 28px;border-radius:24px;background:var(--card);border:1px solid var(--line);box-shadow:0 20px 50px rgba(0,0,0,.45);animation:pfc .5s cubic-bezier(.3,1.6,.5,1)}
+.prfx-c .ei{width:44px;height:44px;color:#f5a524}.prfx-c b{font-size:20px}.prfx-c small{color:var(--mut);font-size:12.5px}
+.prfx>i{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:2px;background:#f5a524;opacity:0;animation:pfp .9s .15s cubic-bezier(.2,.8,.3,1) forwards}.prfx>i:nth-child(3n){background:#34d399}.prfx>i:nth-child(3n+1){background:var(--txt)}
+@keyframes pfc{from{transform:scale(.6);opacity:0}}@keyframes pfp{0%{opacity:1;transform:rotate(var(--a)) translateY(0)}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(-1 * var(--d) - 60px))}}@keyframes pfo{0%,80%{opacity:1}100%{opacity:0}}
+.prfx.calm,.prfx.calm .prfx-c{animation:none}
+@media (prefers-reduced-motion:reduce){.toast,.toast .tk,.chk svg,.prfx,.prfx-c{animation:none!important}.toast .tk{stroke-dashoffset:0}button:active{transform:none!important}}

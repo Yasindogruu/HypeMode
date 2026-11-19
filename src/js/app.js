@@ -44,7 +44,7 @@ window.fcOut=()=>{['fcCur','fcTip'].forEach(i=>{const e=document.getElementById(
 function fcCount(){const el=document.querySelector('.fc-n[data-v]');if(!el||el._done)return;el._done=1;const v=+el.dataset.v;if(isNaN(v))return;const k0=fcCount._last===v;fcCount._last=v;if(k0)return;const sup=el.querySelector('sup'),t0=performance.now(),D=900;
   const f=t=>{const q=Math.min(1,(t-t0)/D),e2=1-Math.pow(1-q,3);el.firstChild.nodeValue=Math.round(v*e2);if(q<1)requestAnimationFrame(f)};el.firstChild.nodeValue='0';requestAnimationFrame(f)}
 function homeEdit(){const hid=S.settings.homeHide||[],L=HSEC.filter(x=>!x[3]||cycOn());
-  return `<div class="pad" style="margin:18px 0 8px"><button class="hed-b" onclick="A.edSheet('home')">✎ Widget'ları düzenle${hid.length?` <small>${hid.length} bölüm gizli</small>`:''}</button></div>`;
+  return `<div class="pad" style="margin:18px 0 8px"><button class="hed-b" onclick="A.edSheet('home')">${eiSvg('pen')} Widget'ları düzenle${hid.length?` <small>${hid.length} bölüm gizli</small>`:''}</button></div>`;
   return `<div class="card hed"><div class="row between"><b>✎ Ekranı düzenle</b><button class="pill" onclick="A.homeEd()">Bitti</button></div>
    <div class="lbl" style="margin:4px 0 8px">Görmek istemediğin bölümleri kapat.</div>
    ${L.map(([k,ic,n])=>{const on=!hid.includes(k);return `<button class="hed-r" onclick="A.homeTog('${k}')"><span>${ic}</span><b>${n}</b><i class="sw ${on?'on':''}"></i></button>`}).join('')}
@@ -195,7 +195,7 @@ function lineSvg(pts,unit){if(pts.length<2)return `<div class="lbl" style="paddi
   const X=i=>pl+i*(W-pl-pr)/(pts.length-1),Y=v=>pt+(H-pt-pb)*(1-(v-mn)/rg);
   const d=pts.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p.y).toFixed(1)}`).join(' ');
   const bi=ys.indexOf(mx);
-  return `<svg aria-hidden="true" viewBox="0 0 ${W} ${H}" class="lsvg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a3c" stop-opacity=".35"/><stop offset="1" stop-color="#ff5a3c" stop-opacity="0"/></linearGradient></defs>
+  return `<svg aria-hidden="true" viewBox="0 0 ${W} ${H}" class="lsvg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${SCC.load}" stop-opacity=".35"/><stop offset="1" stop-color="${SCC.load}" stop-opacity="0"/></linearGradient></defs>
    <path d="${d} L${X(pts.length-1).toFixed(1)},${H-pb} L${X(0).toFixed(1)},${H-pb} Z" fill="url(#lg)"/>
    <path d="${d}" fill="none" stroke="#ff5a3c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
    ${pts.map((p,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${i===bi?4.5:2.6}" fill="${i===bi?'#ffd166':'#ff5a3c'}"/>`).join('')}
@@ -254,6 +254,7 @@ function programsV(){
    <div class="loc-sw"><button class="${S.settings.loc!=='home'?'on':''}" onclick="A.setLoc('gym')">Salon</button><button class="${S.settings.loc==='home'?'on':''}" onclick="A.setLoc('home')">Ev</button></div>
    ${S.settings.loc==='home'?`<button class="loc-eq" onclick="A.locEq()"><span>Evdeki ekipman: <b>${homeEq().filter(x=>x!=='bodyweight').map(k=>(EQ.find(q=>q[0]===k)||[0,0,k])[2]).join(', ')||'sadece vücut ağırlığı'}</b></span><i>Düzenle ›</i></button>`:''}
    <div class="secw" data-sec="acad">${pv('acad')?`<button class="qk-go" onclick="A.go('academy')"><span><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5Z"/><path d="M8 7h7"/></svg></span><div><b>Egzersiz Akademisi</b><small>${ACX().length} hareket · adım adım anlatım, video, vücut haritası</small></div><i>›</i></button>`:''}</div>
+   ${toolRow(['orm','plaka','nabiz'])}
    <button class="qk-go" onclick="A.quick()"><span><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><div><b>Hızlı antrenman</b><small>Tek hareket ya da birkaç hareket · ör. bugün 100 şınav</small></div><i>›</i></button>
   </div>
   <div class="secw" data-sec="vol">${pv('vol')?`<div class="st-card pgc-vol">
@@ -309,11 +310,12 @@ function workoutV(){
      e.t?(hd?'⏹ Durdur ve kaydet':ui.tInf?`⏱ Set ${nextSet+1} başlat · ∞ sınırsız`:`⏱ Set ${nextSet+1} başlat · ${tFmt(tgt)}${tgt>=60?'':' sn'}`):
      (ns.kg!==''&&ns.kg!=null?`Set ${nextSet+1} tamamla · ${fmt(ns.kg)} kg × ${ns.reps||'?'}`:`Set ${nextSet+1} · kilo seç`);
   const prevTxt=i=>{const p=lp&&wix(e,i)>=0&&lp.sets[wix(e,i)];return p?(p.t?p.reps+' sn':(p.kg?fmt(p.kg)+'×':'')+p.reps):'—'};
+  if(S.settings.wfocus&&!e.t&&!hd)return wFocusV(a,e,nextSet,allDone,ctaText,prevTxt);
   const up=(s,i)=>{const p=lp&&wix(e,i)>=0&&lp.sets[wix(e,i)];if(!s.done||!p)return '';const a1=e.t||!(num(s.kg)>0)?num(s.reps):e1rm(num(s.kg),num(s.reps)),b1=p.t||!(p.kg>0)?p.reps:e1rm(p.kg,p.reps);return a1>b1+.01?'<i class="upb">▲</i>':''};
   return `<div class="lw">
   <div class="wk-head"><button class="back" onclick="A.prevEx()">${I.back}</button>
     <div class="lw-c"><small>${esc(a.planName)}</small><span class="wkt" id="wkt">${mmss(Date.now()-a.startedAt)}</span></div>
-    <button class="pill fin" onclick="A.finishAsk()">Bitir</button></div>
+    <div class="wk-hb">${!e.t?`<button class="pill" onclick="A.wFocus()" aria-label="Odak modu">${eiSvg('target')} Odak</button>`:''}<button class="pill fin" onclick="A.finishAsk()">Bitir</button></div></div>
   <div class="exstrip">${a.ex.map((x,i)=>{const d=x.sets.filter(s=>s.done).length,t=x.sets.length,gg=mgOf(x.muscle),cc=gg?MGI[gg][2]:'#9b9ba4';
     return `<button class="exs ${i===a.idx?'on':''} ${d===t?'ok':''} ${x.ss?'ss':''}" onclick="A.jumpEx(${i})">${ring(d/t,d===t?'#3ee6a0':cc,30,3.5,d===t?'✓':i+1)}<span>${esc(x.name.slice(0,18))}</span>${x.ss?`<i class="ssb">${x.ss}</i>`:''}</button>`}).join('')}</div>
   <div class="lv"><span>Kas yükü</span><div class="lv-bar"><i style="width:${ld}%;background:linear-gradient(90deg,#3fd0ff,${L[1]})"></i></div><b style="color:${L[1]}">${ld}</b><small>${doneSets.length}/${totS} set</small></div>
@@ -342,6 +344,20 @@ function workoutV(){
   <div class="bottom-cta"><button class="btn" onclick="if(!A.ctaKg())A.cta()">${ctaText}</button></div></div>`;
 }
 
+/* odak modu: yalnızca o anki hareket, set, kilo/tekrar ve dinlenme; tek elle büyük düğmeler */
+function wFocusV(a,e,nextSet,allDone,ctaText,prevTxt){const ns=e.sets[nextSet],nxi=nextEx(a),pv=!allDone?prevTxt(nextSet):'—';
+  const fld=(k,lab,val)=>`<div class="wf-f"><span>${lab}</span><div class="wf-ctl"><button onclick="A.wfStep(${nextSet},'${k}',-1)" aria-label="${lab} azalt">−</button><b role="button" tabindex="0" onclick="A.pickSet(${nextSet},'${k}')">${val}</b><button onclick="A.wfStep(${nextSet},'${k}',1)" aria-label="${lab} artır">+</button></div></div>`;
+  return `<div class="lw wf">
+  <div class="wk-head"><button class="back" onclick="A.prevEx()" aria-label="Önceki hareket">${I.back}</button>
+    <div class="lw-c"><small>${esc(a.planName)}</small><span class="wkt" id="wkt">${mmss(Date.now()-a.startedAt)}</span></div>
+    <div class="wk-hb"><button class="pill" onclick="A.wFocus()">Detay</button><button class="pill fin" onclick="A.finishAsk()">Bitir</button></div></div>
+  <div class="wf-prog" aria-hidden="true">${a.ex.map((x,i)=>`<i class="${x.sets.every(s=>s.done)?'ok':i===a.idx?'on':''}"></i>`).join('')}</div>
+  <div class="wf-ex"><small>${a.idx+1} / ${a.ex.length}${MUSCLES[e.muscle]?' · '+MUSCLES[e.muscle]:''}</small><h2>${esc(e.name)}</h2></div>
+  ${allDone?`<div class="wf-done">${eiSvg('check')}<b>Hareket tamamlandı</b><span>${nxi>=0?'Sıradaki: '+esc(a.ex[nxi].name):'Tüm hareketler bitti'}</span></div>`:`
+  <div class="wf-set">Set <b>${nextSet+1}</b> / ${e.sets.length}${tyOf(ns)==='w'?' · ısınma':tyOf(ns)==='d'?' · drop':''}<span>Önceki: ${pv}</span></div>
+  <div class="wf-in">${fld('kg','kg',ns.kg!==''&&ns.kg!=null?fmt(ns.kg):'—')}${fld('reps','tekrar',ns.reps||'—')}</div>
+  <div class="wf-dots" aria-hidden="true">${e.sets.map((s,i)=>`<i class="${s.done?'ok':i===nextSet?'on':''}"></i>`).join('')}</div>`}
+  <div class="bottom-cta wf-cta"><button class="btn" onclick="if(!A.ctaKg())A.cta()">${ctaText}</button></div></div>`}
 function summaryV(){
   const s=S.sessions[S.sessions.length-1];if(!s){ui.view='programs';return programsV()}
   const vol=volOf(s),reps=s.sets.reduce((a,x)=>a+(x.t?0:x.reps||0),0),ld=loadOf(s.sets,s.date),L=loadLbl(ld),by=setsBy([s]),tot=s.sets.length||1;
@@ -412,7 +428,7 @@ function foodV(){
   ${waterCard(d)}
   ${photoCard(d)}
   ${cookCard()}
-  ${calBal()}
+  ${calBal()}${suppCard(d)}${toolRow(['kalori','su'])}
 `;
 }
 function planCard(p,n){const isN=n&&n.id===p.id,open=ui.planOpen[p.id];
@@ -1338,7 +1354,16 @@ function _sheet(html,keep){const old=document.querySelector('#scrim .sheet'),st=
   closeSheet();const d=document.createElement('div');d.className='scrim';d.id='scrim';d.innerHTML=`<div class="sheet" ${keep?'style="animation:none"':''}>${html}</div>`;
   d.addEventListener('click',e=>{if(e.target===d)closeSheet()});document.body.appendChild(d);try{stripEmo(d)}catch(e){}if(st)d.firstChild.scrollTop=st}
 function closeSheet(){const s=document.getElementById('scrim');if(s){s.id='';try{s.remove()}catch(e){}}}
-function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+function toast(t){const d=document.createElement('div');d.className='toast';const s=typeof t==='string'?t:String(t),ok=/^\s*(✓|✅)|kaydedildi|eklendi|güncellendi|kopyalandı|tamamlandı|\bsaved\b|\badded\b/i.test(s),tx=emoText(s).replace(/^\s*[✓✔]\s*/,'').replace(/\s{2,}/g,' ').trim();
+  if(ok){d.classList.add('ok');d.innerHTML='<svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';d.appendChild(document.createTextNode(tx))}else d.textContent=tx;
+  document.querySelectorAll('body>.toast').forEach(x=>x.remove());document.body.appendChild(d);setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),220)},1800)}
+/* mikro etkileşim: hafif titreşim + rekor kutlaması (düşük güç / azaltılmış harekette sade) */
+function tap(){try{if((S.settings&&S.settings.vib)==='off'||!navigator.vibrate)return;navigator.vibrate(8)}catch(e){}}
+function prFx(n){try{buzz([30,40,60])}catch(e){}const calm=document.documentElement.classList.contains('lowpow')||matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const d=document.createElement('div');d.className='prfx'+(calm?' calm':'');d.setAttribute('role','status');
+  d.innerHTML=`<div class="prfx-c">${eiSvg('trophy')}<b>${n>1?n+' yeni rekor':'Yeni rekor'}</b><small>Tahmini 1RM'in arttı</small></div>${calm?'':Array.from({length:14},(_,i)=>`<i style="--a:${i*360/14}deg;--d:${60+(i%3)*22}px"></i>`).join('')}`;
+  d.onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>d.remove(),calm?1600:2200)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.btn,.chk,.wbig,.wf-ctl button,.tabs button');if(b)tap()},true);
 function ask(q,yes,label='Evet'){sheet(`<h3>${q}</h3><div class="grid2"><button class="btn ghost" onclick="A.close()">Vazgeç</button><button class="btn" id="yes">${label}</button></div>`);
   document.getElementById('yes').onclick=()=>{closeSheet();yes()}}
 
@@ -1347,9 +1372,9 @@ let restEnd=0,restT=null;
 function startRest(sec){restEnd=Date.now()+(sec||S.settings.rest)*1000;restBar();clearInterval(restT);restT=setInterval(restBar,250)}
 function restBar(){
   let el=document.getElementById('rest');const left=Math.ceil((restEnd-Date.now())/1000);
-  if(left<=0||ui.view!=='workout'){if(el)el.remove();if(left<=0)clearInterval(restT);return}
+  if(left<=0||ui.view!=='workout'){if(el){el.remove();if(left<=0&&ui.view==='workout')try{buzz([90,60,90])}catch(e){}}if(left<=0)clearInterval(restT);return}
   if(!el){el=document.createElement('div');el.className='rest';el.id='rest';
-    el.innerHTML='<span>⏱ Dinlenme <span id="rt"></span></span><button onclick="A.restAdd(30)">+30</button><button onclick="A.restAdd(-999)">Atla</button>';document.body.appendChild(el)}
+    el.innerHTML='<span>'+eiSvg('clock')+' Dinlenme <span id="rt"></span></span><button onclick="A.restAdd(30)">+30</button><button onclick="A.restAdd(-999)">Atla</button>';document.body.appendChild(el)}
   document.getElementById('rt').textContent=Math.floor(left/60)+':'+z(left%60);
 }
 
@@ -1366,7 +1391,7 @@ setInterval(()=>{if(!S.active||ui.view!=='workout')return;
 /* ---------- actions ---------- */
 const A=window.A={
   close:closeSheet,
-  tool(id){ui.tool=id;ui.view='tool';ui.tDone=null;ui.tv=null;closeSheet();render()},
+  tool(id){if(ui.view!=='tool')ui.tFrom=ui.view;ui.tool=id;ui.view='tool';ui.tDone=null;ui.tv=null;closeSheet();render()},
   tSet(k,v){ui.tv[k]=isNaN(+v)?v:+v;render(true)},
   tSlide(k,el,u){const v=+el.value;ui.tv[k]=v;const b=document.getElementById('tv_'+k);if(b)b.textContent=fmt(v)+(u?' '+u:'');el.style.setProperty('--p',Math.round((v-el.min)/(el.max-el.min)*100)+'%');if(ui.tDone){const r=document.getElementById('tres');if(r)r.innerHTML=toolResult(ui.tool,ui.tv)}},
   tCalc(){ui.tDone=ui.tool;const r=document.getElementById('tres');if(r){r.innerHTML=toolResult(ui.tool,ui.tv);if(innerWidth<960)r.scrollIntoView({behavior:'smooth',block:'start'})}},
@@ -1431,6 +1456,10 @@ const A=window.A={
     const t=nextEx(a);if(t>=0){a.idx=t;save();render()}else A.finish()},
   prevEx(){if(S.active.idx>0){S.active.idx--;save();render()}else ask('Antrenmandan çık?',()=>{A.finishAsk()},'Devam')},
   restAdd(s){restEnd+=s*1000;restBar()},
+  wFocus(){S.settings.wfocus=!S.settings.wfocus;save();render()},
+  wfStep(i,k,d){const e=S.active&&S.active.ex[S.active.idx];if(!e)return;const s=e.sets[i];if(!s)return;
+    if(k==='kg'){const st=+e.inc||2.5,v=Math.max(0,Math.round(((num(s.kg)||0)+d*st)*100)/100);s.kg=v}else s.reps=Math.max(1,(num(s.reps)||0)+d);
+    tap();save();render(true)},
   setLang(l){S.settings.lang=l;document.documentElement.lang=l;save();render(true);if(l==='en')i18nApply(document.body)},
   setMode(m){S.settings.mode=m;save();render(true)},
   joinLive(fid){const f=(S.friends||[]).find(x=>x.uid===fid),d=SOC.friends[fid],L=liveOf(d);if(!f||!L)return toast('Arkadaşın şu an antrenmanda değil');
@@ -1479,7 +1508,7 @@ const A=window.A={
     const tp=plan(a.planId);if(tp&&!['gen-last','quick-last','live-join'].includes(tp.tmpl)&&!a.loc){try{const df=tplDiff(tp,a);if(df.chg.length){sess.tpl={pid:tp.id,chg:df.chg,out:df.out,prev:df.prev,applied:false};if(true){tp.exercises=JSON.parse(JSON.stringify(df.out));sess.tpl.applied=true}}}catch(err){}}
     S.sessions.push(sess);
     const tdp=todaysPlan();if(tdp&&tdp.id===a.planId)S.next=(S.next+1)%activePlans().length;
-    if(ui.wHR&&ui.wHR.s&&ui.wHR.s.length>=3)sess.hr=ui.wHR.s.filter((x,i,a)=>i%Math.ceil(a.length/240)===0);ui.wHR=null;lockStop();S.active=null;restEnd=0;save();ui.view='summary';render();
+    if(ui.wHR&&ui.wHR.s&&ui.wHR.s.length>=3)sess.hr=ui.wHR.s.filter((x,i,a)=>i%Math.ceil(a.length/240)===0);ui.wHR=null;lockStop();S.active=null;restEnd=0;save();ui.view='summary';render();if(prs.length)setTimeout(()=>prFx(prs.length),300);
   },
   mealSheet(){A._photo=null;sheet(`<h3>Öğün ekle</h3>
     ${freqRow()}<button class="btn snb" style="margin:10px 0 8px" onclick="A.snap()">📸 Fotoğraftan kalori hesapla <small>AI</small></button>
@@ -2653,4 +2682,4 @@ let _lastTouch=0;document.addEventListener('touchend',e=>{const n=Date.now();if(
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});
 window.S_sw=(k,v)=>{S.swake=S.swake||{};S.swake[k]=k==='on'?!!v:v;if(k==='vib'){S.settings.vib=v;buzz()}save();A.swake();render(true)};
 window.ui_setNull=()=>{ui.setSec=null};
-window.render=render;/* satır içi onclick'ler bu adlara erişebilsin */Object.defineProperty(window,'S',{get:()=>S,set:v=>{S=v},configurable:true});Object.assign(window,{ui,save,closeSheet,buzz,LANG,dkey,esc,rzSheet});window.__hm={acx:()=>ACX(),S:()=>S,CL,ui:()=>ui,ghParseSleep,healthScores,strainParts,HD:()=>HD(),ALL:()=>ALL(),socId,socLoad,SOC:()=>SOC};
+window.render=render;/* satır içi onclick'ler bu adlara erişebilsin */Object.defineProperty(window,'S',{get:()=>S,set:v=>{S=v},configurable:true});Object.assign(window,{ui,save,closeSheet,buzz,LANG,dkey,esc,rzSheet});window.__hm={acx:()=>ACX(),S:()=>S,toast,prFx,CL,ui:()=>ui,ghParseSleep,healthScores,strainParts,HD:()=>HD(),ALL:()=>ALL(),socId,socLoad,SOC:()=>SOC};

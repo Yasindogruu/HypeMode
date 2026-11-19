@@ -21,7 +21,7 @@ function i18nApply(root){if(LANG()!=='en'||!root)return;if(root.nodeType===3){tr
   (root.querySelectorAll?[root,...root.querySelectorAll('[placeholder],[title],[aria-label]')]:[]).forEach(e=>{['placeholder','title','aria-label'].forEach(a=>{const v=e.getAttribute&&e.getAttribute(a);if(v&&TRL.test(v)){const r=trText(v.trim());if(r!=null)e.setAttribute(a,r)}})})}
 const i18nObs=new MutationObserver(ms=>{if(LANG()!=='en')return;ms.forEach(m=>{m.addedNodes.forEach(i18nApply);if(m.type==='characterData')trNode(m.target)})});
 try{i18nObs.observe(document.body,{childList:true,subtree:true})}catch(e){}
-['alert','confirm','prompt'].forEach(f=>{const o=window[f].bind(window);window[f]=(m,...r)=>o(LANG()==='en'&&typeof m==='string'?(trText(m.trim())??trUnits(m)):m,...r)});
+['alert','confirm','prompt'].forEach(f=>{const o=window[f].bind(window);window[f]=(m,...r)=>{if(typeof m==='string')try{m=emoText(m).replace(/[ \t]{2,}/g,' ').trim()}catch(e){}return o(LANG()==='en'&&typeof m==='string'?(trText(m.trim())??trUnits(m)):m,...r)}});
 function themeMode(){const m=(S.settings&&S.settings.mode)||'dark';return m==='auto'?(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):m}
 try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if(S.settings&&S.settings.mode==='auto')render(true)})}catch(e){}
 function applyTheme(){const md=themeMode(),de=document.documentElement;if(de.dataset.mode!==md){de.dataset.mode=md;const tc=document.querySelector('meta[name=theme-color]');if(tc)tc.setAttribute('content',md==='light'?'#f4f4f7':'#000000')}

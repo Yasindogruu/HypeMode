@@ -52,7 +52,7 @@ function npCard(){const W=wpS(),today=(new Date().getDay()+6)%7,D=wpDay(today),x
    ${prev}<div class="qpb">${TT('Programın tamamını aç','Open full plan')} <span>›</span></div></div>`}
 const NPD=()=>NPROG.filter(x=>x.c);
 function nprogV(){return `<div class="hero" style="padding-bottom:10px"><div class="top"><button class="back" onclick="A.go('food')">${I.back}</button><div class="brand">${TT('Beslenme programları','Meal plans')}</div><div style="width:34px"></div></div></div>
-   ${wpView()}${measCard()}${labCard()}${condInfo()}${guideLink('nprog','med')}<div style="height:110px"></div>`}
+   ${wpView()}${measCard()}${toolRow(['bki','yag'],TL_T2('Vücut analizi','Body analysis'))}${labCard()}${condInfo()}${guideLink('nprog','med')}<div style="height:110px"></div>`}
 A.npAdd=function(di,mi){const p=NPROG.find(x=>x.id===(ui.np||npRec()));if(!p)return;const base=npBase(p),f=p.fixed?1:Math.max(.75,Math.min(1.6,npTarget(p)/(base[di]||1)));const[mn,it]=p.days[di][mi];let k=0,pr=0,c=0,fa=0;
   const nm=it.map(([n,g0])=>{const x=ING()[n],g=/Zeytinyağı|Tereyağı/.test(n)||(p.pk&&p.pk.test(n))?g0:x&&x.pw&&x.u==='g'&&g0%x.pw===0?Math.max(1,Math.round(g0*f/x.pw))*x.pw:Math.max(5,Math.round(g0*f/5)*5);if(x){k+=x.k*g/100;pr+=x.p*g/100;c+=x.c*g/100;fa+=x.f*g/100}return `${g} ${x&&x.u==='ml'?'ml':'g'} ${n}`});
   const d=dkey(),nw=new Date();S.meals.push({id:uid(),date:d,time:z(nw.getHours())+':'+z(nw.getMinutes()),name:nm.join(', '),kcal:Math.round(k),p:Math.round(pr),c:Math.round(c),f:Math.round(fa),src:'plan'});save();render(true);toast(TT(`${mn} eklendi · ${Math.round(k)} kcal`,`Added · ${Math.round(k)} kcal`))};

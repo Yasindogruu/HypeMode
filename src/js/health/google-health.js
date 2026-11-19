@@ -318,7 +318,7 @@ function wgKey(el){if(el.dataset.wgn)return el.dataset.wgn;let t=(el.querySelect
 function wgApply(v){if(!WG_V.includes(v))return;const root=$app,C=[...root.querySelectorAll('.card,.cb,.st-card')].filter(e=>!e.parentElement.closest('.card,.cb,.st-card,.sheet'));if(C.length<2)return;
   const cfg=(S.settings.wg||{})[v]||{h:[],o:[]};C.forEach(e=>{const k=wgKey(e);e.dataset.wg=k;if(cfg.h.includes(k))e.style.display='none'});
   if(cfg.o.length){const par=C[0].parentElement;if(C.every(e=>e.parentElement===par)){const sorted=C.slice().sort((a,b)=>{const ia=cfg.o.indexOf(a.dataset.wg),ib=cfg.o.indexOf(b.dataset.wg);return(ia<0?999:ia)-(ib<0?999:ib)});const slots=C.map(e=>{const m=document.createComment('w');par.insertBefore(m,e);return m});sorted.forEach((e,i)=>par.replaceChild(e,slots[i]))}}
-  ui._wg={v,keys:C.map(e=>e.dataset.wg)};const b=document.createElement('div');b.className='pad';b.style.margin='18px 0 110px';b.innerHTML=`<button class="hed-b" onclick="A.wgEdit()">✎ Widget'ları düzenle${cfg.h.length?` <small>${cfg.h.length} gizli</small>`:''}</button>`;
+  ui._wg={v,keys:C.map(e=>e.dataset.wg)};const b=document.createElement('div');b.className='pad';b.style.margin='18px 0 110px';b.innerHTML=`<button class="hed-b" onclick="A.wgEdit()">${eiSvg('pen')} Widget'ları düzenle${cfg.h.length?` <small>${cfg.h.length} gizli</small>`:''}</button>`;
   const tb=root.querySelector('.tabs,.tabbar,nav');if(tb&&tb.parentElement===root)root.insertBefore(b,tb);else root.appendChild(b)}
 window.ui_cb=k=>{ui.cbP=k;render(true)};window.ui_cbT=(el,t)=>{document.querySelectorAll('.cb-tip').forEach(e=>e.remove());const d=document.createElement('em');d.className='cb-tip';d.textContent=t;el.appendChild(d)};
 
