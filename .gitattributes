@@ -1,0 +1,9 @@
+# Dil istatistikleri: derlenmiş ve dış kütüphane dosyaları sayılmasın, kaynak kod src/ altında
+/index.html linguist-generated=true
+/sw.js linguist-generated=true
+js/fb-sdk.js linguist-vendored=true
+js/pdfjs.js linguist-vendored=true
+js/pdfjs-worker.js linguist-vendored=true
+js/m3d.js linguist-vendored=true
+docs/** linguist-documentation=true
+legal/*.html linguist-documentation=true

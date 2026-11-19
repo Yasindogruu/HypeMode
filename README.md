@@ -49,13 +49,26 @@ Health estimates are for information only and are not medical advice.
 ## Repository
 
 ```
-index.html, sw.js        Web app and service worker (served by GitHub Pages)
-assets/  js/  legal/     Fonts and icons, Firebase scripts, legal texts
+src/                     Source code, split by feature
+  js/core.js               State, storage, helpers
+  js/app.js                Main screens (Today, Workout, Food, Profile)
+  js/health/               Google Health (Fitbit), iOS bridge, health views, cycle, conditions, lab results
+  js/nutrition/            Adaptive calories, meal programs, weekly meal plan
+  js/workout/              Set types, exercise academy, 12-week program generator
+  js/social/               Friends, feed, stories, challenges
+  css/                     Base styles, layout, desktop, themes
+  i18n/en.json             English translations
+  manifest.json            File order for the build
+tools/build.py           Joins src/ into one file (the deployed index.html)
+tools/split.py           Splits a single-file build back into src/
+index.html, sw.js        Built web app and service worker (served by GitHub Pages)
+assets/  js/  legal/     Fonts and icons, libraries, legal texts
 firebase/                Database security rules
 ios/                     iOS app (Swift · HealthKit · Bluetooth · WidgetKit)
-tools/                   Python: data analysis and recovery prediction model
 docs/screenshots/        Screenshots
 ```
+
+Build: `python3 tools/build.py src build/index.html`
 
 ## License
 
