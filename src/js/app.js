@@ -2855,11 +2855,11 @@ async function splash(){if(!location.hash.includes('splash')){let long=true;try{
     <div class="dsp-brand">${HM_LOGO(phone?64:54)}<span>${[...'HYPEMODE'].map((c,i)=>`<i style="--i:${i}">${c}</i>`).join('')}</span></div>
     <h1 class="dsp-h">${TT('Kişisel koçun','Your personal coach')}</h1>
     <p class="dsp-p">${TT('Antrenman, uyku ve toparlanma tek yerde.','Training, sleep and recovery in one place.')}</p>
-    <button class="dsp-go">${nm?`${greet}, ${nm} →`:TT('Başla →','Get started →')}</button>
+    <button class="dsp-go">${nm?`${greet}, ${nm} →`:TT('Başla →','Get started →')}</button>${!S.onboarded&&!window.HM_DEMO?`<button class="dsp-demo">${TT('Kayıt olmadan dene (demo)','Try without signing up (demo)')}</button>`:''}
     <div class="dsp-f"><span>${TT('Fitbit Air ile en iyi sonuç','Best with Fitbit Air')}</span><span>v1.0</span></div></div>`;
   document.body.appendChild(d);let done=false,raf=0;
   const end=()=>{if(done)return;done=true;d.classList.add('out');$app.classList.add('boot');setTimeout(()=>{cancelAnimationFrame(raf);d.remove()},700);setTimeout(()=>$app.classList.remove('boot'),1400)};
-  d.querySelector('.dsp-go').onclick=end;let T=setTimeout(end,RM?1200:8400);
+  d.querySelector('.dsp-go').onclick=end;{const dm=d.querySelector('.dsp-demo');if(dm)dm.onclick=e=>{e.stopPropagation();end();setTimeout(()=>A.demoStart(),50)}}let T=setTimeout(end,RM?1200:8400);
   requestAnimationFrame(()=>d.classList.add('on'));if(RM)return;
   try{const cv=d.querySelector('canvas'),ctx=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1);let W,H;const rs=()=>{W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0)};rs();addEventListener('resize',rs);
     const hex=c=>{c=c.replace('#','');if(c.length===3)c=c.split('').map(x=>x+x).join('');const n=parseInt(c,16);return[n>>16&255,n>>8&255,n&255]},A1=light?[228,40,30]:[255,62,42],A2=light?[240,120,20]:[255,168,72],G=light?[20,170,110]:[110,240,170],DIM=light?[60,60,70]:[255,245,240];
