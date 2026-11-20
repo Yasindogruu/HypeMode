@@ -231,6 +231,103 @@ function sessRow(s){const d=new Date(s.date),by=setsBy([s]),tot=s.sets.length||1
     <span class="sr-bar">${MG.filter(g=>by[g[0]]).map(g=>`<i style="flex:${by[g[0]]};background:${g[2]}"></i>`).join('')}</span></span>
    <span class="sr-l">${ring(ld/100,L[1],38,4,ld)}</span></button>`}
 
+/* ---------- 3D kas haritası: nokta bulutu vücut (Canvas 2D, kütüphanesiz) ----------
+ parçalar: [anahtar, cx,cy,cz, rx,ry,rz, yüz(f/b/0), yoğunluk, eğim] · cx>0 olanlar sola aynalanır */
+const B3P=[['head',0,1.665,0,.082,.103,.093,0,.5],['neck',0,1.54,-.005,.05,.06,.05,0,.6],
+ ['back',.08,1.483,-.022,.1,.05,.062,0,1.1,.12],['shoulders',.2,1.402,0,.063,.096,.071,0,1.3,-.22],
+ ['chest',.085,1.335,.069,.096,.075,.045,'f',1.4,-.08],['abs',0,1.12,.081,.077,.165,.038,'f',1.45],
+ ['core',.118,1.11,.033,.046,.12,.066,0,.9],['back',.117,1.27,-.054,.077,.158,.062,'b',1.3,-.2,.45],
+ ['back',.054,1.372,-.084,.056,.076,.035,'b',1.1],['lowback',.037,1.07,-.077,.032,.097,.032,'b',1.15],
+ ['torso',0,1.26,0,.148,.215,.105,0,.42,0,.2],['arm',.262,1.24,0,.046,.135,.046,0,.45,.07],
+ ['biceps',.266,1.235,.02,.038,.108,.041,'f',1.25,.07],['triceps',.27,1.245,-.028,.043,.12,.042,'b',1.25,.07],
+ ['arm',.285,1.105,0,.036,.04,.036,0,.45],['forearms',.298,.985,.008,.038,.13,.037,0,1.1,.05,.3],
+ ['hand',.312,.82,.012,.027,.06,.018,0,.5],['glutes',.076,.93,-.064,.087,.09,.068,'b',1.35],
+ ['hip',0,.95,0,.148,.08,.096,0,.4],['thigh',.095,.72,0,.08,.235,.074,0,.4,.03,.3],['quads',.096,.73,.03,.075,.2,.068,'f',1.4,.03,.32],
+ ['quads',.046,.74,.004,.038,.15,.05,0,.6,.1],['hamstrings',.096,.72,-.035,.069,.19,.058,'b',1.3,.03,.25],
+ ['knee',.1,.5,.012,.047,.052,.05,0,.5],['calves',.1,.35,-.03,.05,.12,.05,'b',1.25,0,.25],
+ ['shin',.1,.3,.02,.04,.17,.038,0,.42,0,.3],['foot',.1,.045,.045,.04,.03,.095,0,.45]];
+const B3K=['chest','back','shoulders','biceps','triceps','forearms','core','lowback','glutes','quads','hamstrings','calves'];
+const B3MAIN=['chest','back','shoulders','biceps','triceps','core','quads','hamstrings','glutes','calves'];
+let B3G=null;const B3D={};
+function b3Cloud(only,N){let sd=only?only.length*97+13:7;const rnd=()=>{sd|=0;sd=sd+0x6D2B79F5|0;let t=Math.imul(sd^sd>>>15,1|sd);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  const area=(a,b,c)=>4*Math.PI*Math.pow((Math.pow(a*b,1.6)+Math.pow(a*c,1.6)+Math.pow(b*c,1.6))/3,1/1.6),kOf=k=>k==='abs'?'core':k;
+  const parts=[];B3P.forEach(p=>{if(only&&kOf(p[0])!==only)return;parts.push({p,s:1});if(p[1]>0)parts.push({p,s:-1})});
+  const tot=parts.reduce((a,{p})=>a+area(p[4],p[5],p[6])*p[8]*(p[7]?.55:1),0)||1,X=[],Y=[],Z=[],M=[],Rr=[];
+  parts.forEach(({p,s})=>{const[k,cx,cy,cz,rx,ry,rz,face,dn,rot=0,tp=0]=p;let n=Math.round(N*area(rx,ry,rz)*dn*(face?.55:1)/tot),tries=0;
+    const mi=B3K.indexOf(kOf(k)),ca=Math.cos(rot*s),sa=Math.sin(rot*s);
+    while(n>0&&tries++<n*8){const u=rnd()*2-1,th=rnd()*Math.PI*2,r=Math.sqrt(1-u*u),nx=r*Math.cos(th),ny=u,nz=r*Math.sin(th);
+      if(face==='f'&&nz<-.15||face==='b'&&nz>.15)continue;const f=1+tp*ny;
+      const ox=rx*nx*f,oy=ry*ny;const x=cx*s+ox*ca-oy*sa,y=cy+ox*sa+oy*ca,z=cz+rz*nz*f;
+      if(k==='abs'&&(Math.abs(x)<.007||[1.205,1.135,1.065].some(b=>Math.abs(y-b)<.006)))continue;
+      if(k==='chest'&&y>cy+.045&&Math.abs(x)<.03)continue;
+      X.push(x);Y.push(y);Z.push(z);M.push(mi<0?(k==='head'?254:255):mi);Rr.push(.55+rnd()*.45);n--}});
+  return{x:Float32Array.from(X),y:Float32Array.from(Y),z:Float32Array.from(Z),m:Uint8Array.from(M),r:Float32Array.from(Rr),n:X.length}}
+function b3Geo(){return B3G||(B3G=b3Cloud(null,11000))}
+function b3Dense(k){return B3D[k]||(B3D[k]=b3Cloud(k,4200))}
+const B3H=new WeakMap();
+function b3dScan(){document.querySelectorAll('canvas.b3c').forEach(cv=>{const h=B3H.get(cv);if(h)h.sync();else B3H.set(cv,b3dMount(cv))})}
+function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=Math.min(2,devicePixelRatio||1),ctx=cv.getContext('2d');
+  let swc=0,ph=0,sway=false,W=0,H=0,yaw=st.yaw,yawT=null,vel=0,lv={},sel=null,fade=0,raf=0,vis=true,drag=null,cam={x:0,y:.87,s:1},camT={x:0,y:.87,s:1};
+  const calm=()=>document.documentElement.classList.contains('lowpow')||matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);kick()}
+  function sync(){const d=cv.parentNode&&cv.parentNode.querySelector('.b3-data');if(!d)return;try{lv=JSON.parse(d.dataset.lv||'{}')}catch(e){lv={}}
+    const ns=d.dataset.sel||null;if(ns!==sel){sel=ns;fit();if(sel){swc=['back','triceps','glutes','hamstrings','calves','lowback'].includes(sel)?Math.PI:0;yawT=swc;ph=0;sway=false}}if(st.yawT!=null){yawT=st.yawT;st.yawT=null}kick()}
+  function fit(){if(!sel){camT={x:0,y:.87,s:1};return}const mi=B3K.indexOf(sel);let x0=9,x1=-9,y0=9,y1=-9;
+    for(let i=0;i<G.n;i++)if(G.m[i]===mi){const r=Math.hypot(G.x[i],G.z[i]);if(G.x[i]-0<x0)x0=G.x[i];if(G.x[i]>x1)x1=G.x[i];if(G.y[i]<y0)y0=G.y[i];if(G.y[i]>y1)y1=G.y[i]}
+    if(x0>x1){camT={x:0,y:.87,s:1};return}const w=Math.max(x1-x0,.12),h=Math.max(y1-y0,.12);camT={x:(x0+x1)/2,y:(y0+y1)/2,s:Math.min(1.8*.62/w,1.8*.62/h,7)}}
+  function col(m){if(m===255)return[176,176,196,.5];if(m===254)return[130,130,150,.42];const v=lv[B3K[m]];
+    if(v===-1)return[255,138,61,.95];if(!v)return[160,160,182,.42];const t=Math.min(1,v);return[160+66*t|0,160+60*t|0,182+73*t|0,.5+.5*t]}
+  function draw(){const g=ctx;g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);if(!W||!H)return;
+    const base=H*.86/1.8,sc=base*cam.s,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(.1),sp=Math.sin(.1),mi=sel?B3K.indexOf(sel):-1;
+    const B=new Map(),dot=(sel?1.6:1.15)*(cam.s>2?1.15:1);
+    const D=sel?b3Dense(sel):null;
+    const run=(Q,dense)=>{for(let i=0;i<Q.n;i++){const m=Q.m[i];let a=1;if(sel){if(dense)a=fade;else if(m===mi)a=1-fade;else a=1-fade;if(a<.03)continue}
+      const x=Q.x[i]-cam.x,y=Q.y[i]-cam.y,z=Q.z[i];const xr=x*cy+z*sy,zr=-x*sy+z*cy,yr=y*cp-zr*sp,zz=y*sp+zr*cp;
+      const k=1+zz*.22*cam.s/Math.max(1,cam.s*.6),px=W/2+xr*sc*k,py=H/2-yr*sc*k;if(px<-4||px>W+4||py<-4||py>H+4)continue;
+      const c=dense?[226,220,255,.95]:col(m),dep=Math.max(.35,Math.min(1,.62+zz*2.2/Math.max(1,cam.s*.5)));const al=c[3]*dep*a*Q.r[i],key=c[0]+','+c[1]+','+c[2]+','+(Math.round(al*10)/10);
+      let L=B.get(key);if(!L)B.set(key,L=[]);L.push(px,py)}};
+    run(G,false);if(D)run(D,true);
+    B.forEach((L,key)=>{const q=key.split(',');g.fillStyle=`rgba(${q[0]},${q[1]},${q[2]},${q[3]})`;for(let j=0;j<L.length;j+=2)g.fillRect(L[j]-dot/2,L[j+1]-dot/2,dot,dot)})}
+  function step(){raf=0;let busy=false;const lerp=(a,b,t)=>a+(b-a)*t;
+    if(yawT!=null){let d=((yawT-yaw)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(d)<.004){yaw=yawT;yawT=null;if(sel&&ph===0)sway=true}else{yaw+=d*.16;busy=true}}
+    else if(!drag&&Math.abs(vel)>.0005){yaw+=vel;vel*=.93;busy=true}
+    else if(sel&&sway&&!drag&&!calm()){ph+=.012;yaw=swc+.45*Math.sin(ph);busy=true}
+    ['x','y','s'].forEach(k=>{if(Math.abs(cam[k]-camT[k])>.0008){cam[k]=lerp(cam[k],camT[k],.14);busy=true}else cam[k]=camT[k]});
+    const ft=sel?1:0;if(Math.abs(fade-ft)>.01){fade=lerp(fade,ft,.14);busy=true}else fade=ft;
+    st.yaw=yaw;draw();if(busy&&vis)kick()}
+  function kick(){if(!raf)raf=requestAnimationFrame(step)}
+  function pick(cx,cyp){const r=cv.getBoundingClientRect(),X=cx-r.left,Y=cyp-r.top,base=H*.86/1.8,sc=base*cam.s,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(.1),sp=Math.sin(.1);
+    let best=null,bd=18*18,bz=-9;for(let i=0;i<G.n;i++){const m=G.m[i];if(m>=B3K.length)continue;const x=G.x[i]-cam.x,y=G.y[i]-cam.y,z=G.z[i],xr=x*cy+z*sy,zr=-x*sy+z*cy,yr=y*cp-zr*sp,zz=y*sp+zr*cp,k=1+zz*.22*cam.s/Math.max(1,cam.s*.6);
+      const dx=W/2+xr*sc*k-X,dy=H/2-yr*sc*k-Y,d=dx*dx+dy*dy;if(d<bd&&(d<bd*.5||zz>bz)){bd=d;bz=zz;best=m}}
+    return best==null?null:B3K[best]}
+  cv.style.touchAction='pan-y';
+  cv.addEventListener('pointerdown',e=>{sway=false;drag={x:e.clientX,y:e.clientY,lx:e.clientX,t:performance.now(),mv:0};vel=0;yawT=null});
+  cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.mv+=Math.abs(dx)+Math.abs(e.clientY-drag.y)*.2;
+    if(Math.abs(e.clientX-drag.x)>6&&!drag.cap){try{cv.setPointerCapture(e.pointerId)}catch(_){}drag.cap=1}
+    if(drag.cap){yaw+=dx*.011;vel=dx*.011;drag.lx=e.clientX;kick()}});
+  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){const k=pick(e.clientX,e.clientY);if(k&&k!==sel){try{tap()}catch(_){}A.b3Sel(k)}}kick()};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  const io=new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)kick()},{threshold:.02});io.observe(cv);
+  const ro=new ResizeObserver(size);ro.observe(cv);size();sync();cam={...camT};fade=sel?1:0;draw();
+  return{sync}}
+/* dönem içi set sayıları: ana kas başına; seçili kas için hareket bazında */
+function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7,ms=per*864e5,cur=S.sessions.filter(s=>sAge(s)<ms),sel=st.sel;
+  const by={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle&&x.muscle!=='other')by[x.muscle]=(by[x.muscle]||0)+1}));
+  const bl=bodyLoad(cur,per===7?10:per===30?36:300),lv={};B3K.forEach(k=>{const v=bl.lv[k]||0;lv[k]=v>0?Math.round(v*100)/100:(cur.length&&B3MAIN.includes(k)?-1:0)});
+  let rows;if(sel){const ex={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle===sel||(sel==='lowback'&&exMus(x.ex,x.muscle).lowback>=1)||(sel==='forearms'&&exMus(x.ex,x.muscle).forearms))ex[x.ex]=(ex[x.ex]||0)+1}));
+    rows=Object.entries(ex).sort((a,b)=>b[1]-a[1]).slice(0,8)}else rows=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v]);
+  const mx=Math.max(1,...rows.map(r=>r[1])),pl={7:TT('Bu hafta','This week'),30:TT('Son 30 gün','Last 30 days'),365:TT('Son 1 yıl','Last year')}[per];
+  const lag=sel?[]:B3MAIN.filter(k=>lv[k]===-1);
+  return `<div class="b3card">
+   <div class="b3-top"><div><div class="b3-k">${sel?esc(MUSC2[sel]||sel):TT('Kas haritası','Muscle map')}</div><small>${pl}${sel?'':' · '+TT('çevirmek için kaydır, kasa dokun','drag to turn, tap a muscle')}</small></div>
+    <div class="b3-seg">${[[7,TT('H','W')],[30,TT('A','M')],[365,TT('Y','Y')]].map(([v,l])=>`<button class="${per===v?'on':''}" onclick="A.b3Per(${v})" aria-label="${v} ${TT('gün','days')}">${l}</button>`).join('')}</div></div>
+   <div class="b3-stage"><canvas class="b3c" aria-label="${TT('3D kas haritası','3D muscle map')}"></canvas><i class="b3-data" data-lv='${JSON.stringify(lv)}' data-sel="${sel||''}" hidden></i>
+    ${sel?`<button class="b3-x" onclick="A.b3Sel(null)" aria-label="${TT('Tüm vücuda dön','Back to full body')}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg></button>`
+     :`<div class="b3-fb"><button class="${(st.face||0)===0?'on':''}" onclick="A.b3Face(0)">${TT('Ön','Front')}</button><button class="${st.face===1?'on':''}" onclick="A.b3Face(1)">${TT('Arka','Back')}</button></div>`}
+    ${lag.length?`<div class="b3-lag"><i></i>${TT('Çalışılmayan','Not trained')}</div>`:''}</div>
+   <div class="b3-list">${rows.length?rows.map(([k,v])=>`<button class="b3-r" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${esc(sel?k:(MUSC2[k]||k))}</b><em>${v} set</em></span><span class="b3-bar"><i style="width:${Math.max(3,Math.round(v/mx*100))}%"></i></span></button>`).join('')
+     :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}</div></div>`}
+
 function programsV(){
   const n=todaysPlan(),act=S.plans.filter(x=>!x.archived),arc=S.plans.filter(x=>x.archived),per=ui.stR||7,ms=per*864e5;
   const cur=S.sessions.filter(s=>sAge(s)<ms),prev=S.sessions.filter(s=>sAge(s)>=ms&&sAge(s)<2*ms);
@@ -257,11 +354,7 @@ function programsV(){
    ${radar(MG.map(g=>({n:g[1],v:by[g[0]],c:g[2]})),tgt)}
    <div class="st-kpis"><div><b>${cur.length}</b><small>antrenman</small></div><div><b>${sets}</b><small>set</small></div><div><b>${Math.round(dur/60)}</b><small>dakika</small></div></div>
    <div class="lbl" style="margin-top:12px;line-height:1.5">Radar, kas grubu başına set sayısını gösterir. Dış çizgi ≈ ${tgt} set${per===7?'; kas başına haftada 10–20 set yaygın bir hedeftir':''}.</div></div>`:''}</div>
-  <div class="secw" data-sec="body">${pv('body')?(()=>{const bl=bodyLoad(cur,per===7?10:36),top=Object.entries(bl.raw).filter(([k])=>MUSC2[k]).sort((a,b)=>b[1]-a[1]).slice(0,3);
-   return `<div class="st-card bm pgc-body"><div class="row between"><div><div class="st-k">Çalışan bölgeler</div><div class="lbl">Son ${per} gün · bir kasa dokun, o kasın hareketlerini gör</div></div></div>
-    ${bodySvg(bl.lv,{cls:'lgb',click:1})}
-    <div class="bm-leg"><span>Az</span><i></i><span>Çok</span></div>
-    ${top.length?`<div class="bm-top">${top.map(([k,v])=>`<div><b>${MUSC2[k]}</b><small>${fmt(Math.round(v*10)/10)} set</small></div>`).join('')}</div>`:'<div class="lbl" style="text-align:center">Antrenman yaptıkça çalışan kaslar kırmızıya döner.</div>'}</div>`})():''}</div>
+  <div class="secw" data-sec="body">${pv('body')?b3Card():''}</div>
   <div class="secw" data-sec="rec">${pv('rec')&&rc.some(r=>r.p<100)?`<div class="card ed">${edHd(TT('kas toparlanması','muscle recovery'),TT('tahmini hazır olma','estimated readiness'))}<div style="margin-top:6px">${rc.slice().sort((a,b)=>a.p-b.p).map(r=>`<div class="fz-b"><div class="fz-bt"><span>${r.n}</span><b>${TT('%'+r.p,r.p+'%')}${r.p<100?` <em class="ed-em">${r.st}</em>`:''}</b></div><div class="fz-tr"><i class="${r.p<100?'on':''}" style="width:${r.p}%"></i></div></div>`).join('')}</div></div>`:''}</div>
   <div class="secw" data-sec="gen">${pv('gen')?homeEntry():''}</div>
   <div class="secw" data-sec="cardio">${pv('cardio')?cardioCard():''}</div>
@@ -1449,6 +1542,9 @@ const A=window.A={
     const t=nextEx(a);if(t>=0){a.idx=t;save();render()}else A.finish()},
   prevEx(){if(S.active.idx>0){S.active.idx--;save();render()}else ask('Antrenmandan çık?',()=>{A.finishAsk()},'Devam')},
   restAdd(s){restEnd+=s*1000;restBar()},
+  b3Sel(k){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.sel=k||null;render(true)},
+  b3Per(v){const st=ui.b3||(ui.b3={yaw:.35});st.per=v;st.sel=null;tap();render(true)},
+  b3Face(f){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.face=f;st.yawT=f?Math.PI:0;render(true)},
   wFocus(){S.settings.wfocus=!S.settings.wfocus;save();render()},
   wfStep(i,k,d){const e=S.active&&S.active.ex[S.active.idx];if(!e)return;const s=e.sets[i];if(!s)return;
     if(k==='kg'){const st=+e.inc||2.5,v=Math.max(0,Math.round(((num(s.kg)||0)+d*st)*100)/100);s.kg=v}else s.reps=Math.max(1,(num(s.reps)||0)+d);

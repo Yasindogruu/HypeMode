@@ -1,5 +1,6 @@
 /* ===== Yenilikler (yeni özellik duyurusu) ===== */
 const NEWS=[
+ {id:13,d:'2026-11-20',t:['3D kas haritası','3D muscle map'],b:['Antrenman sayfasında döndürülebilir vücut; kasa dokun, o kasın hareketlerini gör.','Rotatable body on the Workout page; tap a muscle to see its exercises.'],go:"A.go('programs')"},
  {id:12,d:'2026-11-20',t:['Odak modu ve sade görünüm','Focus mode and a cleaner look'],b:['Antrenmanda tek ekranlık odak modu; sade ikonlar ve tutarlı grafikler.','One-screen focus mode in workouts; clean icons and consistent charts.']},
  {id:10,d:'2026-11-20',t:['Daha hızlı uygulama','Faster app'],b:['Daha hızlı açılış ve her gün otomatik yedek.','Faster start-up and automatic daily backups.']},
  {id:9,d:'2026-11-19',t:['Kişiye özel antrenman programı','Personal training program'],b:['Hedefine ve seviyene göre 12 haftalık program.','A 12-week program for your goal and level.'],go:"A.go('tprog')"},

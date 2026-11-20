@@ -24,6 +24,8 @@ struct WebView: UIViewRepresentable {
         wv.backgroundColor = .black
         wv.scrollView.backgroundColor = .black
         wv.scrollView.contentInsetAdjustmentBehavior = .never
+        wv.scrollView.showsVerticalScrollIndicator = false
+        wv.scrollView.showsHorizontalScrollIndicator = false
         wv.allowsBackForwardNavigationGestures = false
         wv.uiDelegate = context.coordinator
         wv.navigationDelegate = context.coordinator
