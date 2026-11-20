@@ -53,6 +53,13 @@ function homeEdit(){const hid=S.settings.homeHide||[],L=HSEC.filter(x=>!x[3]||cy
 const FNK=[['post','Fotoğraf paylaşınca','When a friend posts a photo'],['live','Antrenmana başlayınca','When a friend starts a workout'],['like','Beğeni ve yorumlar','Likes and comments'],['chal','Meydan okuma davetleri','Challenge invites']];
 const fnOn=k=>((S.settings.fn||{})[k])!==false;
 const fnType=t=>t==='cmt'?'like':t;
+/* kapalıyken bildirim için yönlendirme: iPhone'da önce Ana Ekrana Ekle gerekir */
+function pushNag(){try{if(HMN()||S.settings.pushNagX||!SDB())return '';const ok=localStorage.getItem('hm-push')==='1'&&window.Notification&&Notification.permission==='granted';if(ok)return '';
+  const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  const msg=ios&&!sa?TT('Uygulama kapalıyken bildirim almak için: Safari’de <b>Paylaş → Ana Ekrana Ekle</b>, sonra HypeMode’u ana ekrandan aç ve buradan bildirimleri aç.','To get notifications when closed: in Safari tap <b>Share → Add to Home Screen</b>, open HypeMode from there and turn notifications on.')
+    :('PushManager' in window)?TT('Arkadaşların seni davet edince, beğenince ya da fotoğraf paylaşınca uygulama kapalıyken de haber al.','Get notified even when the app is closed.'):'';
+  if(!msg)return '';
+  return `<div class="pnag"><div><b>${TT('Bildirimleri aç','Turn on notifications')}</b><small>${msg}</small></div>${!(ios&&!sa)?`<button class="pill fin" onclick="A.webPush()">${TT('Aç','Turn on')}</button>`:''}<button class="x" aria-label="${TT('Kapat','Close')}" onclick="S.settings.pushNagX=1;save();render(true)">✕</button></div>`}catch(e){return ''}}
 function frNotifCard(){const web=!HMN()&&window.HMAcct&&'PushManager' in window,pOn=(()=>{try{return localStorage.getItem('hm-push')==='1'&&Notification.permission==='granted'}catch(e){return false}})();
   return `<div class="card"><b>${TT('Arkadaş bildirimleri','Friend notifications')}</b><div class="lbl" style="margin:4px 0 8px">${TT('Arkadaşların bir şey yapınca sana haber verilsin mi?','Get notified when friends do something?')}</div>
    ${FNK.map(([k,t,e])=>`<div class="row between" style="padding:9px 0;border-top:1px solid var(--line)"><span>${TT(t,e)}</span><button class="sw ${fnOn(k)?'on':''}" role="switch" aria-checked="${fnOn(k)}" aria-label="${TT(t,e)}" onclick="A.fnTog('${k}')"></button></div>`).join('')}
@@ -1678,7 +1685,7 @@ const A=window.A={
   wtGoal(){const v=prompt(TT('Hedef kilon (kg) — boş bırakırsan silinir','Goal weight (kg)'),S.profile.gw?String(S.profile.gw).replace('.',','):'');if(v==null)return;const w=parseFloat(String(v).replace(',','.'));
     if(!v.trim()){delete S.profile.gw}else if(w>25&&w<350)S.profile.gw=w;else{toast(TT('Geçerli bir kilo gir','Enter a valid weight'));return}save();render(true)},
   fnTog(k){S.settings.fn={...(S.settings.fn||{}),[k]:!fnOn(k)};save();SOC.lastPush=null;try{socPush()}catch(e){}render(true)},
-  async webPush(){try{if(window.HMAcct&&HMAcct.push)await HMAcct.push()}catch(e){}render(true)},
+  async webPush(){try{if(window.HMAcct&&HMAcct.push)await HMAcct.push()}catch(e){}try{const ok=localStorage.getItem('hm-push')==='1'&&Notification.permission==='granted';toast(ok?TT('✓ Bildirimler açıldı','✓ Notifications on'):Notification.permission==='denied'?TT('Bildirim izni reddedilmiş; tarayıcı ayarlarından izin ver','Permission denied; allow it in browser settings'):TT('Bildirim açılamadı','Could not turn on notifications'))}catch(e){}render(true)},
   demoStart(){window.HM_DEMO=1;document.documentElement.classList.add('demo');const now=Date.now(),D=864e5;
     S.onboarded=true;S.profile={...S.profile,name:'Demo',username:'',sex:'m',age:28,height:180,weight:82,goal:'cut',pct:.5,applied:true,gw:76};S.healthDemo=true;S.settings.rz={v:2,cloud:false,health:true};S.settings.newsSeen=999;S.settings.ghIntro=1;
     const W=[['Bench Press (Barbell)','chest'],['Lat Pulldown','back'],['Overhead Press (Dumbbell)','shoulders'],['Barbell Curl','biceps'],['Triceps Pushdown','triceps'],['Squat (Barbell)','quads'],['Romanian Deadlift','hamstrings'],['Hip Thrust','glutes'],['Plank','core']];

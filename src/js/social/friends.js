@@ -175,7 +175,7 @@ function friendsV(){const tab=(ui.frTab==='mine'?'feed':ui.frTab)||'feed',on=!!S
      <div class="sg">${rows.map((r,i)=>`<div class="sr lbr ${r.me?'me':''}"><span class="lb-n">${['🥇','🥈','🥉'][i]||i+1}</span><span class="sr-av">${avHtml(r.n,r.ph,'sm')}</span><span class="sr-t"><b>${esc(r.n)}</b></span><b class="lb-w">${M[met][2]==='t'?fmt(Math.round(r.v/100)/10):r.v}<small> ${M[met][2]}</small></b></div>`).join('')}</div><div class="sg-n" style="margin:8px 20px">${TT('Son 7 gün','Last 7 days')}</div>`}
   else body=friendsOld().replace(/^<div class="sp-top">[\s\S]*?<\/div>\s*<div class="sp-prof">[\s\S]*?<\/div>/,'');
   setTimeout(()=>{inboxSeen()},0);
-  return `<div class="fx">${head}<div class="fx-b">${body}</div><div style="height:110px"></div></div>`}
+  return `<div class="fx">${head}${pushNag()}<div class="fx-b">${body}</div><div style="height:110px"></div></div>`}
 async function imgShrink(file,max=1080,q=.72){const url=URL.createObjectURL(file);try{const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
   let w=im.naturalWidth,h=im.naturalHeight;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
   let d=c.toDataURL('image/jpeg',q);if(d.length>420000)d=c.toDataURL('image/jpeg',.55);return d}finally{URL.revokeObjectURL(url)}}
