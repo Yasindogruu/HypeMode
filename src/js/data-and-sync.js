@@ -174,10 +174,19 @@ function cacheLocal(){if(IDB.ok&&IDB.ready){try{localStorage.setItem(KEY,JSON.st
   try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){
   try{localStorage.setItem(KEY,JSON.stringify({...S,photos:S.photos.map(p=>({...p,img:''}))}));}catch(e2){}
   if(!CL.db)setTimeout(()=>toast('⚠️ Depolama dolu: eski fotoğrafları sil ya da yedek alıp temizle'),50);return false}}
-function save(){S._ts=Date.now();FRESH=false;DV++;cacheLocal();try{hkWeightPush();hkPushSoon();swNotify()}catch(e){}if(CL.db&&CL.status==='synced')schedulePush();if(S.profile&&S.profile.username&&typeof socPush==='function')socPush()}
+function save(){if(window.HM_DEMO){DV++;return}S._ts=Date.now();FRESH=false;DV++;cacheLocal();try{hkWeightPush();hkPushSoon();swNotify()}catch(e){}if(CL.db&&CL.status==='synced')schedulePush();if(S.profile&&S.profile.username&&typeof socPush==='function')socPush()}
 
 /* ---------- bulut (kalıcı veritabanı) ---------- */
 const CL={db:null,user:null,sample:null,base:null,status:'local',last:{},timer:null,busy:false,again:false};
+/* claude.ai dışında (GitHub sitesi, iPad uygulaması) yapay zekâ: Cloudflare Worker üzerinden Gemini */
+const b2d=b=>typeof b==='string'?Promise.resolve(b):new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(b)});
+const GEMS={gem:1,limits:async()=>({images:true}),async json(prompt,opt={}){const C=window.HM_CONFIG||{},w=((C.push||{}).worker)||'';if(!w)throw{code:'not_granted'};
+  const images=await Promise.all((opt.images||[]).slice(0,4).map(b2d));
+  const r=await fetch(w+'/ai',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({key:(C.push||{}).key,prompt,images})});const j=await r.json().catch(()=>({}));
+  if(!r.ok){if(j.error==='no_key'){ui.gemDown=1}throw{code:r.status===429?'rate_limited':j.error==='no_key'?'gem_off':'gem_err',detail:j.detail||j.error}}
+  const t=String(j.text||''),m=t.match(/\{[\s\S]*\}/);return JSON.parse(m?m[0]:t)},
+  async complete(prompt,opt){return{text:JSON.stringify(await GEMS.json(prompt,opt))}}};
+Object.defineProperty(CL,'sample',{configurable:true,get(){return this._smp||(!ui.gemDown&&((window.HM_CONFIG||{}).push||{}).worker?GEMS:null)},set(v){this._smp=v}});
 const cuse=n=>{try{return window.claude&&window.claude.use?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(null)}catch(e){return Promise.resolve(null)}};
 const LOGK=['sessions','meals','drinks','body'];
 function splitState(){

@@ -1,5 +1,6 @@
 /* ===== Yenilikler (yeni özellik duyurusu) ===== */
 const NEWS=[
+ {id:15,d:'2026-11-20',t:['Fotoğraftan öğün herkese açık','Photo meals for everyone'],b:['Yapay zekâ ile fotoğraftan kalori artık her yerde çalışıyor; arkadaşın fotoğraf paylaşınca bildirim gelir.','AI photo calorie estimates now work everywhere; get notified when friends post photos.']},
  {id:14,d:'2026-11-20',t:['Toparlanma, kilo trendi, meydan okumalar','Recovery, weight trend, challenges'],b:['Kas haritasında toparlanma modu, hedef tarihli kilo trendi, squat/şınav/mekik gibi haftalık meydan okuma şablonları.','Recovery mode on the muscle map, weight trend with goal date, weekly challenge templates.']},
  {id:13,d:'2026-11-20',t:['3D kas haritası','3D muscle map'],b:['Antrenman sayfasında döndürülebilir vücut; kasa dokun, o kasın hareketlerini gör.','Rotatable body on the Workout page; tap a muscle to see its exercises.'],go:"A.go('programs')"},
  {id:12,d:'2026-11-20',t:['Odak modu ve sade görünüm','Focus mode and a cleaner look'],b:['Antrenmanda tek ekranlık odak modu; sade ikonlar ve tutarlı grafikler.','One-screen focus mode in workouts; clean icons and consistent charts.']},

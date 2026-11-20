@@ -435,3 +435,8 @@ html:not(.lowpow) .b3-bar i{animation:b3g .7s cubic-bezier(.2,.8,.2,1)}@keyframe
 .fc-h .pill+.pill{margin-left:6px}
 .sp-more{margin:6px 0 0}.sp-more>summary{list-style:none;display:flex;flex-direction:column;gap:2px;margin:10px 16px;padding:14px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);cursor:pointer}.sp-more>summary::-webkit-details-marker{display:none}.sp-more>summary span{font-weight:650;font-size:14.5px}.sp-more>summary small{font-size:12px;color:var(--mut)}.sp-more>summary::after{content:'';position:absolute}
 .hfore{padding:0 20px}.hfore>.fc{margin-top:0}
+html.demo #app :is(.card,.b3card,.fc,.htl,.htile,.tile,.wtc,.mon,.st-card,.dp-card,.nx,.tpent,.wk-sum) > :not(:first-child){filter:blur(6px);pointer-events:none;user-select:none}
+html.demo #app :is(.b3card) > .b3-stage{filter:none;pointer-events:auto}
+#demob{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top));z-index:8000;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:999px;background:rgba(20,20,24,.92);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap}
+#demob button{padding:8px 16px;border-radius:999px;background:var(--a1,#ff3b30);color:#fff;font-weight:700;font-size:13px}
+.ob-demo{display:block;width:100%;margin:0 0 12px;padding:14px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;font-weight:600;font-size:15px}

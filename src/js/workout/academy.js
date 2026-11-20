@@ -359,7 +359,7 @@ function ring3(v,max,col,label,unit,onclick){const r=46,C=2*Math.PI*r,p=v==null?
 const dayLbl=d=>d===dkey()?'BUGÜN':d===lastNDays(dkey(),2)[1]?'DÜN':new Date(d+'T12:00').toLocaleDateString(LOC(),{day:'numeric',month:'short',weekday:'short'}).toLocaleUpperCase('tr-TR');
 function tAgo(t){const d=new Date(t),s=(Date.now()-d)/1000;if(s<60)return 'az önce';if(s<3600)return Math.floor(s/60)+' dk önce';
   return (dkey(d)===dkey()?'bugün ':d.toLocaleDateString(LOC(),{day:'numeric',month:'short'})+' ')+z(d.getHours())+':'+z(d.getMinutes())}
-function backupNag(){if(!CL.ready||CL.status==='synced'||CL.status==='loading')return '';
+function backupNag(){if(window.HM_DEMO)return '';if(!CL.ready||CL.status==='synced'||CL.status==='loading')return '';
   if(!S.sessions.length&&!S.meals.length)return '';const lb=S.lastBackup?new Date(S.lastBackup).getTime():0;if(Date.now()-lb<7*864e5)return '';
   return `<button class="bnag" onclick="A.syncInfo()">📱 <span><b>Verilerin sadece bu cihazda</b><small>${lb?'Son yedek '+Math.floor((Date.now()-lb)/864e5)+' gün önce':'Henüz yedek almadın'} · dokun, yedeğini indir</small></span>›</button>`}
 const FSEC=[['photo','📸','Fotoğrafla yemek ekle'],['cook','🍳','Akıllı öğün / ne pişirsem'],['water','💧','Su & içecekler'],['bal','⚖️','Kalori dengesi']];
