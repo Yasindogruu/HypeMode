@@ -180,8 +180,9 @@ function save(){if(window.HM_DEMO){DV++;return}S._ts=Date.now();FRESH=false;DV++
 const CL={db:null,user:null,sample:null,base:null,status:'local',last:{},timer:null,busy:false,again:false};
 /* claude.ai dışında (GitHub sitesi, iPad uygulaması) yapay zekâ: Cloudflare Worker üzerinden Gemini */
 const b2d=b=>typeof b==='string'?Promise.resolve(b):new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(b)});
+const imgSm=async b=>{if(typeof b==='string')return b;try{const bm=await createImageBitmap(b),k=Math.min(1,1280/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);try{bm.close()}catch(_){}return c.toDataURL('image/jpeg',.82)}catch(e){return b2d(b)}};
 const GEMS={gem:1,limits:async()=>({images:true}),async json(prompt,opt={}){const C=window.HM_CONFIG||{},w=((C.push||{}).worker)||'';if(!w)throw{code:'not_granted'};
-  const images=await Promise.all((opt.images||[]).slice(0,4).map(b2d));
+  const images=await Promise.all((opt.images||[]).slice(0,4).map(imgSm));
   const r=await fetch(w+'/ai',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({key:(C.push||{}).key,prompt,images})});const j=await r.json().catch(()=>({}));
   if(!r.ok){if(j.error==='no_key'){ui.gemDown=1}throw{code:r.status===429?'rate_limited':j.error==='no_key'?'gem_off':'gem_err',detail:j.detail||j.error}}
   const t=String(j.text||''),m=t.match(/\{[\s\S]*\}/);return JSON.parse(m?m[0]:t)},

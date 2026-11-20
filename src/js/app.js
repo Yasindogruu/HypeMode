@@ -313,7 +313,7 @@ function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=M
   gl.disable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(0,0,0,0);
   const CY=.84,HT=1.7;let swc=0,ph=0,sway=false,W=0,H=0,yaw=st.yaw,yawT=null,vel=0,lv=new Float32Array(12),sel=null,fade=0,raf=0,vis=true,drag=null,cam={x:0,y:CY,z:0,s:1},camT={x:0,y:CY,z:0,s:1};
   const calm=()=>document.documentElement.classList.contains('lowpow')||matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.max(1,Math.round(W*dpr));cv.height=Math.max(1,Math.round(H*dpr));gl.viewport(0,0,cv.width,cv.height);kick()}
+  function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;const w=Math.max(1,Math.round(W*dpr)),hh=Math.max(1,Math.round(H*dpr));if(cv.width!==w||cv.height!==hh){cv.width=w;cv.height=hh;gl.viewport(0,0,w,hh)}kick()}
   function sync(){const d=cv.parentNode&&cv.parentNode.querySelector('.b3-data');if(!d)return;let o={};try{o=JSON.parse(d.dataset.lv||'{}')}catch(e){}B3K.forEach((k,i)=>lv[i]=o[k]||0);
     const ns=d.dataset.sel||null;if(ns!==sel){sel=ns;fit();sway=false;ph=0;if(sel)swc=['back','triceps','glutes','hamstrings','calves','lowback'].includes(sel)?Math.PI:0;anim(sel?swc:null)}
     if(st.yawT!=null){const y=st.yawT;st.yawT=null;anim(y)}kick()}
@@ -2906,4 +2906,4 @@ let _lastTouch=0;document.addEventListener('touchend',e=>{const n=Date.now();if(
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});
 window.S_sw=(k,v)=>{S.swake=S.swake||{};S.swake[k]=k==='on'?!!v:v;if(k==='vib'){S.settings.vib=v;buzz()}save();A.swake();render(true)};
 window.ui_setNull=()=>{ui.setSec=null};
-window.render=render;/* satır içi onclick'ler bu adlara erişebilsin */Object.defineProperty(window,'S',{get:()=>S,set:v=>{S=v},configurable:true});Object.assign(window,{ui,save,closeSheet,buzz,LANG,dkey,esc,rzSheet});window.__hm={acx:()=>ACX(),S:()=>S,toast,prFx,CL,ui:()=>ui,ghParseSleep,healthScores,strainParts,HD:()=>HD(),ALL:()=>ALL(),socId,socLoad,SOC:()=>SOC};
+window.render=render;/* satır içi onclick'ler bu adlara erişebilsin */Object.defineProperty(window,'S',{get:()=>S,set:v=>{S=v},configurable:true});Object.assign(window,{ui,save,closeSheet,buzz,LANG,dkey,esc,rzSheet});window.__hm={acx:()=>ACX(),S:()=>S,toast,prFx,PERF:()=>PERF,CL,ui:()=>ui,ghParseSleep,healthScores,strainParts,HD:()=>HD(),ALL:()=>ALL(),socId,socLoad,SOC:()=>SOC};
