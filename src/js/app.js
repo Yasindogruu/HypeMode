@@ -286,7 +286,7 @@ void main(){vec3 q=u_rot*(a_p-u_c);float pz=1.0/(1.0-q.z*0.32*u_s/(1.0+u_s*0.35)
  if(a_g<11.5){float v=0.0;for(int i=0;i<12;i++){if(abs(float(i)-a_g)<0.5)v=u_lv[i];}
   if(v<-0.5){col=vec3(1.0,.55,.26);al=.78;}else if(v<0.01){col=vec3(.66,.66,.74);al=.42;}else{col=mix(vec3(.66,.66,.76),vec3(.9,.87,1.0),v);al=.55+.45*v;}}
  else{al=.3;}
- if(u_sel>-0.5){if(abs(a_g-u_sel)<0.5){col=mix(col,vec3(.9,.87,1.0),u_fade);al=mix(al,1.0,u_fade);sz=1.0+.35*u_fade;}else{col=mix(col,vec3(.55,.55,.62),u_fade);al*=mix(1.0,.16,u_fade);}}
+ if(u_sel>-0.5){if(abs(a_g-u_sel)<0.5){col=mix(col,vec3(.9,.87,1.0),u_fade);al=mix(al,1.0,u_fade);sz=1.0+.35*u_fade;}else{col=mix(col,vec3(.6,.6,.68),u_fade);al*=mix(1.0,.42,u_fade);}}
  gl_PointSize=u_ps*sz*(0.75+0.45*dep);v_c=vec4(col,al*dep*(0.35+0.65*a_r)*0.85);}`;
 const B3FS=`precision mediump float;varying vec4 v_c;void main(){vec2 d=gl_PointCoord-0.5;float r=length(d);if(r>0.5)discard;float a=v_c.a*smoothstep(0.5,0.12,r);gl_FragColor=vec4(v_c.rgb*a,a);}`;
 function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=Math.min(2,devicePixelRatio||1);
@@ -301,8 +301,8 @@ function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=M
   const calm=()=>document.documentElement.classList.contains('lowpow')||matchMedia('(prefers-reduced-motion:reduce)').matches;
   function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.max(1,Math.round(W*dpr));cv.height=Math.max(1,Math.round(H*dpr));gl.viewport(0,0,cv.width,cv.height);kick()}
   function sync(){const d=cv.parentNode&&cv.parentNode.querySelector('.b3-data');if(!d)return;let o={};try{o=JSON.parse(d.dataset.lv||'{}')}catch(e){}B3K.forEach((k,i)=>lv[i]=o[k]||0);
-    const ns=d.dataset.sel||null;if(ns!==sel){sel=ns;fit();if(sel){swc=['back','triceps','glutes','hamstrings','calves','lowback'].includes(sel)?Math.PI:0;yawT=swc;ph=0;sway=false}}
-    if(st.yawT!=null){yawT=st.yawT;st.yawT=null}kick()}
+    const ns=d.dataset.sel||null;if(ns!==sel){sel=ns;fit();sway=false;ph=0;if(sel)swc=['back','triceps','glutes','hamstrings','calves','lowback'].includes(sel)?Math.PI:0;anim(sel?swc:null)}
+    if(st.yawT!=null){const y=st.yawT;st.yawT=null;anim(y)}kick()}
   function fit(){const b=sel&&D.bb[B3K.indexOf(sel)];if(!b){camT={x:0,y:CY,z:0,s:1};return}
     const w=Math.max(b[1]-b[0],.14),h=Math.max(b[3]-b[2],.14);camT={x:(b[0]+b[1])/2,y:(b[2]+b[3])/2,z:(b[4]+b[5])/2,s:Math.max(1.4,Math.min(HT*.58/h,HT*.5/w*(H/Math.max(1,W)),4.2))}}
   function mat(){const cy=Math.cos(yaw),sy=Math.sin(yaw),p=.08,cp=Math.cos(p),sp=Math.sin(p);
@@ -312,10 +312,15 @@ function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=M
     gl.uniformMatrix3fv(U.u_rot,false,M.f);gl.uniform3f(U.u_c,cam.x,cam.y,cam.z);gl.uniform1f(U.u_s,cam.s);gl.uniform2f(U.u_asp,sc*H/W,sc);
     gl.uniform1f(U.u_sel,sel?B3K.indexOf(sel):-1);gl.uniform1f(U.u_fade,fade);gl.uniform1fv(U.u_lv,lv);gl.uniform1f(U.u_ps,dpr*(1.25+Math.min(1.5,(cam.s-1)*.5)));
     gl.drawArrays(gl.POINTS,0,D.n)}
+  let tr=null;const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+  function anim(yTo){const dur=calm()?1:950;let y1=yaw;if(yTo!=null){let d=((yTo-yaw)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;y1=yaw+d}
+    tr={t0:performance.now(),dur,c0:{...cam},c1:{...camT},f0:fade,f1:sel?1:0,y0:yaw,y1};yawT=null;vel=0;kick()}
   function step(){raf=0;let busy=false;const lerp=(a,b,t)=>a+(b-a)*t;
+    if(tr){const k=Math.min(1,(performance.now()-tr.t0)/tr.dur),e=ease(k);['x','y','z','s'].forEach(q=>cam[q]=lerp(tr.c0[q],tr.c1[q],e));fade=lerp(tr.f0,tr.f1,e);yaw=lerp(tr.y0,tr.y1,e);
+      if(k>=1){tr=null;if(sel){sway=true;ph=0;swc=yaw}}busy=true;st.yaw=yaw;draw();if(vis)kick();return}
     if(yawT!=null){let d=((yawT-yaw)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(d)<.004){yaw=yawT;yawT=null;if(sel&&ph===0)sway=true}else{yaw+=d*.16;busy=true}}
     else if(!drag&&Math.abs(vel)>.0005){yaw+=vel;vel*=.93;busy=true}
-    else if(sel&&sway&&!drag&&!calm()){ph+=.012;yaw=swc+.4*Math.sin(ph);busy=true}
+    else if(sel&&sway&&!drag&&!calm()){ph+=.008;yaw=swc+.35*Math.sin(ph);busy=true}
     ['x','y','z','s'].forEach(k=>{if(Math.abs(cam[k]-camT[k])>.0008){cam[k]=lerp(cam[k],camT[k],.13);busy=true}else cam[k]=camT[k]});
     const ft=sel?1:0;if(Math.abs(fade-ft)>.01){fade=lerp(fade,ft,.13);busy=true}else fade=ft;
     st.yaw=yaw;draw();if(busy&&vis)kick()}
@@ -326,11 +331,11 @@ function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=M
       const sx=(qx*cam.s*pz*ax*.5+.5)*W,sy=(.5-qy*cam.s*pz*ay*.5)*H,dx=sx-X,dy=sy-Y,d=dx*dx+dy*dy;if(d<bd&&qz>bz-.04){bd=d;bz=Math.max(bz,qz);best=k}}
     return best<0?null:B3K[best]}
   cv.style.touchAction='pan-y';
-  cv.addEventListener('pointerdown',e=>{sway=false;drag={x:e.clientX,y:e.clientY,lx:e.clientX,mv:0};vel=0;yawT=null});
+  cv.addEventListener('pointerdown',e=>{sway=false;tr=null;drag={x:e.clientX,y:e.clientY,lx:e.clientX,mv:0};vel=0;yawT=null});
   cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.mv+=Math.abs(dx)+Math.abs(e.clientY-drag.y)*.2;
     if(Math.abs(e.clientX-drag.x)>6&&!drag.cap){try{cv.setPointerCapture(e.pointerId)}catch(_){}drag.cap=1}
     if(drag.cap){yaw+=dx*.011;vel=dx*.011;drag.lx=e.clientX;kick()}});
-  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){const k=pick(e.clientX,e.clientY);if(k&&k!==sel){try{tap()}catch(_){}A.b3Sel(k)}}kick()};
+  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){if(sel){try{tap()}catch(_){}A.b3Sel(null)}else{const k=pick(e.clientX,e.clientY);if(k){try{tap()}catch(_){}A.b3Sel(k)}}}kick()};
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   cv.addEventListener('webglcontextlost',e=>{e.preventDefault();B3H.delete(cv)});
   const io=new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)kick()},{threshold:.02});io.observe(cv);
@@ -376,7 +381,7 @@ function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null})
   cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.mv+=Math.abs(dx)+Math.abs(e.clientY-drag.y)*.2;
     if(Math.abs(e.clientX-drag.x)>6&&!drag.cap){try{cv.setPointerCapture(e.pointerId)}catch(_){}drag.cap=1}
     if(drag.cap){yaw+=dx*.011;vel=dx*.011;drag.lx=e.clientX;kick()}});
-  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){const k=pick(e.clientX,e.clientY);if(k&&k!==sel){try{tap()}catch(_){}A.b3Sel(k)}}kick()};
+  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){if(sel){A.b3Sel(null)}else{const k=pick(e.clientX,e.clientY);if(k){try{tap()}catch(_){}A.b3Sel(k)}}}kick()};
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   const io=new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)kick()},{threshold:.02});io.observe(cv);
   const ro=new ResizeObserver(size);ro.observe(cv);size();sync();cam={...camT};fade=sel?1:0;draw();
@@ -390,7 +395,7 @@ function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7
   const mx=Math.max(1,...rows.map(r=>r[1])),pl={7:TT('Bu hafta','This week'),30:TT('Son 30 gün','Last 30 days'),365:TT('Son 1 yıl','Last year')}[per];
   const lag=sel?[]:B3MAIN.filter(k=>lv[k]===-1);
   return `<div class="b3card">
-   <div class="b3-top"><div><div class="b3-k">${sel?esc(MUSC2[sel]||sel):TT('Kas haritası','Muscle map')}</div><small>${pl}${sel?'':' · '+TT('çevirmek için kaydır, kasa dokun','drag to turn, tap a muscle')}</small></div>
+   <div class="b3-top"><div><div class="b3-k">${sel?esc(MUSC2[sel]||sel):TT('Kas haritası','Muscle map')}</div><small>${pl} · ${sel?TT('tüm vücut için dokun','tap for full body'):TT('çevirmek için kaydır, kasa dokun','drag to turn, tap a muscle')}</small></div>
     <div class="b3-seg">${[[7,TT('H','W')],[30,TT('A','M')],[365,TT('Y','Y')]].map(([v,l])=>`<button class="${per===v?'on':''}" onclick="A.b3Per(${v})" aria-label="${v} ${TT('gün','days')}">${l}</button>`).join('')}</div></div>
    <div class="b3-stage"><canvas class="b3c" aria-label="${TT('3D kas haritası','3D muscle map')}"></canvas><i class="b3-data" data-lv='${JSON.stringify(lv)}' data-sel="${sel||''}" hidden></i>
     ${sel?`<button class="b3-x" onclick="A.b3Sel(null)" aria-label="${TT('Tüm vücuda dön','Back to full body')}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg></button>`
@@ -1582,7 +1587,7 @@ const A=window.A={
   edMove(kind,k,d){const{L}=A._ed(kind),a=L.map(x=>x[0]),i=a.indexOf(k),j=A._edN(kind,L,i,d);if(j<0)return;[a[i],a[j]]=[a[j],a[i]];S.settings.ord={...(S.settings.ord||{}),[kind]:a};save();render(true);A.edSheet(kind)},
   edTog(kind,k){const{HK,H}=A._ed(kind);const btn=event&&event.currentTarget;if(btn){btn.classList.toggle('on');btn.setAttribute('aria-checked',btn.classList.contains('on'))}S.settings[HK]=H.includes(k)?H.filter(x=>x!==k):[...H,k];save();setTimeout(()=>{render(true);A.edSheet(kind)},260)},
   edAll(kind){const{HK}=A._ed(kind);S.settings[HK]=[];const o={...(S.settings.ord||{})};delete o[kind];S.settings.ord=o;save();render(true);A.edSheet(kind)},
-  go(v){ui.view=v;if(v==='food'||v==='mealplan')ui.yLast=v;closeSheet();render()},
+  go(v){if(ui.b3&&v!=='programs')ui.b3.sel=null;ui.view=v;if(v==='food'||v==='mealplan')ui.yLast=v;closeSheet();render()},
   openPlan(id,back){ui.planId=id;ui.planBack=back||'programs';ui.view='plan';render()},
   pickPlan(){sheet(`<h3>Antrenman seç</h3>${S.plans.map(p=>`<button class="btn ghost" style="margin-bottom:10px;text-align:left" onclick="A.close();A.openPlan('${p.id}')">${esc(p.name)} <span class="muted" style="font-size:13px">· ${p.exercises.length} egzersiz</span></button>`).join('')}`)},
   start(id){
