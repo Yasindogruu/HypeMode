@@ -277,6 +277,7 @@ window.HMPush = {
         : t === 'live' ? { title: '🏋️ ' + who + ' antrenmana başladı', body: `${o.msg || ''} · Birlikte yapmak için dokun.` }
         : t === 'post' ? { title: '📷 ' + who, body: o.msg ? `Fotoğraf paylaştı: “${o.msg}”` : 'Yeni bir fotoğraf paylaştı.' }
         : t === 'chal' ? { title: '🏆 Meydan okuma', body: `${who} seni davet etti: ${o.msg || ''}` }
+        : t === 'chacc' ? { title: '🏆 Davet kabul edildi', body: `${who} meydan okumana katıldı: ${o.msg || ''}` }
         : t === 'like' ? { title: '👏 Beğeni', body: `${who} antrenmanını beğendi.` }
           : t === 'cmt' ? { title: '💬 Yorum', body: `${who}: ${o.msg || ''}` }
             : { title: who, body: o.msg || 'Seni dürttü 👋' };
