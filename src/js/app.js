@@ -405,8 +405,9 @@ function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7
      :`<div class="b3-fb"><button class="${(st.face||0)===0?'on':''}" onclick="A.b3Face(0)">${TT('Ön','Front')}</button><button class="${st.face===1?'on':''}" onclick="A.b3Face(1)">${TT('Arka','Back')}</button></div>`}
     ${lag.length?`<div class="b3-lag"><i></i>${TT('Çalışılmayan','Not trained')}</div>`:''}</div>
    <div class="b3-lh2"><b>${sel?TT('Yaptığın hareketler','Your exercises'):TT('Kas grupları','Muscle groups')}</b><small>${sel?TT('set','sets'):TT(`hedef ${tg} set`,`target ${tg} sets`)}</small></div>
-   <div class="b3-list">${rows.length?rows.map(([k,v])=>`<button class="b3-r${!sel&&!v?' b3-z':''}" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${!sel&&!v&&cur.length>=3?'<i class="b3-dot"></i>':''}${esc(sel?k:(MUSC2[k]||k))}</b><em>${sel?v+' set':`${v} / ${tg} set`}</em></span><span class="b3-bar"><i style="width:${v?Math.max(2,Math.min(100,Math.round(v/mx*100))):0}%"></i></span></button>`).join('')
-     :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}</div>
+   <div class="b3-list">${rows.length?(sel||st.all?rows:rows.slice(0,3)).map(([k,v])=>`<button class="b3-r${!sel&&!v?' b3-z':''}" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${!sel&&!v&&cur.length>=3?'<i class="b3-dot"></i>':''}${esc(sel?k:(MUSC2[k]||k))}</b><em>${sel?v+' set':`${v} / ${tg} set`}</em></span><span class="b3-bar"><i style="width:${v?Math.max(2,Math.min(100,Math.round(v/mx*100))):0}%"></i></span></button>`).join('')
+     :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}
+    ${!sel&&rows.length>3?`<button class="b3-more" onclick="A.b3All()">${st.all?TT('Daha az göster','Show less'):TT(`Tümünü göster (${rows.length})`,`Show all (${rows.length})`)}<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(${st.all?180:0}deg)"><path d="m6 9 6 6 6-6"/></svg></button>`:''}</div>
    ${sel?(()=>{const mm={lowback:'back',forearms:'biceps'}[sel]||sel,L=XDB.filter(x=>x[2]===mm&&(S.settings.loc!=='home'||homeEq().includes(x[3]))).slice(0,6);
      return L.length?`<div class="b3-lib"><div class="b3-lh"><b>${esc(MUSC2[sel]||sel)} ${TT('hareketleri','exercises')}</b><button onclick="A.acMus('${sel}')">${TT('Tümü','All')} ›</button></div>
       ${L.map(x=>`<button class="b3-x2" onclick="A.exd('${encodeURIComponent(x[0])}')"><span class="b3-xi">${bodyMini(x[0],x[2],26)}</span><span><b>${esc(x[0])}</b><small>${esc(x[1])}</small></span><i>›</i></button>`).join('')}</div>`:''})():''}
@@ -1627,6 +1628,7 @@ const A=window.A={
   prevEx(){if(S.active.idx>0){S.active.idx--;save();render()}else ask('Antrenmandan çık?',()=>{A.finishAsk()},'Devam')},
   restAdd(s){restEnd+=s*1000;restBar()},
   b3Sel(k){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.sel=k||null;render(true)},
+  b3All(){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.all=!st.all;tap();render(true)},
   b3Per(v){const st=ui.b3||(ui.b3={yaw:.35});st.per=v;st.sel=null;tap();render(true)},
   b3Face(f){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.face=f;st.yawT=f?Math.PI:0;render(true)},
   wFocus(){S.settings.wfocus=!S.settings.wfocus;save();render()},
