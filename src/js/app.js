@@ -265,12 +265,15 @@ function b3Cloud(only,N){let sd=only?only.length*97+13:7;const rnd=()=>{sd|=0;sd
 function b3Geo(){return B3G||(B3G=b3Cloud(null,11000))}
 function b3Dense(k){return B3D[k]||(B3D[k]=b3Cloud(k,4200))}
 const B3H=new WeakMap();
-function b3dScan(){document.querySelectorAll('canvas.b3c').forEach(cv=>{const h=B3H.get(cv);if(h){h.sync&&h.sync();return}
+let B3LIVE=null;
+function b3dScan(){document.querySelectorAll('canvas.b3c').forEach(cv=>{const h=B3H.get(cv);if(h){if(h.sync){B3LIVE=cv;h.sync()}return}
+  /* yeniden çizimde tuval değiştiyse eskisini (WebGL bağlamı ve durumuyla) geri tak: geçiş kesilmez */
+  if(B3LIVE&&B3LIVE!==cv&&!document.body.contains(B3LIVE)&&B3H.get(B3LIVE)&&B3H.get(B3LIVE).sync){const old=B3LIVE,gl=old.dataset.gl;cv.replaceWith(old);if(gl)old.parentNode.classList.add('gl');B3H.get(old).sync();return}
   const ph={pending:1};B3H.set(cv,ph);let okGL=false;try{okGL=!!window.WebGLRenderingContext&&S.settings.b3gl!==false}catch(e){}
-  const two=c=>{B3H.set(c,b3dMount(c))};
+  const two=c=>{B3H.set(c,b3dMount(c));B3LIVE=c};
   if(!okGL){two(cv);return}
   b3Load().then(D=>{if(!document.body.contains(cv))return;let hh=null;try{hh=b3dMountGL(cv,D)}catch(e){RF&&RF.err&&RF.err('b3gl: '+e.message)}
-    if(hh){B3H.set(cv,hh);cv.parentNode&&cv.parentNode.classList.add('gl')}else{const c=cv.cloneNode();cv.replaceWith(c);two(c)}}).catch(()=>{if(document.body.contains(cv))two(cv)})})}
+    if(hh){B3H.set(cv,hh);B3LIVE=cv;cv.dataset.gl=1;cv.parentNode&&cv.parentNode.classList.add('gl')}else{const c=cv.cloneNode();cv.replaceWith(c);two(c)}}).catch(()=>{if(document.body.contains(cv))two(cv)})})}
 /* ---------- 3D kas haritası (WebGL): BodyParts3D / Z-Anatomy kas modelinden örneklenmiş nokta bulutu (CC BY-SA) ---------- */
 let B3DATA=null;
 function b3Load(){return B3DATA||(B3DATA=fetch('./b3d.bin?v=1').then(r=>{if(!r.ok)throw new Error('b3d '+r.status);return r.arrayBuffer()}).then(buf=>{
@@ -284,7 +287,7 @@ const B3VS=`attribute vec3 a_p;attribute float a_g;attribute float a_r;uniform m
 void main(){vec3 q=u_rot*(a_p-u_c);float pz=1.0/(1.0-q.z*0.32*u_s/(1.0+u_s*0.35));gl_Position=vec4(q.x*u_s*pz*u_asp.x,q.y*u_s*pz*u_asp.y,0.0,1.0);
  float dep=clamp(0.55+q.z*3.2/max(1.0,u_s*0.5),0.15,1.0);vec3 col=vec3(.6,.6,.68);float al=.34;float sz=1.0;
  if(a_g<11.5){float v=0.0;for(int i=0;i<12;i++){if(abs(float(i)-a_g)<0.5)v=u_lv[i];}
-  if(v<-0.5){col=vec3(1.0,.55,.26);al=.78;}else if(v<0.01){col=vec3(.66,.66,.74);al=.42;}else{col=mix(vec3(.66,.66,.76),vec3(.9,.87,1.0),v);al=.55+.45*v;}}
+  if(v<-0.5){col=vec3(1.0,.55,.26);al=.78;}else if(v<0.01){col=vec3(.66,.66,.74);al=.42;}else{col=mix(vec3(.78,.75,.95),vec3(.94,.92,1.0),v);al=.7+.3*v;}}
  else{al=.3;}
  if(u_sel>-0.5){if(abs(a_g-u_sel)<0.5){col=mix(col,vec3(.9,.87,1.0),u_fade);al=mix(al,1.0,u_fade);sz=1.0+.35*u_fade;}else{col=mix(col,vec3(.6,.6,.68),u_fade);al*=mix(1.0,.42,u_fade);}}
  gl_PointSize=u_ps*sz*(0.75+0.45*dep);v_c=vec4(col,al*dep*(0.35+0.65*a_r)*0.85);}`;
@@ -335,7 +338,7 @@ function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=M
   cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.mv+=Math.abs(dx)+Math.abs(e.clientY-drag.y)*.2;
     if(Math.abs(e.clientX-drag.x)>6&&!drag.cap){try{cv.setPointerCapture(e.pointerId)}catch(_){}drag.cap=1}
     if(drag.cap){yaw+=dx*.011;vel=dx*.011;drag.lx=e.clientX;kick()}});
-  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){if(sel){try{tap()}catch(_){}A.b3Sel(null)}else{const k=pick(e.clientX,e.clientY);if(k){try{tap()}catch(_){}A.b3Sel(k)}}}kick()};
+  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){const k=pick(e.clientX,e.clientY);try{tap()}catch(_){}if(k&&k!==sel)A.b3Sel(k);else if(sel)A.b3Sel(null)}kick()};
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   cv.addEventListener('webglcontextlost',e=>{e.preventDefault();B3H.delete(cv)});
   const io=new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)kick()},{threshold:.02});io.observe(cv);
@@ -352,7 +355,7 @@ function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null})
     for(let i=0;i<G.n;i++)if(G.m[i]===mi){const r=Math.hypot(G.x[i],G.z[i]);if(G.x[i]-0<x0)x0=G.x[i];if(G.x[i]>x1)x1=G.x[i];if(G.y[i]<y0)y0=G.y[i];if(G.y[i]>y1)y1=G.y[i]}
     if(x0>x1){camT={x:0,y:.87,s:1};return}const w=Math.max(x1-x0,.12),h=Math.max(y1-y0,.12);camT={x:(x0+x1)/2,y:(y0+y1)/2,s:Math.min(1.8*.62/w,1.8*.62/h,7)}}
   function col(m){if(m===255)return[176,176,196,.5];if(m===254)return[130,130,150,.42];const v=lv[B3K[m]];
-    if(v===-1)return[255,138,61,.95];if(!v)return[160,160,182,.42];const t=Math.min(1,v);return[160+66*t|0,160+60*t|0,182+73*t|0,.5+.5*t]}
+    if(v===-1)return[255,138,61,.95];if(!v)return[160,160,182,.42];const t=Math.min(1,v);return[200+30*t|0,192+40*t|0,242+13*t|0,.7+.3*t]}
   function draw(){const g=ctx;g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);if(!W||!H)return;
     const base=H*.86/1.8,sc=base*cam.s,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(.1),sp=Math.sin(.1),mi=sel?B3K.indexOf(sel):-1;
     const B=new Map(),dot=(sel?1.6:1.15)*(cam.s>2?1.15:1);
@@ -381,7 +384,7 @@ function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null})
   cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.mv+=Math.abs(dx)+Math.abs(e.clientY-drag.y)*.2;
     if(Math.abs(e.clientX-drag.x)>6&&!drag.cap){try{cv.setPointerCapture(e.pointerId)}catch(_){}drag.cap=1}
     if(drag.cap){yaw+=dx*.011;vel=dx*.011;drag.lx=e.clientX;kick()}});
-  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){if(sel){A.b3Sel(null)}else{const k=pick(e.clientX,e.clientY);if(k){try{tap()}catch(_){}A.b3Sel(k)}}}kick()};
+  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){const k=pick(e.clientX,e.clientY);try{tap()}catch(_){}if(k&&k!==sel)A.b3Sel(k);else if(sel)A.b3Sel(null)}kick()};
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   const io=new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)kick()},{threshold:.02});io.observe(cv);
   const ro=new ResizeObserver(size);ro.observe(cv);size();sync();cam={...camT};fade=sel?1:0;draw();
@@ -389,10 +392,10 @@ function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null})
 /* dönem içi set sayıları: ana kas başına; seçili kas için hareket bazında */
 function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7,ms=per*864e5,cur=S.sessions.filter(s=>sAge(s)<ms),sel=st.sel;
   const by={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle&&x.muscle!=='other')by[x.muscle]=(by[x.muscle]||0)+1}));
-  const bl=bodyLoad(cur,per===7?10:per===30?36:300),lv={};B3K.forEach(k=>{const v=bl.lv[k]||0;lv[k]=v>0?Math.round(v*100)/100:(cur.length&&B3MAIN.includes(k)?-1:0)});
+  const bl=bodyLoad(cur,per===7?10:per===30?36:300),lv={};B3K.forEach(k=>{const v=bl.lv[k]||0;lv[k]=v>0?Math.round(v*100)/100:(cur.length>=3&&B3MAIN.includes(k)?-1:0)});
   let rows;if(sel){const ex={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle===sel||(sel==='lowback'&&exMus(x.ex,x.muscle).lowback>=1)||(sel==='forearms'&&exMus(x.ex,x.muscle).forearms))ex[x.ex]=(ex[x.ex]||0)+1}));
-    rows=Object.entries(ex).sort((a,b)=>b[1]-a[1]).slice(0,8)}else rows=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v]);
-  const mx=Math.max(1,...rows.map(r=>r[1])),pl={7:TT('Bu hafta','This week'),30:TT('Son 30 gün','Last 30 days'),365:TT('Son 1 yıl','Last year')}[per];
+    rows=Object.entries(ex).sort((a,b)=>b[1]-a[1]).slice(0,8)}else rows=B3MAIN.map(k=>[k,by[k]||0]).sort((a,b)=>b[1]-a[1]);
+  const tg=per===7?10:per===30?40:480,mx=sel?Math.max(1,...rows.map(r=>r[1])):tg,pl={7:TT('Bu hafta','This week'),30:TT('Son 30 gün','Last 30 days'),365:TT('Son 1 yıl','Last year')}[per];
   const lag=sel?[]:B3MAIN.filter(k=>lv[k]===-1);
   return `<div class="b3card">
    <div class="b3-top"><div><div class="b3-k">${sel?esc(MUSC2[sel]||sel):TT('Kas haritası','Muscle map')}</div><small>${pl} · ${sel?TT('tüm vücut için dokun','tap for full body'):TT('çevirmek için kaydır, kasa dokun','drag to turn, tap a muscle')}</small></div>
@@ -401,7 +404,8 @@ function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7
     ${sel?`<button class="b3-x" onclick="A.b3Sel(null)" aria-label="${TT('Tüm vücuda dön','Back to full body')}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg></button>`
      :`<div class="b3-fb"><button class="${(st.face||0)===0?'on':''}" onclick="A.b3Face(0)">${TT('Ön','Front')}</button><button class="${st.face===1?'on':''}" onclick="A.b3Face(1)">${TT('Arka','Back')}</button></div>`}
     ${lag.length?`<div class="b3-lag"><i></i>${TT('Çalışılmayan','Not trained')}</div>`:''}</div>
-   <div class="b3-list">${rows.length?rows.map(([k,v])=>`<button class="b3-r" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${esc(sel?k:(MUSC2[k]||k))}</b><em>${v} set</em></span><span class="b3-bar"><i style="width:${Math.max(3,Math.round(v/mx*100))}%"></i></span></button>`).join('')
+   <div class="b3-lh2"><b>${sel?TT('Yaptığın hareketler','Your exercises'):TT('Kas grupları','Muscle groups')}</b><small>${sel?TT('set','sets'):TT(`hedef ${tg} set`,`target ${tg} sets`)}</small></div>
+   <div class="b3-list">${rows.length?rows.map(([k,v])=>`<button class="b3-r${!sel&&!v?' b3-z':''}" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${!sel&&!v&&cur.length>=3?'<i class="b3-dot"></i>':''}${esc(sel?k:(MUSC2[k]||k))}</b><em>${sel?v+' set':`${v} / ${tg} set`}</em></span><span class="b3-bar"><i style="width:${v?Math.max(2,Math.min(100,Math.round(v/mx*100))):0}%"></i></span></button>`).join('')
      :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}</div>
    ${sel?(()=>{const mm={lowback:'back',forearms:'biceps'}[sel]||sel,L=XDB.filter(x=>x[2]===mm&&(S.settings.loc!=='home'||homeEq().includes(x[3]))).slice(0,6);
      return L.length?`<div class="b3-lib"><div class="b3-lh"><b>${esc(MUSC2[sel]||sel)} ${TT('hareketleri','exercises')}</b><button onclick="A.acMus('${sel}')">${TT('Tümü','All')} ›</button></div>
