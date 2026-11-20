@@ -265,7 +265,78 @@ function b3Cloud(only,N){let sd=only?only.length*97+13:7;const rnd=()=>{sd|=0;sd
 function b3Geo(){return B3G||(B3G=b3Cloud(null,11000))}
 function b3Dense(k){return B3D[k]||(B3D[k]=b3Cloud(k,4200))}
 const B3H=new WeakMap();
-function b3dScan(){document.querySelectorAll('canvas.b3c').forEach(cv=>{const h=B3H.get(cv);if(h)h.sync();else B3H.set(cv,b3dMount(cv))})}
+function b3dScan(){document.querySelectorAll('canvas.b3c').forEach(cv=>{const h=B3H.get(cv);if(h){h.sync&&h.sync();return}
+  const ph={pending:1};B3H.set(cv,ph);let okGL=false;try{okGL=!!window.WebGLRenderingContext&&S.settings.b3gl!==false}catch(e){}
+  const two=c=>{B3H.set(c,b3dMount(c))};
+  if(!okGL){two(cv);return}
+  b3Load().then(D=>{if(!document.body.contains(cv))return;let hh=null;try{hh=b3dMountGL(cv,D)}catch(e){RF&&RF.err&&RF.err('b3gl: '+e.message)}
+    if(hh){B3H.set(cv,hh);cv.parentNode&&cv.parentNode.classList.add('gl')}else{const c=cv.cloneNode();cv.replaceWith(c);two(c)}}).catch(()=>{if(document.body.contains(cv))two(cv)})})}
+/* ---------- 3D kas haritası (WebGL): BodyParts3D / Z-Anatomy kas modelinden örneklenmiş nokta bulutu (CC BY-SA) ---------- */
+let B3DATA=null;
+function b3Load(){return B3DATA||(B3DATA=fetch('./b3d.bin?v=1').then(r=>{if(!r.ok)throw new Error('b3d '+r.status);return r.arrayBuffer()}).then(buf=>{
+  const dv=new DataView(buf);if(dv.getUint32(0,true)!==0x33424d48)throw new Error('b3d bad');const n=dv.getUint32(4,true);
+  const qi=new Int16Array(buf,8,n*3),pk=new Uint8Array(buf,8+n*6,n),pos=new Float32Array(n*3),g=new Float32Array(n),r=new Float32Array(n),gi=new Uint8Array(n);
+  for(let i=0;i<n*3;i++)pos[i]=qi[i]/1e4;for(let i=0;i<n;i++){const k=pk[i]>>4;gi[i]=k>=12?255:k;g[i]=k;r[i]=(pk[i]&15)/15}
+  const bb={};for(let i=0;i<n;i++){const k=gi[i];if(k===255)continue;const b=bb[k]||(bb[k]=[9,-9,9,-9,9,-9]),x=pos[i*3],y=pos[i*3+1],z=pos[i*3+2];
+    if(x<b[0])b[0]=x;if(x>b[1])b[1]=x;if(y<b[2])b[2]=y;if(y>b[3])b[3]=y;if(z<b[4])b[4]=z;if(z>b[5])b[5]=z}
+  return{n,pos,g,r,gi,bb}}).catch(e=>{B3DATA=null;throw e}))}
+const B3VS=`attribute vec3 a_p;attribute float a_g;attribute float a_r;uniform mat3 u_rot;uniform vec3 u_c;uniform float u_s;uniform vec2 u_asp;uniform float u_sel;uniform float u_fade;uniform float u_lv[12];uniform float u_ps;varying vec4 v_c;
+void main(){vec3 q=u_rot*(a_p-u_c);float pz=1.0/(1.0-q.z*0.32*u_s/(1.0+u_s*0.35));gl_Position=vec4(q.x*u_s*pz*u_asp.x,q.y*u_s*pz*u_asp.y,0.0,1.0);
+ float dep=clamp(0.55+q.z*3.2/max(1.0,u_s*0.5),0.15,1.0);vec3 col=vec3(.6,.6,.68);float al=.34;float sz=1.0;
+ if(a_g<11.5){float v=0.0;for(int i=0;i<12;i++){if(abs(float(i)-a_g)<0.5)v=u_lv[i];}
+  if(v<-0.5){col=vec3(1.0,.55,.26);al=.78;}else if(v<0.01){col=vec3(.66,.66,.74);al=.42;}else{col=mix(vec3(.66,.66,.76),vec3(.9,.87,1.0),v);al=.55+.45*v;}}
+ else{al=.3;}
+ if(u_sel>-0.5){if(abs(a_g-u_sel)<0.5){col=mix(col,vec3(.9,.87,1.0),u_fade);al=mix(al,1.0,u_fade);sz=1.0+.35*u_fade;}else{col=mix(col,vec3(.55,.55,.62),u_fade);al*=mix(1.0,.16,u_fade);}}
+ gl_PointSize=u_ps*sz*(0.75+0.45*dep);v_c=vec4(col,al*dep*(0.35+0.65*a_r)*0.85);}`;
+const B3FS=`precision mediump float;varying vec4 v_c;void main(){vec2 d=gl_PointCoord-0.5;float r=length(d);if(r>0.5)discard;float a=v_c.a*smoothstep(0.5,0.12,r);gl_FragColor=vec4(v_c.rgb*a,a);}`;
+function b3dMountGL(cv,D){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=Math.min(2,devicePixelRatio||1);
+  const gl=cv.getContext('webgl',{alpha:true,antialias:false,premultipliedAlpha:true,preserveDrawingBuffer:false});if(!gl)return null;
+  const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
+  const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,B3VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,B3FS));gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error('link');gl.useProgram(pr);
+  const buf=(arr,name,sz)=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);const l=gl.getAttribLocation(pr,name);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0)};
+  buf(D.pos,'a_p',3);buf(D.g,'a_g',1);buf(D.r,'a_r',1);
+  const U={};['u_rot','u_c','u_s','u_asp','u_sel','u_fade','u_lv','u_ps'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
+  gl.disable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(0,0,0,0);
+  const CY=.84,HT=1.7;let swc=0,ph=0,sway=false,W=0,H=0,yaw=st.yaw,yawT=null,vel=0,lv=new Float32Array(12),sel=null,fade=0,raf=0,vis=true,drag=null,cam={x:0,y:CY,z:0,s:1},camT={x:0,y:CY,z:0,s:1};
+  const calm=()=>document.documentElement.classList.contains('lowpow')||matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function size(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.max(1,Math.round(W*dpr));cv.height=Math.max(1,Math.round(H*dpr));gl.viewport(0,0,cv.width,cv.height);kick()}
+  function sync(){const d=cv.parentNode&&cv.parentNode.querySelector('.b3-data');if(!d)return;let o={};try{o=JSON.parse(d.dataset.lv||'{}')}catch(e){}B3K.forEach((k,i)=>lv[i]=o[k]||0);
+    const ns=d.dataset.sel||null;if(ns!==sel){sel=ns;fit();if(sel){swc=['back','triceps','glutes','hamstrings','calves','lowback'].includes(sel)?Math.PI:0;yawT=swc;ph=0;sway=false}}
+    if(st.yawT!=null){yawT=st.yawT;st.yawT=null}kick()}
+  function fit(){const b=sel&&D.bb[B3K.indexOf(sel)];if(!b){camT={x:0,y:CY,z:0,s:1};return}
+    const w=Math.max(b[1]-b[0],.14),h=Math.max(b[3]-b[2],.14);camT={x:(b[0]+b[1])/2,y:(b[2]+b[3])/2,z:(b[4]+b[5])/2,s:Math.max(1.4,Math.min(HT*.58/h,HT*.5/w*(H/Math.max(1,W)),4.2))}}
+  function mat(){const cy=Math.cos(yaw),sy=Math.sin(yaw),p=.08,cp=Math.cos(p),sp=Math.sin(p);
+    // R = Rx(p) * Ry(yaw); satırlar: [cy,0,sy],[sy*sp,cp,-cy*sp],[-sy*cp,sp,cy*cp]
+    const r=[[cy,0,sy],[sy*sp,cp,-cy*sp],[-sy*cp,sp,cy*cp]];return{r,f:new Float32Array([r[0][0],r[1][0],r[2][0],r[0][1],r[1][1],r[2][1],r[0][2],r[1][2],r[2][2]])}}
+  function draw(){if(!W||!H)return;const M=mat(),sc=2/HT*.86;gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniformMatrix3fv(U.u_rot,false,M.f);gl.uniform3f(U.u_c,cam.x,cam.y,cam.z);gl.uniform1f(U.u_s,cam.s);gl.uniform2f(U.u_asp,sc*H/W,sc);
+    gl.uniform1f(U.u_sel,sel?B3K.indexOf(sel):-1);gl.uniform1f(U.u_fade,fade);gl.uniform1fv(U.u_lv,lv);gl.uniform1f(U.u_ps,dpr*(1.25+Math.min(1.5,(cam.s-1)*.5)));
+    gl.drawArrays(gl.POINTS,0,D.n)}
+  function step(){raf=0;let busy=false;const lerp=(a,b,t)=>a+(b-a)*t;
+    if(yawT!=null){let d=((yawT-yaw)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;if(Math.abs(d)<.004){yaw=yawT;yawT=null;if(sel&&ph===0)sway=true}else{yaw+=d*.16;busy=true}}
+    else if(!drag&&Math.abs(vel)>.0005){yaw+=vel;vel*=.93;busy=true}
+    else if(sel&&sway&&!drag&&!calm()){ph+=.012;yaw=swc+.4*Math.sin(ph);busy=true}
+    ['x','y','z','s'].forEach(k=>{if(Math.abs(cam[k]-camT[k])>.0008){cam[k]=lerp(cam[k],camT[k],.13);busy=true}else cam[k]=camT[k]});
+    const ft=sel?1:0;if(Math.abs(fade-ft)>.01){fade=lerp(fade,ft,.13);busy=true}else fade=ft;
+    st.yaw=yaw;draw();if(busy&&vis)kick()}
+  function kick(){if(!raf)raf=requestAnimationFrame(step)}
+  function pick(cx,cyp){const rc=cv.getBoundingClientRect(),X=cx-rc.left,Y=cyp-rc.top,M=mat().r,sc=2/HT*.86,ax=sc*H/W,ay=sc;let best=-1,bd=20*20,bz=-9;
+    for(let i=0;i<D.n;i++){const k=D.gi[i];if(k===255)continue;const x=D.pos[i*3]-cam.x,y=D.pos[i*3+1]-cam.y,z=D.pos[i*3+2]-cam.z;
+      const qx=M[0][0]*x+M[0][1]*y+M[0][2]*z,qy=M[1][0]*x+M[1][1]*y+M[1][2]*z,qz=M[2][0]*x+M[2][1]*y+M[2][2]*z,pz=1/(1-qz*.32*cam.s/(1+cam.s*.35));
+      const sx=(qx*cam.s*pz*ax*.5+.5)*W,sy=(.5-qy*cam.s*pz*ay*.5)*H,dx=sx-X,dy=sy-Y,d=dx*dx+dy*dy;if(d<bd&&qz>bz-.04){bd=d;bz=Math.max(bz,qz);best=k}}
+    return best<0?null:B3K[best]}
+  cv.style.touchAction='pan-y';
+  cv.addEventListener('pointerdown',e=>{sway=false;drag={x:e.clientX,y:e.clientY,lx:e.clientX,mv:0};vel=0;yawT=null});
+  cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.mv+=Math.abs(dx)+Math.abs(e.clientY-drag.y)*.2;
+    if(Math.abs(e.clientX-drag.x)>6&&!drag.cap){try{cv.setPointerCapture(e.pointerId)}catch(_){}drag.cap=1}
+    if(drag.cap){yaw+=dx*.011;vel=dx*.011;drag.lx=e.clientX;kick()}});
+  const up=e=>{if(!drag)return;const d=drag;drag=null;if(d.mv<7&&e.type==='pointerup'){const k=pick(e.clientX,e.clientY);if(k&&k!==sel){try{tap()}catch(_){}A.b3Sel(k)}}kick()};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  cv.addEventListener('webglcontextlost',e=>{e.preventDefault();B3H.delete(cv)});
+  const io=new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)kick()},{threshold:.02});io.observe(cv);
+  const ro=new ResizeObserver(size);ro.observe(cv);size();sync();cam={...camT};fade=sel?1:0;draw();
+  return{sync}}
+
 function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),dpr=Math.min(2,devicePixelRatio||1),ctx=cv.getContext('2d');
   let swc=0,ph=0,sway=false,W=0,H=0,yaw=st.yaw,yawT=null,vel=0,lv={},sel=null,fade=0,raf=0,vis=true,drag=null,cam={x:0,y:.87,s:1},camT={x:0,y:.87,s:1};
   const calm=()=>document.documentElement.classList.contains('lowpow')||matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -326,7 +397,11 @@ function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7
      :`<div class="b3-fb"><button class="${(st.face||0)===0?'on':''}" onclick="A.b3Face(0)">${TT('Ön','Front')}</button><button class="${st.face===1?'on':''}" onclick="A.b3Face(1)">${TT('Arka','Back')}</button></div>`}
     ${lag.length?`<div class="b3-lag"><i></i>${TT('Çalışılmayan','Not trained')}</div>`:''}</div>
    <div class="b3-list">${rows.length?rows.map(([k,v])=>`<button class="b3-r" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${esc(sel?k:(MUSC2[k]||k))}</b><em>${v} set</em></span><span class="b3-bar"><i style="width:${Math.max(3,Math.round(v/mx*100))}%"></i></span></button>`).join('')
-     :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}</div></div>`}
+     :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}</div>
+   ${sel?(()=>{const mm={lowback:'back',forearms:'biceps'}[sel]||sel,L=XDB.filter(x=>x[2]===mm&&(S.settings.loc!=='home'||homeEq().includes(x[3]))).slice(0,6);
+     return L.length?`<div class="b3-lib"><div class="b3-lh"><b>${esc(MUSC2[sel]||sel)} ${TT('hareketleri','exercises')}</b><button onclick="A.acMus('${sel}')">${TT('Tümü','All')} ›</button></div>
+      ${L.map(x=>`<button class="b3-x2" onclick="A.exd('${encodeURIComponent(x[0])}')"><span class="b3-xi">${bodyMini(x[0],x[2],26)}</span><span><b>${esc(x[0])}</b><small>${esc(x[1])}</small></span><i>›</i></button>`).join('')}</div>`:''})():''}
+   <div class="b3-cr">Model: BodyParts3D (DBCLS), Z-Anatomy · CC BY-SA</div></div>`}
 
 function programsV(){
   const n=todaysPlan(),act=S.plans.filter(x=>!x.archived),arc=S.plans.filter(x=>x.archived),per=ui.stR||7,ms=per*864e5;

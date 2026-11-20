@@ -35,3 +35,11 @@ THE SOFTWARE.
 PDF.js 3.11.174 (js/pdfjs.js, js/pdfjs-worker.js)
 Copyright Mozilla Foundation. Licensed under the Apache License, Version 2.0.
 https://github.com/mozilla/pdf.js
+
+----------------------------------------------------------------------
+3D kas haritası nokta bulutu (js/b3d.bin)
+Kaynak modeller:
+- BodyParts3D, (c) The Database Center for Life Science (DBCLS),
+  CC Attribution-Share Alike 2.1 Japan — https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en
+- Z-Anatomy, Gauthier Kervyn, CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+Kas yüzeylerinden örneklenmiş noktalar (değiştirilmiş türev veri) aynı lisansla (CC BY-SA) paylaşılır.
