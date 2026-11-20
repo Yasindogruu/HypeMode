@@ -94,8 +94,8 @@ const FORM=[
  [/bird dog|dead bug/i,['Bel nötr, karın sıkı','Karşı kol ve bacağı yavaşça uzat','Gövde hiç dönmesin'],['Hızlı yapmak']]];
 function formOf(name){const f=FORM.find(([re])=>re.test(name||''));if(f)return{cues:f[1],err:f[2],src:'lib'};const t=S.formTips&&S.formTips[name];return t?{cues:t.cues||[],err:t.err||[],src:'ai'}:null}
 const ytUrl=n=>'https://www.youtube.com/results?search_query='+encodeURIComponent(n+' exercise form');
-function formBlock(name){const f=formOf(name),x=XBY[name];
-  return `<div class="fmb"><div class="row between"><b>🎯 Doğru form</b><a class="fmv" href="${ytUrl(name)}" target="_blank" rel="noopener">▶ Videoda izle</a></div>
+function formBlock(name,noVid){const f=formOf(name),x=XBY[name];
+  return `${noVid?'':m3dBox({name,en:x?x[1]:'',muscle:x?x[2]:''},'260px')}<div class="fmb"><div class="row between"><b>🎯 Doğru form</b></div>
    ${f?`<ol class="fm-c">${f.cues.map(c=>`<li>${esc(c)}</li>`).join('')}</ol>${f.err&&f.err.length?`<div class="fm-e"><b>Sık hatalar</b>${f.err.map(c=>`<span>✕ ${esc(c)}</span>`).join('')}</div>`:''}${f.src==='ai'?'<div class="lbl" style="font-size:11px;margin-top:6px">AI tarafından hazırlandı</div>':''}`
    :`${x&&x[6]?`<div class="lbl" style="margin:8px 0">💡 ${esc(x[6])}</div>`:''}${CL.sample?`<button class="btn ghost sm" style="margin-top:8px" onclick="A.formAI('${ja(name)}')">🤖 AI'dan form ipuçları al</button>`:'<div class="lbl" style="margin-top:6px">Bu hareket için ipucu yok; videodan izleyebilirsin.</div>'}`}</div>`}
 
@@ -130,7 +130,7 @@ function remTick(){if(!S.onboarded)return;let L;try{L=remDue()}catch(e){return}i
 function remShow(r){let el=document.getElementById('remb');if(el)el.remove();el=document.createElement('div');el.id='remb';el.className='remb';
   el.innerHTML=`<span class="remi">${r.ic}</span><div><b>${esc(r.t)}</b><small>${esc(r.m)}</small><div class="rema">${r.act.map(([l,f])=>`<button data-f="${esc(f)}">${l}</button>`).join('')}<button data-x="1">Kapat</button></div></div>`;
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>{let f={};try{f=JSON.parse(localStorage.getItem('hm-rem')||'{}')}catch(e){}f[r.id]=1;localStorage.setItem('hm-rem',JSON.stringify(f));el.remove();if(b.dataset.f)try{new Function(b.dataset.f)()}catch(e){}});
-  document.body.appendChild(el);buzz&&buzz()}
+  document.body.appendChild(el);try{stripEmo(el)}catch(e){}buzz&&buzz()}
 setInterval(remTick,30000);setTimeout(remTick,4000);
 function remCard(){const R=remCfg(),nt=window.Notification?Notification.permission:'none';
   const row=(k,ic,l,extra)=>`<div class="remr"><label class="row" style="gap:10px;flex:1"><input type="checkbox" ${R[k].on?'checked':''} onchange="A.remSet('${k}','on',this.checked)"><span>${ic} <b>${l}</b></span></label></div>${R[k].on&&extra?`<div class="remx">${extra}</div>`:''}`;

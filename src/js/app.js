@@ -1523,8 +1523,8 @@ function sheet(html,keep){if(_sb){_sp=[html,keep];return}_sb=true;
   if(_sp){const q=_sp;_sp=null;sheet(q[0],true)}}
 function _sheet(html,keep){const old=document.querySelector('#scrim .sheet'),st=keep&&old?old.scrollTop:0;
   closeSheet();const d=document.createElement('div');d.className='scrim';d.id='scrim';d.innerHTML=`<div class="sheet" ${keep?'style="animation:none"':''}>${html}</div>`;
-  d.addEventListener('click',e=>{if(e.target===d)closeSheet()});document.body.appendChild(d);try{stripEmo(d)}catch(e){}if(st)d.firstChild.scrollTop=st}
-function closeSheet(){const s=document.getElementById('scrim');if(s){s.id='';try{s.remove()}catch(e){}}}
+  d.addEventListener('click',e=>{if(e.target===d)closeSheet()});document.body.appendChild(d);try{stripEmo(d)}catch(e){}if(st)d.firstChild.scrollTop=st;try{m3dScan()}catch(e){}}
+function closeSheet(){const s=document.getElementById('scrim');if(s){s.id='';try{s.remove()}catch(e){}try{m3dScan()}catch(e){}}}
 function toast(t){const d=document.createElement('div');d.className='toast';const s=typeof t==='string'?t:String(t),ok=/^\s*(✓|✅)|kaydedildi|eklendi|güncellendi|kopyalandı|tamamlandı|\bsaved\b|\badded\b/i.test(s),tx=emoText(s).replace(/^\s*[✓✔]\s*/,'').replace(/\s{2,}/g,' ').trim();
   if(ok){d.classList.add('ok');d.innerHTML='<svg class="tk" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';d.appendChild(document.createTextNode(tx))}else d.textContent=tx;
   document.querySelectorAll('body>.toast').forEach(x=>x.remove());document.body.appendChild(d);setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),220)},1800)}
@@ -2474,7 +2474,7 @@ JSON şeması: {"options":[{"name":"egzersiz adı","muscle":"quads|hamstrings|gl
     try{const r=await askAI(`Sen deneyimli bir kuvvet antrenörüsün. "${n}" egzersizi için Türkçe, kısa ve uygulanabilir form ipuçları ver. Güvenliği önceliklendir.
 SADECE JSON: {"cues":["3-4 madde, her biri en fazla 12 kelime, uygulama sırasına göre"],"err":["en sık 2 hata, kısa"]}`,{tier:'quick'});
       if(!r||!Array.isArray(r.cues)||!r.cues.length)throw{code:'bad'};S.formTips={...(S.formTips||{}),[n]:{cues:r.cues.slice(0,5).map(String),err:(r.err||[]).slice(0,3).map(String)}};save();
-      const el=document.querySelector('#scrim .fmb');if(el)el.outerHTML=formBlock(n);else A.formInfo(enc)}catch(e){aiErr(e)}},
+      const el=document.querySelector('#scrim .fmb');if(el)el.outerHTML=formBlock(n,1);else A.formInfo(enc)}catch(e){aiErr(e)}},
   /* ---- sık yenenler ---- */
   reMeal(enc){const k=mKey(decodeURIComponent(enc)),src=S.meals.filter(m=>mKey(m.name)===k).sort((a,b)=>a.date<b.date?-1:1).pop();if(!src)return;
     const d=ui.view==='food'?ui.foodDay:dkey(),m={id:uid(),date:d,name:src.name,kcal:src.kcal,p:src.p,c:src.c,f:src.f};if(src.items)m.items=src.items;if(src.lines)m.lines=JSON.parse(JSON.stringify(src.lines));
