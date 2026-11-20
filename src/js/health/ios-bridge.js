@@ -66,7 +66,7 @@ window.__hmVoice=async o=>{try{o=o||{};const d=dkey(),nw=new Date(),tm=z(nw.getH
 let __wgT=0;function widgetSoon(){if(!HMN())return;clearTimeout(__wgT);__wgT=setTimeout(widgetPush,1500)}
 function widgetPush(){try{const td=dkey(),sc=healthScores(td)||null,x=sc?sc.x:(HD()[td]||{}),M=foreModel(td,x||{},sc),e=[];for(let h=0;h<=30;h+=.5)e.push(Math.round(M.E(h)));
   const r=v=>v==null||isNaN(v)?null:Math.round(v),sl=(x&&x.sleep)||{},st=strainOf(td);
-  const o={d:td,rec:sc?r(sc.rec):null,sleep:r(sl.min),slS:sc?r(sc.sleep):null,steps:r(x&&x.steps),rhr:r(x&&x.rhr),hrv:r(x&&x.hrv),strain:st==null?null:Math.round(st*10)/10,e,bed:Math.round(M.bedH*100)/100,lang:LANG()};
+  const o={d:td,rec:sc?r(sc.rec):null,sleep:r(sl.min),slS:sc?r(sc.sleep):null,steps:r(x&&x.steps),rhr:r(x&&x.rhr),hrv:r(x&&x.hrv),strain:st==null?null:Math.round(st*10)/10,e,bed:Math.round(M.bedH*100)/100,lang:LANG(),kin:r(dayTotals(td).kcal),kgo:r(S.settings.kcal),wn:S.sessions.filter(s=>sAge(s)<7*864e5).length,wgo:(S.tp&&S.tp.days)||3,...(()=>{const F=wtFit();return F.n>=4?{wt:Math.round(F.now*10)/10,wwk:Math.round(F.wk*100)/100,gw:S.profile.gw||null}:{}})()};
   const k=JSON.stringify(o);let L='';try{L=localStorage.getItem('hm-wg')||''}catch(_){}
   const lt=+(L.split('|')[0]||0);if(L.slice(L.indexOf('|')+1)===k&&Date.now()-lt<3*36e5)return;
   hmCall('widget',{snap:JSON.stringify({...o,t:Date.now()})}).then(q=>{if(q&&q.ok)try{localStorage.setItem('hm-wg',Date.now()+'|'+k)}catch(_){}})}catch(e){console.warn('widget',e)}}

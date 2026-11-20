@@ -17,6 +17,13 @@ struct Snap: Codable {
     var e: [Double]?       // enerji eğrisi, 0:00'dan itibaren yarım saatlik (0..30 saat)
     var bed: Double?       // yatış saati (saat, 24+ olabilir)
     var lang: String?
+    var kin: Int? = nil      // bugün alınan kcal
+    var kgo: Int? = nil      // günlük kcal hedefi
+    var wn: Int? = nil       // son 7 gündeki antrenman
+    var wgo: Int? = nil      // haftalık antrenman hedefi
+    var wt: Double? = nil    // trend kilo
+    var wwk: Double? = nil   // kg / hafta
+    var gw: Double? = nil    // hedef kilo
 
     static func load() -> Snap? {
         guard let s = UserDefaults(suiteName: HM_GROUP)?.string(forKey: "snap"),
@@ -269,7 +276,71 @@ struct EntryView: View {
     }
 }
 
+// MARK: - Günlük widget: kalori, adım, haftalık antrenman, kilo trendi
+struct Bar: View {
+    let f: Double; let c: Color
+    var body: some View {
+        GeometryReader { g in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.white.opacity(0.12))
+                Capsule().fill(c).frame(width: max(4, g.size.width * CGFloat(min(1, max(0, f)))))
+            }
+        }.frame(height: 6)
+    }
+}
+
+struct DailyView: View {
+    @Environment(\.widgetFamily) var fam
+    let e: Entry
+    var body: some View {
+        if let s = e.snap, s.isToday {
+            VStack(alignment: .leading, spacing: fam == .systemSmall ? 7 : 9) {
+                Text(s.L("BUGÜN", "TODAY")).font(mono).tracking(1.2).foregroundColor(.white.opacity(0.55))
+                row(s.L("Kalori", "Calories"), "\(s.kin ?? 0) / \(s.kgo ?? 0)", Double(s.kin ?? 0) / Double(max(1, s.kgo ?? 1)), Color(red: 1, green: 0.54, blue: 0.3))
+                row(s.L("Adım", "Steps"), s.steps.map { $0 >= 1000 ? String(format: "%.1fk", Double($0) / 1000) : "\($0)" } ?? "–", Double(s.steps ?? 0) / 8000, Color(red: 0.2, green: 0.83, blue: 0.6))
+                row(s.L("Antrenman · 7 gün", "Workouts · 7 d"), "\(s.wn ?? 0) / \(s.wgo ?? 3)", Double(s.wn ?? 0) / Double(max(1, s.wgo ?? 3)), Color(red: 0.78, green: 0.75, blue: 1))
+                if fam != .systemSmall, let wt = s.wt {
+                    HStack {
+                        Text(s.L("Kilo", "Weight")).font(.system(size: 11, weight: .medium)).foregroundColor(.white.opacity(0.7))
+                        Spacer()
+                        Text(String(format: "%.1f kg", wt) + (s.wwk.map { String(format: "  %@%.2f/%@", $0 > 0 ? "+" : "", $0, s.L("hf", "wk")) } ?? ""))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundColor(.white)
+                    }
+                }
+            }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        } else { Stale(s: e.snap) }
+    }
+    func row(_ k: String, _ v: String, _ f: Double, _ c: Color) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack {
+                Text(k).font(.system(size: 11, weight: .medium)).foregroundColor(.white.opacity(0.7))
+                Spacer()
+                Text(v).font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundColor(.white)
+            }
+            Bar(f: f, c: c)
+        }
+    }
+}
+
+struct HypeModeDaily: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "HypeModeDaily", provider: Provider()) { e in
+            DailyView(e: e).hmBackground()
+        }
+        .configurationDisplayName(Snap.load()?.en == true ? "HypeMode Today" : "HypeMode Bugün")
+        .description("Kalori, adım, haftalık antrenman ve kilo trendi")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
 @main
+struct HypeModeWidgets: WidgetBundle {
+    var body: some Widget {
+        HypeModeWidget()
+        HypeModeDaily()
+    }
+}
+
 struct HypeModeWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "HypeModeWidget", provider: Provider()) { e in
