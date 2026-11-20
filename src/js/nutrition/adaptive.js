@@ -14,6 +14,26 @@ function wChart(T){if(T.length<2)return '';const W=320,Hh=110,ws=T.flatMap(x=>[x
   return `<svg aria-hidden="true" viewBox="0 -4 ${W} ${Hh+22}" class="wch">${T.map((x,i)=>x.w!=null?`<circle cx="${X(i)}" cy="${Y(x.w)}" r="2.6" fill="rgba(255,255,255,.35)"/>`:'').join('')}
    <polyline fill="none" stroke="${SCC.w}" stroke-width="2.6" stroke-linejoin="round" points="${T.map((x,i)=>X(i).toFixed(1)+','+Y(x.t).toFixed(1)).join(' ')}"/>
    <text x="0" y="${Hh+16}">${new Date(T[0].d+'T12:00').toLocaleDateString(LOC(),{day:'numeric',month:'short'})}</text><text x="${W-40}" y="${Hh+16}">bugün</text></svg>`}
+/* kilo trendi + hedef tarihi: son ≤28 gün tartılarına doğrusal regresyon (en küçük kareler) */
+function wtFit(){const bw=S.body.filter(b=>b.weight!=null&&b.date>=addD(dkey(),-28)).sort((a,b)=>a.date<b.date?-1:1);if(bw.length<4)return{n:bw.length};
+  const t0=+new Date(bw[0].date+'T12:00'),xs=bw.map(b=>(+new Date(b.date+'T12:00')-t0)/864e5),ys=bw.map(b=>b.weight),n=xs.length;
+  const mx=xs.reduce((a,b)=>a+b,0)/n,my=ys.reduce((a,b)=>a+b,0)/n,sxx=xs.reduce((a,x)=>a+(x-mx)**2,0)||1,k=xs.reduce((a,x,i)=>a+(x-mx)*(ys[i]-my),0)/sxx;
+  const today=(+new Date(dkey()+'T12:00')-t0)/864e5,now=my+k*(today-mx),res=Math.sqrt(ys.reduce((a,y,i)=>a+(y-(my+k*(xs[i]-mx)))**2,0)/Math.max(1,n-2));
+  const gw=S.profile.gw,out={n,k,wk:k*7,now,res,span:xs[n-1]};
+  if(gw){const d=gw-now;if(Math.abs(d)<.3)out.eta='done';else if(Math.abs(k)<.005||Math.sign(d)!==Math.sign(k))out.eta='away';else{const days=Math.round(d/k);out.days=days;out.date=addD(dkey(),days)}}
+  return out}
+function wtCard(){const F=wtFit(),T=wTrend(42),gw=S.profile.gw,lw=latestW();
+  const head=`<div class="row between"><b>${TT('Kilo trendi','Weight trend')}</b><div class="row" style="gap:6px"><button class="pill" onclick="A.wtGoal()">${gw?TT('Hedef ','Goal ')+fmt(gw)+' kg':TT('Hedef kilo','Goal weight')}</button><button class="pill" onclick="A.wtLog()">+ ${TT('Tartı','Weigh-in')}</button></div></div>`;
+  if(F.n<4)return `<div class="card wtc">${head}<p class="lbl" style="line-height:1.5;margin:8px 0 0">${TT(`Tahmin için son 4 haftada en az 4 tartı gerekiyor (şu an ${F.n||0}). Haftada 3–4 kez, sabah aç karnına tartıl.`,`Needs at least 4 weigh-ins in the last 4 weeks (now ${F.n||0}).`)}</p></div>`;
+  const wk=Math.round(F.wk*100)/100,c=wk<-.05?'#3fd0ff':wk>.05?'#ffb547':'var(--txt)';
+  const eta=!gw?TT('Hedef kilonu girince ulaşma tarihini tahmin ederim.','Set a goal weight to get an ETA.')
+    :F.eta==='done'?TT('Hedef kilondasın.','You are at your goal weight.')
+    :F.eta==='away'?TT('Bu gidişle hedefe yaklaşmıyorsun; kalori hedefini gözden geçir.','At this rate you are not moving toward your goal.')
+    :TT(`Bu hızla hedefe <b>${new Date(F.date+'T12:00').toLocaleDateString(LOC(),{day:'numeric',month:'long',year:F.days>300?'numeric':undefined})}</b> civarı ulaşırsın (~${Math.round(F.days/7)} hafta).`,`At this rate you reach your goal around <b>${F.date}</b>.`);
+  return `<div class="card wtc">${head}
+   <div class="wt-g"><div><b>${fmt(Math.round(F.now*10)/10)}</b><small>${TT('trend kilo','trend weight')}</small></div><div><b style="color:${c}">${wk>0?'+':''}${fmt(wk)}</b><small>${TT('kg / hafta','kg / week')}</small></div><div><b>${lw!=null?fmt(lw):'—'}</b><small>${TT('son tartı','last weigh-in')}</small></div></div>
+   ${T.length>=2?wChart(T):''}
+   <p class="wt-eta">${eta}</p><div class="lbl" style="font-size:11px">${TT(`Son ${Math.round(F.span)+1} gündeki ${F.n} tartıdan hesaplandı · günlük dalgalanma ±${fmt(Math.round(F.res*10)/10)} kg`,`From ${F.n} weigh-ins · daily noise ±${fmt(Math.round(F.res*10)/10)} kg`)}</div></div>`}
 function adaptCard(){const A2=adaptTDEE(),T=wTrend(42),st=S.settings;
   return `<div class="card adc"><div class="row between"><b>🎯 Uyarlanabilir kalori hedefi</b><button class="pill" onclick="A.adaptInfo()">ⓘ</button></div>
    ${T.length>=2?`<div class="lbl" style="margin-top:6px">Kilo eğilimi (çizgi) · noktalar günlük tartı</div>${wChart(T)}`:''}

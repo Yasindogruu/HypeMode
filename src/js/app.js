@@ -49,7 +49,7 @@ function homeEdit(){const hid=S.settings.homeHide||[],L=HSEC.filter(x=>!x[3]||cy
    <div class="lbl" style="margin:4px 0 8px">Görmek istemediğin bölümleri kapat.</div>
    ${L.map(([k,ic,n])=>{const on=!hid.includes(k);return `<button class="hed-r" onclick="A.homeTog('${k}')"><span>${ic}</span><b>${n}</b><i class="sw ${on?'on':''}"></i></button>`}).join('')}
    ${hid.length?`<button class="link" style="margin:8px auto 0" onclick="A.homeShowAll()">Hepsini göster</button>`:''}</div>`}
-function homeV(){let DR=false;if(!S.settings.foreV1){S.settings.foreV1=1;const h=S.settings.homeHide||[];if(!h.includes('dring'))S.settings.homeHide=[...h,'dring'];}
+function homeV(){let DR=false;if(!S.settings.homeV2){S.settings.homeV2=1;const o={...(S.settings.ord||{})};delete o.home;S.settings.ord=o}if(!S.settings.foreV1){S.settings.foreV1=1;const h=S.settings.homeHide||[];if(!h.includes('dring'))S.settings.homeHide=[...h,'dring'];}
   const td=dkey(),d=ui.hDay&&ui.hDay<=td?ui.hDay:td,isT=d===td,has=hasHealth(),sc=healthScores(d)||null,x=sc?sc.x:(HD()[d]||{});
   const live=Object.keys(S.health||{}).length>0,devTxt=S.healthDemo?'Demo':live?'Fitbit':'Yok',dot=S.healthDemo||live;
   const stn=strainOf(d),str=stressOf(d),vir=vitalsInRange(d),stk=streak();
@@ -61,22 +61,24 @@ function homeV(){let DR=false;if(!S.settings.foreV1){S.settings.foreV1=1;const h
      </div>
     ${(()=>{const L=hrmOn()&&HRM.bpm?{t:Date.now(),v:HRM.bpm}:S.healthDemo?{t:Date.now()-4*6e4,v:(x.hr15||[]).filter(v=>v!=null).slice(-1)[0]||68}:S.settings.ghHR;if(!L||!L.v)return "";const mn=Math.round((Date.now()-L.t)/6e4),hr=(x.hr15||[]).slice(Math.max(0,Math.floor((new Date().getHours()*60+new Date().getMinutes())/15)-12)).filter(v=>v!=null),mx=Math.max(...hr,L.v),mi=Math.min(...hr,L.v),pts=hr.map((v,i)=>`${(i/(Math.max(1,hr.length-1))*60).toFixed(1)},${(18-(v-mi)/((mx-mi)||1)*16).toFixed(1)}`).join(" ");const z2=hrZoneOf(L.v);return `<button class="hrpill" onclick="A.ghSync()"><span class="hrp-h">♥</span><b>${L.v}</b><small>bpm</small>${hr.length>2?`<svg aria-hidden="true" viewBox="0 0 60 20" width="60" height="20"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`:""}<em>${hrmOn()&&HRM.bpm?"canlı":mn<1?"şimdi":mn<60?mn+" dk önce":Math.round(mn/60)+" sa önce"}${z2>=1?" · "+HRZ[z2][1]:""}</em></button>`})()}<div class="logo"><span class="hmb">${HM_LOGO(30)}<span>HYPEMODE</span></span></div>
     ${S.profile.name?`<div class="hgreet">${(h=>h<5?'İyi geceler':h<12?'Günaydın':h<18?'İyi günler':h<22?'İyi akşamlar':'İyi geceler')(new Date().getHours())}, ${esc(S.profile.name)}</div>`:''}
-    ${isT?wkSumCard()+fatigueCard():''}
-    ${hv('fore')?withDemo(dm=>{const sc2=dm?healthScores(d):sc,x2=dm?(sc2?sc2.x:(HD()[d]||{})):x;return foreBlock(d,x2||{},sc2,isT)}):''}
+  </div>
+  <div class="secw" data-sec="fore"><div class="hfore">${hv('fore')?withDemo(dm=>{const sc2=dm?healthScores(d):sc,x2=dm?(sc2?sc2.x:(HD()[d]||{})):x;return foreBlock(d,x2||{},sc2,isT)}):''}
     ${hv('dring')?withDemo(dm=>{if(!dm&&!sc)return dayRing(d,{},null);const sc2=dm?healthScores(d):sc,x2=dm?(sc2?sc2.x:(HD()[d]||{})):x;return dayRing(d,x2,sc2)}):''}<div class="rings3" style="display:none">${ring3(sc?sc.sleep:null,100,'#8fb0cc','UYKU','%',"A.scrollTo('c-sleep')")}${ring3(sc?sc.rec:null,100,recCol(sc&&sc.rec),'TOPARLANMA','%',"A.scrollTo('c-vit')")}${ring3(stn,21,'#3b8bff','YÜK','',"A.scrollTo('c-heart')")}</div>
     ${!hasHealth()?`<div class="dr-demo"><span>${TT('Örnek veri gösteriliyor','Showing sample data')}</span><button onclick="A.go('settings');setTimeout(()=>A.setSec&&A.setSec('health'),60)">${TT('Fitbit bağla','Connect Fitbit')}</button></div>`:''}${backupNag()}${0&&hv('coach')?`<div class="cmsg cbox"><button class="cb-main" onclick="A.notes('${d}')"><div><b>${isT?(sc?(sc.tot>=80?'Hazırsın':sc.tot>=60?'Dengeli bir gün':'Toparlanma günü'):'Koç'):'Günün özeti'}</b><p>${msgs[0]||'Bugün için not yok.'}</p></div>${msgs.length>1?`<span class="cnt">✓<small>${msgs.length}</small></span>`:''}</button>
-     <div class="cb-act"><button onclick="A.dayReview('${d}')">☾ ${isT?'Günün özeti':'O günün özeti'}</button>${isT?`<button onclick="A.report('day')">🤖 AI raporu</button><button onclick="A.report('week')">📅 Haftalık</button>`:''}</div></div>`:''}
+     <div class="cb-act"><button onclick="A.dayReview('${d}')">☾ ${isT?'Günün özeti':'O günün özeti'}</button>${isT?`<button onclick="A.report('day')">🤖 AI raporu</button><button onclick="A.report('week')">📅 Haftalık</button>`:''}</div></div>`:''}</div></div>
     <div class="secw" data-sec="mon">${hv('mon')&&(vir||str)?`<div class="grid2" style="margin-top:12px">
      <button class="mon" onclick="A.scrollTo('c-vit')"><div class="row between"><b>SAĞLIK MONİTÖRÜ</b><span>›</span></div>
       ${vir?`<div class="row" style="gap:10px;margin-top:12px"><span class="mbx ${vir.n===vir.t?'ok':'wr'}">${vir.n===vir.t?'✓':'!'}</span><div><b class="${vir.n===vir.t?'ok':'warn'}">${vir.n===vir.t?'ARALIKTA':'DİKKAT'}</b><small>${vir.n}/${vir.t} normal aralıkta</small></div></div>`:'<small class="muted" style="display:block;margin-top:12px">Veri yok</small>'}</button>
      <button class="mon" onclick="A.stressInfo()"><div class="row between"><b>STRES MONİTÖRÜ</b><span>›</span></div>
       ${str?`<div class="row" style="gap:10px;margin-top:12px"><span class="mbx" style="color:${str.col}">${String(str.v).replace('.',',')}</span><div><b style="color:${str.col}">${str.lab}</b><small>${str.t}</small></div></div>`:'<small class="muted" style="display:block;margin-top:12px">Veri yok</small>'}</button></div>`:''}</div>
-    <div class="secw" data-sec="bio">${(()=>{const B=bioAge(d),cs=cardioStat(d),cc=CST[cs.st],sb=false&&hv('bio')&&!B.need,sk=hv('cardio')&&cs.st!=='none';return `${sb||sk?`<div class="grid2" style="margin-top:10px;${sb&&sk?'':'grid-template-columns:1fr'}">`:''}
+    <div class="secw" data-sec="cycle">${(()=>{const B=bioAge(d),cs=cardioStat(d),cc=CST[cs.st],sb=false&&hv('bio')&&!B.need,sk=hv('cardio')&&cs.st!=='none';return `${sb||sk?`<div class="grid2" style="margin-top:10px;${sb&&sk?'':'grid-template-columns:1fr'}">`:''}
      ${sb?`<button class="mon" onclick="A.bioInfo()"><div class="row between"><b>BİYOLOJİK YAŞ</b><span>›</span></div>
       ${B.need?'<small class="muted" style="display:block;margin-top:12px">Yaşını gir</small>':`<div class="row" style="gap:10px;margin-top:12px"><span class="mbx" style="color:${B.diff<=0?'#3ee6a0':'#ff8a7a'};width:auto;padding:0 8px">${fmt(B.bio)}</span><div><b style="color:${B.diff<=0?'#3ee6a0':'#ff8a7a'}">${B.diff>0?'+':''}${fmt(B.diff)} YIL</b><small>gerçek yaş ${B.age}</small></div></div>`}</button>
 `:''}${sk?`<button class="mon" onclick="A.cardioInfo()"><div class="row between"><b>KARDİYO YÜKÜ</b><span>›</span></div>
       <div class="row" style="gap:10px;margin-top:12px"><span class="mbx" style="color:${cc[1]}">${cs.st==='none'?'—':cs.a7}</span><div><b style="color:${cc[1]};font-size:12px;letter-spacing:.06em">${cc[0].toLocaleUpperCase('tr-TR')}</b><small>${cs.st==='none'?'kayıt yok':'7 günlük yük'}</small></div></div></button>`:''}${sb||sk?'</div>':''}${hv('cycle')?cycTile():''}`})()}</div>
-  </div>
+  <div class="secw" data-sec="wks">${isT&&hv('wks')?wkSumCard():''}</div>
+  <div class="secw" data-sec="fat">${isT&&hv('fat')?fatigueCard():''}</div>
+  <div class="secw" data-sec="wtr">${hv('wtr')?wtCard():''}</div>
   <div class="secw" data-sec="hwid">${hv('hwid')?withDemo(()=>homeTiles(d)):''}</div>
   ${''}
   <div class="secw" data-sec="sleepperf">${isT&&hv('sleepperf')&&has?sleepPerfCard():''}</div>
@@ -287,7 +289,8 @@ const B3VS=`attribute vec3 a_p;attribute float a_g;attribute float a_r;uniform m
 void main(){vec3 q=u_rot*(a_p-u_c);float pz=1.0/(1.0-q.z*0.32*u_s/(1.0+u_s*0.35));gl_Position=vec4(q.x*u_s*pz*u_asp.x,q.y*u_s*pz*u_asp.y,0.0,1.0);
  float dep=clamp(0.55+q.z*3.2/max(1.0,u_s*0.5),0.15,1.0);vec3 col=vec3(.6,.6,.68);float al=.34;float sz=1.0;
  if(a_g<11.5){float v=0.0;for(int i=0;i<12;i++){if(abs(float(i)-a_g)<0.5)v=u_lv[i];}
-  if(v<-0.5){col=vec3(1.0,.55,.26);al=.78;}else if(v<0.01){col=vec3(.66,.66,.74);al=.42;}else{col=mix(vec3(.78,.75,.95),vec3(.94,.92,1.0),v);al=.7+.3*v;}}
+  if(v>1.5){float f=v-2.0;if(f<0.01){col=vec3(.66,.66,.76);al=.42;}else{col=f>0.5?mix(vec3(1.0,.7,.25),vec3(1.0,.3,.3),(f-.5)*2.0):mix(vec3(.7,.68,.8),vec3(1.0,.7,.25),f*2.0);al=.6+.4*f;}}
+  else if(v<-0.5){col=vec3(1.0,.55,.26);al=.78;}else if(v<0.01){col=vec3(.66,.66,.74);al=.42;}else{col=mix(vec3(.78,.75,.95),vec3(.94,.92,1.0),v);al=.7+.3*v;}}
  else{al=.3;}
  if(u_sel>-0.5){if(abs(a_g-u_sel)<0.5){col=mix(col,vec3(.9,.87,1.0),u_fade);al=mix(al,1.0,u_fade);sz=1.0+.35*u_fade;}else{col=mix(col,vec3(.6,.6,.68),u_fade);al*=mix(1.0,.42,u_fade);}}
  gl_PointSize=u_ps*sz*(0.75+0.45*dep);v_c=vec4(col,al*dep*(0.35+0.65*a_r)*0.85);}`;
@@ -355,7 +358,7 @@ function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null})
     for(let i=0;i<G.n;i++)if(G.m[i]===mi){const r=Math.hypot(G.x[i],G.z[i]);if(G.x[i]-0<x0)x0=G.x[i];if(G.x[i]>x1)x1=G.x[i];if(G.y[i]<y0)y0=G.y[i];if(G.y[i]>y1)y1=G.y[i]}
     if(x0>x1){camT={x:0,y:.87,s:1};return}const w=Math.max(x1-x0,.12),h=Math.max(y1-y0,.12);camT={x:(x0+x1)/2,y:(y0+y1)/2,s:Math.min(1.8*.62/w,1.8*.62/h,7)}}
   function col(m){if(m===255)return[176,176,196,.5];if(m===254)return[130,130,150,.42];const v=lv[B3K[m]];
-    if(v===-1)return[255,138,61,.95];if(!v)return[160,160,182,.42];const t=Math.min(1,v);return[200+30*t|0,192+40*t|0,242+13*t|0,.7+.3*t]}
+    if(v>=1.5){const f=v-2;if(f<.01)return[160,160,182,.42];return f>.5?[255,77+Math.round((1-f)*2*102),77,.95]:[200+Math.round(f*110),190,170-Math.round(f*100),.7+.3*f]}if(v===-1)return[255,138,61,.95];if(!v)return[160,160,182,.42];const t=Math.min(1,v);return[200+30*t|0,192+40*t|0,242+13*t|0,.7+.3*t]}
   function draw(){const g=ctx;g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);if(!W||!H)return;
     const base=H*.86/1.8,sc=base*cam.s,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(.1),sp=Math.sin(.1),mi=sel?B3K.indexOf(sel):-1;
     const B=new Map(),dot=(sel?1.6:1.15)*(cam.s>2?1.15:1);
@@ -390,10 +393,18 @@ function b3dMount(cv){const G=b3Geo(),st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null})
   const ro=new ResizeObserver(size);ro.observe(cv);size();sync();cam={...camT};fade=sel?1:0;draw();
   return{sync}}
 /* dönem içi set sayıları: ana kas başına; seçili kas için hareket bazında */
+/* toparlanma: büyük kaslar 72 sa, küçükler 48 sa; f=kalan yorgunluk (1 → yeni çalışıldı, 0 → hazır) */
+function b3Rec(){const now=Date.now(),R={},big=['chest','back','quads','hamstrings','glutes','lowback'];
+  S.sessions.filter(s=>sAge(s)<72*36e5).forEach(s=>{const t=+new Date(s.date||0),cnt={};
+    s.sets.forEach(x=>{if(!x.muscle||x.muscle==='other')return;const ml=exMus(x.ex,x.muscle);Object.keys(ml).forEach(k=>{cnt[k]=(cnt[k]||0)+(ml[k]>=1?1:.5)})});
+    Object.keys(cnt).forEach(k=>{if(!B3K.includes(k)||cnt[k]<2)return;const RH=big.includes(k)?72:48,hs=Math.max(0,(now-t)/36e5),f=Math.max(0,Math.min(1,1-hs/RH))*Math.min(1,.55+cnt[k]/12);
+      if(!R[k]||f>R[k].f)R[k]={f:Math.round(f*100)/100,left:Math.max(0,Math.ceil(RH*(f/Math.min(1,.55+cnt[k]/12))-0))}})});
+  Object.keys(R).forEach(k=>{if(R[k].f<=0.02){R[k].f=0;R[k].left=0}});return R}
+const b3RcCol=f=>f<=0?'#9b95c9':f>.5?'#ff4d4d':'#ffb340';
 function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7,ms=per*864e5,cur=S.sessions.filter(s=>sAge(s)<ms),sel=st.sel;
   const by={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle&&x.muscle!=='other')by[x.muscle]=(by[x.muscle]||0)+1}));
-  const bl=bodyLoad(cur,per===7?10:per===30?36:300),lv={};B3K.forEach(k=>{const v=bl.lv[k]||0;lv[k]=v>0?Math.round(v*100)/100:(cur.length>=3&&B3MAIN.includes(k)?-1:0)});
-  let rows;if(sel){const ex={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle===sel||(sel==='lowback'&&exMus(x.ex,x.muscle).lowback>=1)||(sel==='forearms'&&exMus(x.ex,x.muscle).forearms))ex[x.ex]=(ex[x.ex]||0)+1}));
+  const bl=bodyLoad(cur,per===7?10:per===30?36:300),lv={},rm=st.mode==='rec',RC=b3Rec();B3K.forEach(k=>{const v=bl.lv[k]||0;lv[k]=rm?2+(RC[k]?RC[k].f:0):v>0?Math.round(v*100)/100:(cur.length>=3&&B3MAIN.includes(k)?-1:0)});
+  let rows;if(rm&&!sel)rows=B3MAIN.filter(k=>RC[k]).sort((a,b)=>RC[b].f-RC[a].f).map(k=>[k,RC[k]]);else if(sel){const ex={};cur.forEach(s=>s.sets.forEach(x=>{if(x.muscle===sel||(sel==='lowback'&&exMus(x.ex,x.muscle).lowback>=1)||(sel==='forearms'&&exMus(x.ex,x.muscle).forearms))ex[x.ex]=(ex[x.ex]||0)+1}));
     rows=Object.entries(ex).sort((a,b)=>b[1]-a[1]).slice(0,8)}else rows=B3MAIN.map(k=>[k,by[k]||0]).sort((a,b)=>b[1]-a[1]);
   const tg=per===7?10:per===30?40:480,mx=sel?Math.max(1,...rows.map(r=>r[1])):tg,pl={7:TT('Bu hafta','This week'),30:TT('Son 30 gün','Last 30 days'),365:TT('Son 1 yıl','Last year')}[per];
   const lag=sel?[]:B3MAIN.filter(k=>lv[k]===-1);
@@ -403,11 +414,14 @@ function b3Card(){const st=ui.b3||(ui.b3={yaw:.35,per:7,sel:null}),per=st.per||7
    <div class="b3-stage"><canvas class="b3c" aria-label="${TT('3D kas haritası','3D muscle map')}"></canvas><i class="b3-data" data-lv='${JSON.stringify(lv)}' data-sel="${sel||''}" hidden></i>
     ${sel?`<button class="b3-x" onclick="A.b3Sel(null)" aria-label="${TT('Tüm vücuda dön','Back to full body')}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg></button>`
      :`<div class="b3-fb"><button class="${(st.face||0)===0?'on':''}" onclick="A.b3Face(0)">${TT('Ön','Front')}</button><button class="${st.face===1?'on':''}" onclick="A.b3Face(1)">${TT('Arka','Back')}</button></div>`}
-    ${lag.length?`<div class="b3-lag"><i></i>${TT('Çalışılmayan','Not trained')}</div>`:''}</div>
+    <div class="b3-md"><button class="${rm?'':'on'}" onclick="A.b3Mode('vol')">${TT('Hacim','Volume')}</button><button class="${rm?'on':''}" onclick="A.b3Mode('rec')">${TT('Toparlanma','Recovery')}</button></div>
+    ${rm?`<div class="b3-lag b3-rleg"><i style="background:#ff4d4d"></i>${TT('Yorgun','Fatigued')}<i style="background:#ffb340"></i>${TT('Toparlanıyor','Recovering')}</div>`:lag.length?`<div class="b3-lag"><i></i>${TT('Çalışılmayan','Not trained')}</div>`:''}</div>
+   ${sel&&RC[sel]?`<div class="b3-rcn"><i style="background:${b3RcCol(RC[sel].f)}"></i>${RC[sel].f>0?TT(`%${Math.round((1-RC[sel].f)*100)} toparlandı · yaklaşık ${RC[sel].left} saat sonra hazır`,`${Math.round((1-RC[sel].f)*100)}% recovered · ready in ~${RC[sel].left} h`):TT('Toparlandı, çalışmaya hazır','Recovered, ready to train')}</div>`:''}
+   ${rm&&!sel?`<div class="b3-lh2"><b>${TT('Toparlanma','Recovery')}</b><small>${TT('son 72 saat','last 72 h')}</small></div><div class="b3-list">${rows.length?(st.all?rows:rows.slice(0,3)).map(([k,r])=>`<button class="b3-r" onclick="A.b3Sel('${k}')"><span class="b3-rh"><b><i class="b3-dot" style="background:${b3RcCol(r.f)}"></i>${esc(MUSC2[k]||k)}</b><em>${r.f>0?TT(`~${r.left} sa`,`~${r.left} h`):TT('hazır','ready')}</em></span><span class="b3-bar b3-rcb"><i style="width:${Math.round((1-r.f)*100)}%"></i></span></button>`).join(''):`<div class="b3-e">${TT('Son 72 saatte çalışılan kas yok; hepsi hazır.','No muscles trained in the last 72 h; all ready.')}</div>`}${rows.length>3?`<button class="b3-more" onclick="A.b3All()">${st.all?TT('Daha az göster','Show less'):TT(`Tümünü göster (${rows.length})`,`Show all (${rows.length})`)}</button>`:''}</div>`:`
    <div class="b3-lh2"><b>${sel?TT('Yaptığın hareketler','Your exercises'):TT('Kas grupları','Muscle groups')}</b><small>${sel?TT('set','sets'):TT(`hedef ${tg} set`,`target ${tg} sets`)}</small></div>
    <div class="b3-list">${rows.length?(sel||st.all?rows:rows.slice(0,3)).map(([k,v])=>`<button class="b3-r${!sel&&!v?' b3-z':''}" ${sel?'':`onclick="A.b3Sel('${k}')"`}><span class="b3-rh"><b>${!sel&&!v&&cur.length>=3?'<i class="b3-dot"></i>':''}${esc(sel?k:(MUSC2[k]||k))}</b><em>${sel?v+' set':`${v} / ${tg} set`}</em></span><span class="b3-bar"><i style="width:${v?Math.max(2,Math.min(100,Math.round(v/mx*100))):0}%"></i></span></button>`).join('')
      :`<div class="b3-e">${sel?TT('Bu dönemde bu kas için set yok.','No sets for this muscle in this period.'):TT('Bu dönemde antrenman yok. Antrenman yaptıkça kaslar parlar.','No workouts in this period. Muscles light up as you train.')}</div>`}
-    ${!sel&&rows.length>3?`<button class="b3-more" onclick="A.b3All()">${st.all?TT('Daha az göster','Show less'):TT(`Tümünü göster (${rows.length})`,`Show all (${rows.length})`)}<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(${st.all?180:0}deg)"><path d="m6 9 6 6 6-6"/></svg></button>`:''}</div>
+    ${!sel&&rows.length>3?`<button class="b3-more" onclick="A.b3All()">${st.all?TT('Daha az göster','Show less'):TT(`Tümünü göster (${rows.length})`,`Show all (${rows.length})`)}<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(${st.all?180:0}deg)"><path d="m6 9 6 6 6-6"/></svg></button>`:''}</div>`}
    ${sel?(()=>{const mm={lowback:'back',forearms:'biceps'}[sel]||sel,L=XDB.filter(x=>x[2]===mm&&(S.settings.loc!=='home'||homeEq().includes(x[3]))).slice(0,6);
      return L.length?`<div class="b3-lib"><div class="b3-lh"><b>${esc(MUSC2[sel]||sel)} ${TT('hareketleri','exercises')}</b><button onclick="A.acMus('${sel}')">${TT('Tümü','All')} ›</button></div>
       ${L.map(x=>`<button class="b3-x2" onclick="A.exd('${encodeURIComponent(x[0])}')"><span class="b3-xi">${bodyMini(x[0],x[2],26)}</span><span><b>${esc(x[0])}</b><small>${esc(x[1])}</small></span><i>›</i></button>`).join('')}</div>`:''})():''}
@@ -1512,7 +1526,9 @@ cloud:()=>`  <button class="card setc" onclick="A.syncInfo()"><span>${CL.status=
   const grp=(t,ks)=>{const h=ks.map(row).join('');return h?`<div class="sg-t">${t}</div><div class="sg">${h}</div>`:''};
   return `<div class="sp-top"><button class="back" onclick="A.go('home')">${I.back}</button><h1>Profilin</h1><button class="sp-gear" onclick="A.setSec('look')" aria-label="Görünüm"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
    <button class="sp-prof" onclick="A.setSec('profile')"><span class="sp-av">${avHtml(S.profile.name||S.profile.username||'?',S.profile.photo)}</span><span class="sr-t"><b>${esc(S.profile.name||TT('Adını ekle','Add your name'))}</b><small>${S.profile.username?'@'+esc(S.profile.username):'kullanıcı adı yok'}</small><em class="sp-chip">${CL.status==='synced'?'Bulut hesabı':'Yerel'} · Ücretsiz</em></span><i>›</i></button>
-   ${grp('Tercihler',['news','wsum','guide','look','lang','rem','swake','goal','med'])}${grp('Bağlantılar',HMN()?['dev','ahealth','cloud']:['dev','health','cloud'])}${grp('Hesap',['acct','profile','data','perf','legal'])}
+   ${grp(TT('Sık kullanılanlar','Essentials'),['goal','rem','dev','look','cloud'])}
+   <details class="sp-more"${ui.spMore?' open':''} ontoggle="ui.spMore=this.open"><summary><span>${TT('Gelişmiş ayarlar','Advanced settings')}</span><small>${TT('dil, uyanma, ilaçlar, veri, performans…','language, wake, meds, data…')}</small></summary>
+   ${grp(TT('Tercihler','Preferences'),['lang','swake','med','wsum','guide','news'])}${grp(TT('Bağlantılar','Connections'),HMN()?['ahealth']:['health'])}${grp(TT('Hesap','Account'),['acct','profile','data','perf','legal'])}</details>
    <div class="pad lbl" style="text-align:center;margin:10px 0 20px">HypeMode v0.1 · kural tabanlı koç (çift ilerleme + RPE)</div>`;
 }
 
@@ -1581,9 +1597,9 @@ const A=window.A={
     const e={name:x[0],tr:x[1],muscle:x[2],sets:parseInt(r[0])||3,repMin:a||8,repMax:b||a||12,inc:bw?0:2.5,eq:x[3]};if(x[5]==='t'){e.t=1;e.fix=0}else if(bw)e.fix=0;
     p.exercises.push(e);save();closeSheet();toast(`${p.name} şablonuna eklendi`)},
   _ed(kind){const HK=kind==='home'?'homeHide':kind==='food'?'foodHide':'pgHide';const H=S.settings[HK]||(kind==='pg'?['vol']:[]);
-    const L0=kind==='home'?HSEC.filter(x=>!x[3]||cycOn()):kind==='food'?FSEC:PSEC,ord=(S.settings.ord||{})[kind]||[],ix=k=>{const i=ord.indexOf(k);return i<0?999+L0.findIndex(x=>x[0]===k):i};
+    const L0=kind==='home'?HSEC.filter(x=>!x[3]||cycOn()):kind==='food'?FSEC:PSEC,ord=(S.settings.ord||{})[kind]||(kind==='home'?HDEF:[]),ix=k=>{const i=ord.indexOf(k);return i<0?999+L0.findIndex(x=>x[0]===k):i};
     return{HK,H,L:L0.slice().sort((a,b)=>ix(a[0])-ix(b[0]))}},
-  _edG(kind,k){const G=kind==='home'?[['mon','bio'],['hwid','sleepperf','kcal','rings','vit','sleep','hrv']]:null;if(!G)return 0;const i=G.findIndex(g=>g.includes(k));return i<0?null:i},
+  _edG(kind,k){if(kind!=='home')return 0;return HDEF.includes(k)?0:null},
   _edN(kind,L,i,d){const g=A._edG(kind,L[i][0]);if(g==null)return -1;for(let j=i+d;j>=0&&j<L.length;j+=d)if(A._edG(kind,L[j][0])===g)return j;return -1},
   edSheet(kind){const{H,L}=A._ed(kind);
     sheet(`<h3>✎ ${kind==='home'?'Ekranı düzenle':'Sayfayı düzenle'}</h3><div class="lbl" style="margin:-6px 0 10px">${kind==='home'?'Bölümleri aç/kapat, okla yukarı-aşağı taşı.':'Bölümleri aç/kapat, okla yukarı-aşağı taşı.'}</div>
@@ -1628,6 +1644,11 @@ const A=window.A={
   prevEx(){if(S.active.idx>0){S.active.idx--;save();render()}else ask('Antrenmandan çık?',()=>{A.finishAsk()},'Devam')},
   restAdd(s){restEnd+=s*1000;restBar()},
   b3Sel(k){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.sel=k||null;render(true)},
+  wtLog(){const v=prompt(TT('Bugünkü kilon (kg)','Today\'s weight (kg)'),latestW()!=null?String(latestW()).replace('.',','):'');if(v==null)return;const w=parseFloat(String(v).replace(',','.'));if(!(w>25&&w<350)){toast(TT('Geçerli bir kilo gir','Enter a valid weight'));return}
+    const d=dkey(),b=S.body.find(x=>x.date===d);if(b)b.weight=w;else S.body.push({date:d,weight:w,sleep:null});S.profile.weight=w;save();render(true);toast(TT('✓ Kilo kaydedildi','✓ Weight saved'))},
+  wtGoal(){const v=prompt(TT('Hedef kilon (kg) — boş bırakırsan silinir','Goal weight (kg)'),S.profile.gw?String(S.profile.gw).replace('.',','):'');if(v==null)return;const w=parseFloat(String(v).replace(',','.'));
+    if(!v.trim()){delete S.profile.gw}else if(w>25&&w<350)S.profile.gw=w;else{toast(TT('Geçerli bir kilo gir','Enter a valid weight'));return}save();render(true)},
+  b3Mode(m){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.mode=m;st.sel=null;tap();render(true)},
   b3All(){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.all=!st.all;tap();render(true)},
   b3Per(v){const st=ui.b3||(ui.b3={yaw:.35});st.per=v;st.sel=null;tap();render(true)},
   b3Face(f){const st=ui.b3||(ui.b3={yaw:.35,per:7});st.face=f;st.yawT=f?Math.PI:0;render(true)},
@@ -1990,6 +2011,14 @@ ${JSON.stringify(ctx)}`;
   howClose(){const d=document.querySelector('.m3m');if(!d)return;d.remove();document.removeEventListener('keydown',A._howK);m3dScan()},
   wkGoal(){A.pick({t:TT('Haftalık antrenman hedefi','Weekly workout goal'),v:S.settings.wkGoal||3,min:1,max:7,step:1,u:TT('antrenman','workouts'),cb:v=>{S.settings.wkGoal=v;save();render(true)}})},
   frOpenU(u){const i=(ui._F||[]).findIndex(f=>f.uid===u);if(i<0){ui._F=(S.friends||[]).map(f=>({...f,d:SOC.friends[f.uid]}))}const j=(ui._F||[]).findIndex(f=>f.uid===u);if(j>=0)A.frOpen(j)},
+  chNew(k){const t=CHT.find(c=>c[0]===k);if(!t)return;sheet(`<h3>${TT(t[1],t[2])} · ${TT('haftalık hedef','weekly goal')}</h3><div class="lbl" style="margin:-6px 0 12px">${TT('Her pazartesi sıfırlanır. Aynı hedefi seçen arkadaşlarınla yarışırsın.','Resets every Monday. You compete with friends who pick the same goal.')}</div>
+    <div class="cht-g">${t[4].map((g,i)=>`<button class="btn ${i===1?'':'ghost'}" onclick="A.chStart('x:${k}:${g}')">${g.toLocaleString('tr-TR')} ${t[5]}<small>${[TT('Kolay','Easy'),TT('Orta','Medium'),TT('Zor','Hard')][i]}</small></button>`).join('')}</div>`)},
+  chStart(id){closeSheet();const c=new Set((S.social&&S.social.ch)||[]);c.add(id);S.social={...(S.social||{}),ch:[...c].slice(-8)};SOC.lastPush=null;save();socPush();ui.frTab='chal';render(true);toast(TT('✓ Meydan okuma başladı','✓ Challenge started'));setTimeout(()=>A.chInvite(id),350)},
+  chInvite(id){const x=chT(id),fr=(S.friends||[]).filter(f=>f.uid);if(!x)return;if(!fr.length){toast(TT('Önce arkadaş ekle','Add a friend first'));return}
+    sheet(`<h3>${TT('Arkadaşlarını davet et','Invite friends')}</h3><div class="lbl" style="margin:-6px 0 12px">${TT(`Haftada ${x.goal.toLocaleString('tr-TR')} ${x.t[5]} ${x.t[1]}`,`${x.goal} ${x.t[2]} this week`)}</div>
+     ${fr.map(f=>`<button class="btn ghost" style="margin-bottom:8px;text-align:left" onclick="A.chSend('${id}','${f.uid}',this)">${esc(f.name||f.username||'')}</button>`).join('')}`)},
+  async chSend(id,fid,btn){const x=chT(id);if(btn)btn.disabled=true;const ok=await inboxSend(fid,{type:'chal',ref:id,msg:`Haftada ${x.goal.toLocaleString('tr-TR')} ${x.t[5]} ${x.t[1]}`});
+    if(btn){btn.textContent=(ok?'✓ ':'✕ ')+btn.textContent}if(!ok)toast(TT('Gönderilemedi','Could not send'))},
   chJoin(id){const c=new Set((S.social&&S.social.ch)||[]);c.has(id)?c.delete(id):c.add(id);S.social={...(S.social||{}),ch:[...c]};SOC.lastPush=null;save();socPush();render(true)},
   plike(pid,fid){return A._lk(fid,pid,'paylaşımını beğendi')},
   story(uid){const me=uid==='me'||uid===SOC.me,id=me?SOC.me:uid,L=(SOC.posts||[]).filter(p=>p.uid===id).sort((a,b)=>a.at-b.at);if(!L.length)return;
