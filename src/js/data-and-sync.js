@@ -184,7 +184,7 @@ const imgSm=async b=>{if(typeof b==='string')return b;try{const bm=await createI
 const GEMS={gem:1,limits:async()=>({images:true}),async json(prompt,opt={}){const C=window.HM_CONFIG||{},w=((C.push||{}).worker)||'';if(!w)throw{code:'not_granted'};
   const images=await Promise.all((opt.images||[]).slice(0,4).map(imgSm));
   const r=await fetch(w+'/ai',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({key:(C.push||{}).key,prompt,images})});const j=await r.json().catch(()=>({}));
-  if(!r.ok){if(j.error==='no_key'){ui.gemDown=1}throw{code:r.status===429?'rate_limited':j.error==='no_key'?'gem_off':'gem_err',detail:j.detail||j.error}}
+  if(!r.ok){if(j.error==='no_key'){ui.gemDown=1}throw{code:r.status===429?'rate_limited':j.error==='no_key'?'gem_off':j.error==='busy'?'gem_busy':'gem_err',detail:j.detail||j.error}}
   const t=String(j.text||''),m=t.match(/\{[\s\S]*\}/);return JSON.parse(m?m[0]:t)},
   async complete(prompt,opt){return{text:JSON.stringify(await GEMS.json(prompt,opt))}}};
 Object.defineProperty(CL,'sample',{configurable:true,get(){return this._smp||(!ui.gemDown&&((window.HM_CONFIG||{}).push||{}).worker?GEMS:null)},set(v){this._smp=v}});

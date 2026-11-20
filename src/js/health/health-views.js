@@ -344,7 +344,7 @@ async function askAI(prompt,{tier='default'}={}){
   if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){}}
   return v;
 }
-function aiErr(e){const c=e&&e.code;if(e&&e.detail)console.warn('ai',e.detail);toast(c==='gem_err'&&e.detail?TT('AI hatası: ','AI error: ')+String(e.detail).slice(0,90):c==='rate_limited'?'Çok sık istek: biraz sonra tekrar dene':c==='gem_off'?TT('Yapay zekâ henüz kurulmadı (Gemini anahtarı yok)','AI is not set up yet (no Gemini key)'):c==='not_granted'?'AI izni verilmedi':'AI yanıt veremedi, tekrar dene')}
+function aiErr(e){const c=e&&e.code;if(e&&e.detail)console.warn('ai',e.detail);toast(c==='gem_busy'?TT('Yapay zekâ şu an çok yoğun, birazdan tekrar dene','AI is busy right now, try again shortly'):c==='gem_err'&&e.detail?TT('AI hatası: ','AI error: ')+String(e.detail).slice(0,90):c==='rate_limited'?'Çok sık istek: biraz sonra tekrar dene':c==='gem_off'?TT('Yapay zekâ henüz kurulmadı (Gemini anahtarı yok)','AI is not set up yet (no Gemini key)'):c==='not_granted'?'AI izni verilmedi':'AI yanıt veremedi, tekrar dene')}
 const GOALTXT=()=>{const p=S.profile,k=Math.round(rateKg(p)*100)/100;return p.applied?(p.goal==='cut'?`definasyon (haftada ~${k} kg, vücut ağırlığının %${p.pct})`:p.goal==='bulk'?`kas kazanımı / bulk (haftada +${k} kg, vücut ağırlığının %${p.pct})`:'kilo koruma'):'belirtilmemiş (hedef ayarlanmamış)'};
 const r1=x=>Math.round(x*10)/10;
 function daySummary(d){
