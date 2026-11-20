@@ -11,6 +11,8 @@ window.HM_CONFIG = {
   },
   // Yasal iletişim (aydınlatma metni ve şikayetler için). E-posta eklemen önerilir (KVKK başvuruları için).
   contact: { name: "Yasin Doğru", email: "ysndogru54@gmail.com", github: "https://github.com/Yasindogruu/HypeMode/issues" },
+  // iPhone Kestirmeler: Apple Sağlık verisini gönderen kestirmenin iCloud paylaşım bağlantısı (https://www.icloud.com/shortcuts/...)
+  shortcut: "",
   // 2) İsteğe bağlı: kapalıyken bildirim. Cloudflare Worker adresini "worker" alanına yapıştır.
   push: {
     worker: "https://hypemode-push.ysndogru54.workers.dev",
