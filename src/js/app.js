@@ -242,10 +242,6 @@ function programsV(){
    <div class="st-top"><div class="st-title">Antrenman</div></div>
    ${wkPanel()}
    ${tpEntry()}
-   ${n?`<div class="nx"><div class="nx-k">Sıradaki antrenman</div><div class="nx-t">${esc(n.name)}</div><div class="nx-tags">${gTags(ng)}</div>
-     <div class="nx-m">${n.exercises.length} egzersiz · ${planSets(n)} set · ~${planMin(n)} dk${nl?' · son: '+ago(nl.date):''}</div>
-     <div class="nx-a"><button class="btn" onclick="A.openPlan('${n.id}')">▶ Başla</button><button class="btn ghost" onclick="A.pickPlan()">Değiştir</button></div></div>`
-   :`<div class="nx"><div class="nx-t">${TT('Henüz programın yok','No program yet')}</div><div class="nx-m">${TT('Hedefine ve seviyene göre programını oluştur; antrenman günlerin burada sırayla çıkar.','Build your program; your training days appear here in order.')}</div><div class="nx-a"><button class="btn" onclick="A.go('tprog')">${TT('Program oluştur','Build program')}</button></div></div>`}
    </div>
   <div class="st-hero2">
    <div class="loc-sw"><button class="${S.settings.loc!=='home'?'on':''}" onclick="A.setLoc('gym')">Salon</button><button class="${S.settings.loc==='home'?'on':''}" onclick="A.setLoc('home')">Ev</button></div>
@@ -287,7 +283,7 @@ function planV(){
     return `<button class="pex" onclick="A.exInfo('${ja(e.name)}')"><span class="gx-b">${bodyMini(e.name,e.muscle,30)}<em>${i+1}</em></span>
      <span class="pex-b"><b>${e.t?'⏱ ':''}${esc(e.name)}</b><small>${e.tr?esc(e.tr)+' · ':''}${MUSCLES[e.muscle]||''}${l?' · son: '+l:''}</small>${e.ss||e.wu||(e.last&&e.last!=='n')?`<span class="ptags">${e.ss?`<i class="ssb">🔗 ${e.ss}</i>`:''}${e.wu?`<i style="--c:${STY.w.c}">${e.wu} ısınma</i>`:''}${e.last&&e.last!=='n'?`<i style="--c:${STY[e.last].c}">son set: ${STY[e.last].n.toLocaleLowerCase('tr-TR')}</i>`:''}</span>`:''}</span><span class="pex-r">${e.sets} × ${rr(e)}</span></button>`}).join('')}</div>
   <div class="pad pv-act">${p.archived?`<button class="pill" onclick="A.arch('${p.id}',false);A.openPlan('${p.id}','${ui.planBack||'programs'}')">Rotasyona al</button>`
-    :`${isN?'':`<button class="pill" onclick="A.setNext('${p.id}');render(true)">Sıradaki yap</button>`}<button class="pill" onclick="A.arch('${p.id}',true);A.go('programs')">Arşivle</button>`}
+    :`<button class="pill" onclick="A.arch('${p.id}',true);A.go('programs')">Arşivle</button>`}
     <button class="pill" onclick="A.editPlan('${p.id}')">Düzenle</button></div>
   <div class="bottom-cta"><button class="btn" onclick="A.start('${p.id}')">▶ Antrenmanı başlat</button></div>`;
 }
@@ -435,7 +431,7 @@ function planCard(p,n){const isN=n&&n.id===p.id,open=ui.planOpen[p.id];
    <button class="exbtn ${open?'on':''}" onclick="A.planToggle('${p.id}')">💪 Hareketler (${p.exercises.length}) <span>${open?'▴':'▾'}</span></button>
    ${open?`<div class="exl">${p.exercises.map((e,i)=>`<div class="exr"><span class="exn">${i+1}</span><div style="flex:1">${exRowTxt(e)}</div><span class="lbl">${e.sets} × ${rr(e)}</span></div>`).join('')}</div>`:''}
    <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap"><button class="pill" onclick="A.openPlan('${p.id}')">▶ Başlat</button>
-    ${p.archived?`<button class="pill" onclick="A.arch('${p.id}',false)">Rotasyona al</button>`:`${isN?'':`<button class="pill" onclick="A.setNext('${p.id}')">Sıradaki yap</button>`}<button class="pill" onclick="A.arch('${p.id}',true)">Arşivle</button>`}
+    ${p.archived?`<button class="pill" onclick="A.arch('${p.id}',false)">Rotasyona al</button>`:`<button class="pill" onclick="A.arch('${p.id}',true)">Arşivle</button>`}
     <button class="pill" onclick="A.editPlan('${p.id}')">Düzenle</button></div></div>`}
 function exRowTxt(e){const a=e.alt?altP(e.alt):null;
   return `${e.t?'<span class="tbadge">⏱</span>':''}${e.tr?`<b style="font-weight:600">${esc(e.name)}</b><small>${esc(e.tr)} · ${MUSCLES[e.muscle]||''}${e.t?' · süreli':e.fix?` · ${fmt(e.fix)} kg`:e.fix===0?' · bant/vücut ağ.':''}</small>`:`${esc(e.name)}<small>${MUSCLES[e.muscle]||''}</small>`}${a?`<small class="altl">↔ Alternatif: ${a.t?'⏱ ':''}${esc(a.en)}${a.tr?` <i>(${esc(a.tr)})</i>`:''}</small>`:''}`}
